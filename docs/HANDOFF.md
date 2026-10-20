@@ -169,3 +169,7 @@ Navigasi mengikuti bagian 17 PRD, izin dan status rilis. Modul belum tersedia di
 ## Backend API 21 Oktober — kehadiran dan ledger
 
 API roster/clocking, koreksi, swap berurutan, cuti dengan reservasi/ledger/reversal, lembur aktual serta review/close dengan snapshot tersedia. Full suite PostgreSQL: 141 tests / 2137 assertions; Pint dan diff check lulus. Tidak ada fresh pada database pengembang. Lihat ATTENDANCE_LEAVE_BACKEND.md untuk aturan dan sisa cakupan. UI statis belum tersambung; seluruh backend belum selesai. Tahap berikut profil sensitif, dokumen/lifecycle/aset, payroll, impor/report dan demo terisolasi.
+
+## Profil sensitif dan suspension API
+
+Lima tes profil privat lulus (68 assertions); identity/account regression 25 tests lulus sebelum tambahan uniqueness test. API memisahkan verifikasi HR dan Finance, enkripsi data/revisi, HMAC identifier unik, optimistic version dan custom fields bertipe. Suspension management dan account access API memakai MFA, idempotensi, security-version dan perlindungan admin terakhir. Detail PRIVATE_PROFILES.md. Belum menyelesaikan seluruh backend.

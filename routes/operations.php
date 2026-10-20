@@ -1,15 +1,23 @@
 <?php
 
+use App\Http\Controllers\AccountAdministrationController;
 use App\Http\Controllers\AttendanceCloseController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\OperationsHealthController;
 use App\Http\Controllers\PrivateFileController;
+use App\Http\Controllers\PrivateProfileController;
 use App\Http\Controllers\WorkflowController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::post('/accounts/{id}/access', [AccountAdministrationController::class, 'access'])->whereNumber('id');
+    Route::post('/accounts/{id}/suspensions', [AccountAdministrationController::class, 'suspend'])->whereNumber('id');
+    Route::post('/account-suspensions/{id}/revoke', [AccountAdministrationController::class, 'revoke'])->whereNumber('id');
+    Route::get('/employees/{id}/private-profile/{category}', [PrivateProfileController::class, 'show'])->whereNumber('id');
+    Route::get('/requests/{id}/proposed-profile', [PrivateProfileController::class, 'proposed'])->whereNumber('id');
+    Route::post('/profile-fields', [PrivateProfileController::class, 'field']);
     Route::get('/operations/health', [OperationsHealthController::class, 'index'])->name('operations.health');
     Route::post('/operations/deliveries/{id}/retry', [OperationsHealthController::class, 'retry'])->whereNumber('id')->name('operations.retry');
     Route::post('/attendance-periods', [AttendanceCloseController::class, 'create'])->name('attendance-periods.store');

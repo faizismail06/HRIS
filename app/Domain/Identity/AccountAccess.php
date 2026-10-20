@@ -19,7 +19,8 @@ class AccountAccess
             $old = $target->grants()->get(['role', 'scope', 'branch_id', 'department_id'])->toArray();
             $wasAdmin = $target->is_active && collect($old)->contains(fn ($g) => $g['role'] === 'platform_admin' && $g['scope'] === 'company');
             $staysAdmin = $active && collect($grants)->contains(fn ($g) => $g['role'] === 'platform_admin' && $g['scope'] === 'company');
-            if ($wasAdmin && ! $staysAdmin && ! User::query()->where('is_active', true)->whereKeyNot($target->id)->whereHas('grants', fn ($q) => $q->where('role', 'platform_admin')->where('scope', 'company'))->exists()) {
+            $otherAdmin = User::query()->where('is_active', true)->whereKeyNot($target->id)->whereHas('grants', fn ($q) => $q->where('role', 'platform_admin')->where('scope', 'company'))->get()->contains(fn ($u) => AccountSecurity::available($u) && ! DB::table('account_suspensions')->where('user_id', $u->id)->whereNull('revoked_at')->exists());
+            if ($wasAdmin && ! $staysAdmin && ! $otherAdmin) {
                 throw ValidationException::withMessages(['grants' => 'Admin platform aktif terakhir tidak dapat dicabut.']);
             }
             $target->grants()->delete();

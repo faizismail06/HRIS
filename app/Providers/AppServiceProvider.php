@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Domain\Attendance\CorrectionHandler;
 use App\Domain\Attendance\OvertimeHandler;
 use App\Domain\Attendance\SwapHandler;
+use App\Domain\CoreHR\ProfileChangeHandler;
+use App\Domain\CoreHR\SensitiveProfiles;
 use App\Domain\Leave\LeaveCancellationHandler;
 use App\Domain\Leave\LeaveHandler;
 use App\Domain\Operations\Clock;
@@ -21,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(WorkflowRegistry::class);
         $this->app->bind(Clock::class, SystemClock::class);
+        foreach (['general', 'identity', 'bank', 'tax'] as $category) {
+            $this->app->bind('workflow.profile.'.$category, fn ($app) => new ProfileChangeHandler($app->make(SensitiveProfiles::class), $category));
+        }
     }
 
     /**
@@ -33,5 +38,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->make(WorkflowRegistry::class)->register('leave_cancel', LeaveCancellationHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('overtime', OvertimeHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('swap', SwapHandler::class);
+        foreach (['profile_change' => 'general', 'identity_change' => 'identity', 'bank_change' => 'bank', 'tax_change' => 'tax'] as $kind => $category) {
+            $this->app->make(WorkflowRegistry::class)->register($kind, 'workflow.profile.'.$category);
+        }
     }
 }

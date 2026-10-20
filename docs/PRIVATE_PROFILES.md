@@ -1,0 +1,11 @@
+# Profil privat dan administrasi akses
+
+Workflow profile_change (general), identity_change, bank_change dan tax_change memerlukan employee_id, category yang sesuai kind, base_version (0 saat belum ada), data whitelisted dan reason. Perubahan general mengganti snapshot kategori lengkap, bukan patch tersembunyi. Field organisasi/kompensasi tidak diterima. Self hanya employee grant miliknya; HR scope mengajukan general/identity; Payroll/Finance scope mengajukan bank/tax. General/identity ditinjau HR Admin, bank/tax Finance Approver berbeda pengaju/subjek. Definisi workflow harus dibuat terlebih dahulu.
+
+Nilai, alasan request, dan revisi before/after dienkripsi. Audit umum menyimpan kategori/field/version, bukan nilai privat. Nomor identitas nasional Indonesia menggunakan 16 digit dan HMAC keyed untuk unik lintas employee; rehire memakai person lama. Rotasi APP_KEY memerlukan re-encryption dan re-index HMAC terencana; jangan mengganti kunci tanpa prosedur pemulihan. Bank details menjadi verified hanya sesudah approval. Tidak ada integrasi verifikasi bank eksternal.
+
+GET employees/{id}/private-profile/{category} serta requests/{id}/proposed-profile berada di /app/api, no-store dan diaudit. Pemilik/HR scope hanya dapat membaca kategori general/identity; pemilik/Payroll/Finance scope bank/tax. Platform Admin, Auditor dan Manager tidak otomatis mendapat akses. Summary workflow tidak memuat nilai lengkap. Custom fields dibuat HR Admin: text/integer/date/boolean/select, maksimal30 nilai, hanya kategori general dengan izin HR; tidak menerima tipe kode atau formula.
+
+Platform Admin company dapat POST accounts/{id}/access (expected_version adalah security_version), accounts/{id}/suspensions, dan account-suspensions/{id}/revoke. Suspensi bertanggal, alasan terenkripsi, tidak mengubah employment/absence; token sesi lama ditolak melalui security_version. Admin platform terakhir yang tersedia dilindungi. Pengelolaan akun tidak memberi akses implisit ke data pegawai. Provisioning awal masih melalui command tepercaya yang didokumentasikan di IDENTITY_FOUNDATION.md.
+
+Upload evidence request memakai berkas privat bersama; malware scanner belum dikonfigurasi. API bukan bukti seluruh form preview sudah terintegrasi. Peraturan profil khusus, mandat auditor dan migrasi data historis masih memerlukan konfigurasi/acceptance perusahaan.

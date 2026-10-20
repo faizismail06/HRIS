@@ -7,8 +7,10 @@ use App\Http\Controllers\PrototypeEmploymentController;
 use App\Http\Controllers\PrototypeFinanceController;
 use App\Http\Controllers\PrototypeLifecycleController;
 use App\Http\Controllers\PrototypePeopleController;
+use App\Http\Controllers\PrototypePortalController;
 use App\Http\Controllers\PrototypeReportsController;
 use App\Http\Controllers\PrototypeRequestsController;
+use App\Http\Controllers\PrototypeScreensController;
 use App\Http\Controllers\PrototypeWorkspaceController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +55,10 @@ if (app()->environment(['local', 'testing'])) {
         Route::get('/notifications', [PrototypeWorkspaceController::class, 'notifications'])->name('notifications');
         Route::get('/notifications/{notification}', [PrototypeWorkspaceController::class, 'notification'])->name('notifications.show');
         Route::get('/search', [PrototypeWorkspaceController::class, 'search'])->name('search');
+        Route::get('/portals/{persona}', PrototypePortalController::class)->name('portal');
+        Route::get('/screens', [PrototypeScreensController::class, 'index'])->name('screens');
+        Route::get('/screens/{screen}', [PrototypeScreensController::class, 'form'])->name('screen');
+        Route::get('/states/{state}', [PrototypeScreensController::class, 'state'])->name('state');
         foreach (['contracts', 'letters', 'career-changes'] as $kind) {
             Route::get('/'.$kind, [PrototypeEmploymentController::class, 'index'])->defaults('kind', $kind)->name($kind);
             Route::get('/'.$kind.'/{record}', [PrototypeEmploymentController::class, 'show'])->defaults('kind', $kind)->name($kind.'.show');

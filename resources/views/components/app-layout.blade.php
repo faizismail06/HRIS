@@ -1,4 +1,4 @@
-@props(['title', 'active' => 'dashboard', 'dashboard' => false])
+@props(['title', 'active' => 'dashboard', 'dashboard' => false, 'persona' => 'Tim HR', 'initials' => 'HR', 'navigation' => null])
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -14,22 +14,26 @@
         <div class="header-inner">
             <a class="brand" href="{{ route('prototype.dashboard') }}" aria-label="Operational HRIS, ringkasan"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>hris<span class="brand-dot">.</span></span></a>
             <nav class="workspace-nav" aria-label="Navigasi ruang kerja">
+                @if($navigation)
+                    @foreach($navigation as $destination)<a href="{{ route($destination['route'], $destination['parameters']) }}" class="nav-item {{ ($destination['current'] ?? false) ? 'is-current' : '' }}" @if($destination['current'] ?? false) aria-current="page" @endif>{{ $destination['label'] }}</a>@endforeach
+                @else
                 @foreach(['dashboard' => 'Ringkasan', 'employees' => 'Karyawan', 'organization' => 'Organisasi', 'attendance' => 'Kehadiran', 'requests' => 'Pengajuan', 'contracts' => 'Administrasi', 'payroll' => 'Keuangan'] as $page => $label)
                     <a href="{{ route('prototype.'.$page) }}" class="nav-item {{ $active === $page ? 'is-current' : '' }}" @if($active === $page) aria-current="page" @endif>{{ $label }}</a>
                 @endforeach
+                @endif
             </nav>
-            <div class="persona"><span class="avatar avatar-hr" aria-hidden="true">HR</span><span><strong>Tim HR</strong><small>Persona sintetis</small></span></div>
+            <div class="persona"><span class="avatar avatar-hr" aria-hidden="true">{{ $initials }}</span><span><strong>{{ $persona }}</strong><small>Persona sintetis</small></span></div>
         </div>
     </header>
     <div class="workspace">
         <main id="main" tabindex="-1">
-            <nav class="workspace-tools" aria-label="Alat ruang kerja"><a href="{{ route('prototype.search') }}" @if($active === 'search') aria-current="page" @endif><x-icon name="search" size="16"/>Pencarian</a><a href="{{ route('prototype.notifications') }}" aria-label="Notifikasi, {{ \App\Support\PrototypeWorkspace::unread() }} belum dibaca dalam contoh" @if($active === 'notifications') aria-current="page" @endif>Notifikasi <span class="nav-count" aria-hidden="true">{{ \App\Support\PrototypeWorkspace::unread() }}</span></a></nav>
+            <nav class="workspace-tools" aria-label="Alat ruang kerja"><a class="preview-catalog-link" href="{{ route('prototype.screens') }}">Panduan semua layar statis <x-icon name="arrow" size="15"/></a><a href="{{ route('prototype.search') }}" @if($active === 'search') aria-current="page" @endif><x-icon name="search" size="16"/>Pencarian</a><a href="{{ route('prototype.notifications') }}" aria-label="Notifikasi, {{ \App\Support\PrototypeWorkspace::unread() }} belum dibaca dalam contoh" @if($active === 'notifications') aria-current="page" @endif>Notifikasi <span class="nav-count" aria-hidden="true">{{ \App\Support\PrototypeWorkspace::unread() }}</span></a></nav>
             <div class="preview-notice"><x-icon name="info" size="17"/><p><strong>Prototipe UI</strong><span class="notice-divider">·</span>Data sintetis. Pratinjau ini tidak mengubah catatan HR.</p><a href="#tentang">Pelajari batasnya <x-icon name="arrow" size="15"/></a></div>
             @if($errors->any())
                 <div class="form-errors" role="alert"><strong>Filter belum dapat diterapkan.</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>
             @endif
             {{ $slot }}
-            <footer id="tentang" class="preview-footer"><details><summary><x-icon name="info" size="16"/>Tentang prototipe ini<x-icon name="chevron" size="14"/></summary><div><p>Semua nama, profil, jumlah, tugas dan jadwal adalah data sintetis dengan tanggal acuan 20 Oktober 2026. Daftar 12 profil merupakan cuplikan terpisah dari agregat contoh di dashboard; keduanya bukan satu dataset operasional.</p><p>Persona HR bukan akun login. Halaman ini hanya baca saja; administrasi karyawan, persetujuan, payroll dan isolasi demo operasional belum diimplementasikan. Tidak ada identitas pribadi, rekening atau dokumen medis nyata.</p></div></details><span>Operational HRIS · Pratinjau antarmuka</span></footer>
+            <footer id="tentang" class="preview-footer"><details><summary><x-icon name="info" size="16"/>Tentang prototipe ini<x-icon name="chevron" size="14"/></summary><div><p>Semua nama, profil, jumlah, tugas dan jadwal adalah data sintetis dengan tanggal acuan 20 Oktober 2026. Daftar 12 profil merupakan cuplikan terpisah dari agregat contoh di dashboard; keduanya bukan satu dataset operasional.</p><p>Persona yang ditampilkan bukan akun login. Halaman ini hanya baca saja; administrasi karyawan, persetujuan, payroll dan isolasi demo operasional belum diimplementasikan. Tidak ada identitas pribadi, rekening atau dokumen medis nyata.</p></div></details><span>Operational HRIS · Pratinjau antarmuka</span></footer>
         </main>
     </div>
 </body>

@@ -485,6 +485,32 @@
 @media (max-width: 760px) { .header-inner { gap: 0; } .workspace-nav { flex-wrap: wrap; gap: 0 18px; } .balance-equation { padding: 21px 20px; gap: 10px 12px; font-size: 12px; } .balance-equation strong { flex-basis: 100%; padding-top: 4px; } .calendar-privacy { padding-inline: 20px; font-size: 11px; } }
 @media (max-width: 400px) { .workspace-nav { gap: 0 8px; } }
 
+/* Static screen catalog: disabled controls show designs without accepting data. */
+.preview-catalog-link { margin-right: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--accent); font-size: 12px; }
+.screen-link-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.screen-link-list li { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 22px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.screen-link-list a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-size: 13px; }
+.static-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.static-confirmation { max-width: 65ch; margin-top: 24px; }
+.static-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 22px 28px; padding-top: 26px; }
+.static-field label { display: block; margin-bottom: 8px; font-size: 13px; font-weight: 550; }
+.static-field label span, .static-field-help { color: var(--muted); font-size: 12px; font-weight: 400; }
+.static-field input, .static-field select, .static-field textarea { width: 100%; min-width: 0; min-height: 44px; border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; font: inherit; color: var(--ink); background: var(--ground); opacity: 1; -webkit-text-fill-color: var(--ink); }
+.static-field textarea { resize: vertical; }
+.static-field [aria-invalid] { border-color: var(--urgent); }
+.static-field .static-field-error { color: var(--urgent); font-size: 12px; margin-top: 8px; }
+.static-field .static-field-help { margin-top: 8px; }
+.field-wide { grid-column: 1 / -1; }
+.static-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+.hris-app main.auth-preview { max-width: 650px; padding-top: 48px; }
+.auth-preview .static-form-grid { grid-template-columns: 1fr; }
+.auth-preview .profile-fields { grid-template-columns: 1fr; }
+.auth-preview > .history-note { margin-top: 28px; }
+.static-skeleton { display: grid; gap: 14px; padding-top: 26px; max-width: 65ch; }
+.static-skeleton span { display: block; height: 16px; background: var(--line); border-radius: 7px; }
+.static-skeleton span:last-child { width: 65%; }
+@media (max-width: 760px) { .static-form-grid { grid-template-columns: 1fr; } .static-actions > button { flex: 1 1 100%; } }
+
 /* Workspace utilities remain visible without adding global destinations. */
 .workspace-tools { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 0 20px; }
 .workspace-tools a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--accent); font-size: 12px; text-decoration: none; }

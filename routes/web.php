@@ -6,6 +6,7 @@ use App\Http\Controllers\PrototypeEmploymentController;
 use App\Http\Controllers\PrototypeFinanceController;
 use App\Http\Controllers\PrototypeLifecycleController;
 use App\Http\Controllers\PrototypePeopleController;
+use App\Http\Controllers\PrototypeReportsController;
 use App\Http\Controllers\PrototypeRequestsController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
 use Illuminate\Support\Facades\Route;
@@ -40,6 +41,9 @@ if (app()->environment(['local', 'testing'])) {
         Route::get('/payroll/{batch}/payslips/{employee}', [PrototypeFinanceController::class, 'payslip'])->name('payroll.payslip');
         Route::get('/reimbursements', [PrototypeFinanceController::class, 'claims'])->name('reimbursements');
         Route::get('/reimbursements/{claim}', [PrototypeFinanceController::class, 'claim'])->name('reimbursements.show');
+        Route::get('/attendance-reports', [PrototypeReportsController::class, 'report'])->name('attendance-reports');
+        Route::get('/attendance-periods', [PrototypeReportsController::class, 'periods'])->name('attendance-periods');
+        Route::get('/attendance-periods/{period}', [PrototypeReportsController::class, 'period'])->name('attendance-periods.show');
         foreach (['contracts', 'letters', 'career-changes'] as $kind) {
             Route::get('/'.$kind, [PrototypeEmploymentController::class, 'index'])->defaults('kind', $kind)->name($kind);
             Route::get('/'.$kind.'/{record}', [PrototypeEmploymentController::class, 'show'])->defaults('kind', $kind)->name($kind.'.show');

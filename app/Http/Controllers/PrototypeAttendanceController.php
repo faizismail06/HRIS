@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Support\PrototypeAttendance;
+use App\Support\PrototypePeople;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -18,10 +19,12 @@ class PrototypeAttendanceController extends Controller
             'branch' => ['nullable', Rule::in(['Jakarta', 'Bandung', 'Surabaya'])],
             'employee' => ['nullable', Rule::in(PrototypeAttendance::employeeIds())],
             'status' => ['nullable', Rule::in(array_keys(PrototypeAttendance::statuses()))],
-            'from' => ['nullable', Rule::in(['attendance', 'schedules'])],
+            'from' => ['nullable', Rule::in(['attendance', 'schedules', 'reports'])],
+            'report_week' => ['nullable', Rule::in(['2026-10-12', '2026-10-19'])],
+            'department' => ['nullable', Rule::in(array_keys(PrototypePeople::departments()))],
         ]);
 
-        return array_merge(['date' => '2026-10-19', 'week' => '2026-10-19', 'branch' => '', 'employee' => '', 'status' => '', 'from' => 'attendance'], array_filter($input, fn ($value) => $value !== null && $value !== ''));
+        return array_merge(['date' => '2026-10-19', 'week' => '2026-10-19', 'branch' => '', 'employee' => '', 'status' => '', 'from' => 'attendance', 'report_week' => '2026-10-19', 'department' => ''], array_filter($input, fn ($value) => $value !== null && $value !== ''));
     }
 
     private function common(array $filters): array
@@ -65,6 +68,14 @@ class PrototypeAttendanceController extends Controller
         abort_unless($item, 404);
         $filters = $this->filters($request);
         $fromSchedule = $filters['from'] === 'schedules';
+
+        if ($filters['from'] === 'reports') {
+            return view('attendance.show', [
+                'record' => $item, 'backRoute' => 'prototype.attendance-reports',
+                'backFilters' => ['week' => $filters['report_week'], 'branch' => $filters['branch'], 'department' => $filters['department'], 'employee' => $filters['employee']],
+                'backLabel' => 'Kembali ke laporan',
+            ]);
+        }
 
         return view('attendance.show', [
             'record' => $item,

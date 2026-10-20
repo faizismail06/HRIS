@@ -23,6 +23,10 @@ class Employee extends Model
     {
         $period = $this->periods()->where('starts_on', '<=', $date)->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>', $date))->first();
         if ($period) {
+            if ($period->activation_state === 'pending') {
+                return 'PREBOARDING';
+            }
+
             return $period->offboarding ? 'OFFBOARDING' : 'ACTIVE';
         }
 

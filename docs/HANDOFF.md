@@ -173,3 +173,7 @@ API roster/clocking, koreksi, swap berurutan, cuti dengan reservasi/ledger/rever
 ## Profil sensitif dan suspension API
 
 Lima tes profil privat lulus (68 assertions); identity/account regression 25 tests lulus sebelum tambahan uniqueness test. API memisahkan verifikasi HR dan Finance, enkripsi data/revisi, HMAC identifier unik, optimistic version dan custom fields bertipe. Suspension management dan account access API memakai MFA, idempotensi, security-version dan perlindungan admin terakhir. Detail PRIVATE_PROFILES.md. Belum menyelesaikan seluruh backend.
+
+## Dokumen, lifecycle dan aset — backend API
+
+Full suite PostgreSQL lulus 152 tests / 2303 assertions; Pint, composer validate --strict, composer check-platform-reqs dan diff check lulus. PDF privat immutable, nomor transaksi, kontrak as-of/nonoverlap/reminder, rehire/activation gate, scheduled exit/runtime revoke dan asset custody/settlement tersedia. Batasan acceptance dicatat pada DOCUMENTS_LIFECYCLE.md. PHP CLI ZIP diaktifkan untuk dukungan spreadsheet; proses web yang sudah berjalan perlu restart agar extension ikut termuat. Tidak ada akun/data produksi atau email nyata yang dibuat. Seluruh backend belum selesai; payroll/impor/demo serta kelengkapan R1/R2 masih dilanjutkan.

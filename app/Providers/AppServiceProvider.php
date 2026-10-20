@@ -7,8 +7,12 @@ use App\Domain\Attendance\OvertimeHandler;
 use App\Domain\Attendance\SwapHandler;
 use App\Domain\CoreHR\ProfileChangeHandler;
 use App\Domain\CoreHR\SensitiveProfiles;
+use App\Domain\Documents\ContractHandler;
+use App\Domain\Documents\LetterHandler;
 use App\Domain\Leave\LeaveCancellationHandler;
 use App\Domain\Leave\LeaveHandler;
+use App\Domain\Lifecycle\OffboardingHandler;
+use App\Domain\Lifecycle\OnboardingHandler;
 use App\Domain\Operations\Clock;
 use App\Domain\Operations\SystemClock;
 use App\Domain\Workflow\WorkflowRegistry;
@@ -38,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->make(WorkflowRegistry::class)->register('leave_cancel', LeaveCancellationHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('overtime', OvertimeHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('swap', SwapHandler::class);
+        $this->app->make(WorkflowRegistry::class)->register('letter', LetterHandler::class);
+        $this->app->make(WorkflowRegistry::class)->register('contract', ContractHandler::class);
+        $this->app->make(WorkflowRegistry::class)->register('onboarding', OnboardingHandler::class);
+        $this->app->make(WorkflowRegistry::class)->register('offboarding', OffboardingHandler::class);
         foreach (['profile_change' => 'general', 'identity_change' => 'identity', 'bank_change' => 'bank', 'tax_change' => 'tax'] as $kind => $category) {
             $this->app->make(WorkflowRegistry::class)->register($kind, 'workflow.profile.'.$category);
         }

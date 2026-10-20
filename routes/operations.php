@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\AccountAdministrationController;
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AttendanceCloseController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\OperationsHealthController;
 use App\Http\Controllers\PrivateFileController;
 use App\Http\Controllers\PrivateProfileController;
@@ -12,6 +15,20 @@ use App\Http\Controllers\WorkflowController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::post('/lifecycle-templates', [LifecycleController::class, 'template']);
+    Route::post('/onboarding-cases', [LifecycleController::class, 'onboarding']);
+    Route::get('/lifecycle-cases/{id}', [LifecycleController::class, 'show'])->whereNumber('id');
+    Route::post('/lifecycle-tasks/{id}', [LifecycleController::class, 'task'])->whereNumber('id');
+    Route::get('/assets', [AssetController::class, 'index']);
+    Route::post('/assets', [AssetController::class, 'store']);
+    Route::get('/my-assets', [AssetController::class, 'mine']);
+    Route::post('/assets/{id}/issue', [AssetController::class, 'issue'])->whereNumber('id');
+    Route::post('/asset-custodies/{id}/accept', [AssetController::class, 'accept'])->whereNumber('id');
+    Route::post('/asset-custodies/{id}/return', [AssetController::class, 'returnAsset'])->whereNumber('id');
+    Route::post('/consumable-issues', [AssetController::class, 'consumable']);
+    Route::post('/document-templates', [DocumentController::class, 'template']);
+    Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->whereNumber('id');
+    Route::get('/employees/{id}/contracts', [DocumentController::class, 'contracts'])->whereNumber('id');
     Route::post('/accounts/{id}/access', [AccountAdministrationController::class, 'access'])->whereNumber('id');
     Route::post('/accounts/{id}/suspensions', [AccountAdministrationController::class, 'suspend'])->whereNumber('id');
     Route::post('/account-suspensions/{id}/revoke', [AccountAdministrationController::class, 'revoke'])->whereNumber('id');

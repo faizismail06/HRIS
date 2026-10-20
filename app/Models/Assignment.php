@@ -17,7 +17,7 @@ class Assignment extends Model
 
     public function scopeAt(Builder $query, string $date): Builder
     {
-        return $query->where('valid_from', '<=', $date)->where(fn ($q) => $q->whereNull('valid_to')->orWhere('valid_to', '>', $date));
+        return $query->whereNull('superseded_at')->where('valid_from', '<=', $date)->where(fn ($q) => $q->whereNull('valid_to')->orWhere('valid_to', '>', $date));
     }
 
     public function branch(): BelongsTo

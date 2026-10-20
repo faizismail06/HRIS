@@ -9,6 +9,9 @@ class AccountSecurity
 {
     public static function available(User $user): bool
     {
+        if ($user->employee_id && $user->employee->statusAt(today()->toDateString()) === 'PREBOARDING' && $user->employee->periods()->where('activation_state', 'pending')->exists()) {
+            return false;
+        }
         if (DB::table('account_suspensions')->where('user_id', $user->id)->whereNull('revoked_at')->where('starts_at', '<=', now())->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))->exists()) {
             return false;
         }

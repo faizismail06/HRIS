@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Domain\Documents\ContractReminders;
+use App\Domain\Lifecycle\EmploymentRevocations;
 use App\Domain\Operations\Outbox;
 use App\Jobs\DeliverOutbox;
 use App\Models\User;
@@ -17,6 +19,8 @@ class DispatchOperations extends Command
 
     public function handle(): int
     {
+        app(ContractReminders::class)->dispatch();
+        app(EmploymentRevocations::class)->reconcile();
         foreach (WorkflowStep::whereIn('status', ['pending', 'blocked'])->where('due_at', '<=', now())->get() as $step) {
             DB::transaction(function () use ($step) {
                 DB::table('companies')->where('id', 1)->lockForUpdate()->firstOrFail();

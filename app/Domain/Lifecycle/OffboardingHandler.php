@@ -48,7 +48,7 @@ class OffboardingHandler implements WorkflowHandler
         $period = $employee->periods()->findOrFail($p['employment_period_id']);
         $employee->assignments()->where('employment_period_id', $period->id)->where('valid_from', '>=', $end)->whereNull('superseded_at')->update(['superseded_at' => now()]);
         $employee->assignments()->where('employment_period_id', $period->id)->whereNull('superseded_at')->where('valid_from', '<', $end)->where(fn ($q) => $q->whereNull('valid_to')->orWhere('valid_to', '>', $end))->update(['valid_to' => $end]);
-        $period->update(['ends_on' => $end, 'offboarding' => true]);
+        $period->update(['ends_on' => $end, 'offboarding' => true, 'offboarding_from' => today()->toDateString()]);
         $employee->increment('version');
         DB::table('lifecycle_cases')->where('workflow_request_id', $r->id)->update(['status' => 'approved', 'version' => 2, 'updated_at' => now()]);
         Audit::record($r->effectActorId(), 'lifecycle.exit_scheduled', 'employee', $employee->id, ['employment_period_id' => $period->id, 'effective_end_on' => $end, 'last_working_on' => $p['last_working_on']]);

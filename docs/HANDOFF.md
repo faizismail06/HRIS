@@ -189,3 +189,7 @@ Pengguna mengonfirmasi belum ada kebijakan: siapkan draft. Tidak ada policy/tari
 ## Impor atomik dan staging
 
 5 ImportTest / 92 assertions lulus setelah perbaikan UUID namespace dan roster receipt. Dukungan CSV/XLSX, upload-map-preview-commit, checksum, error per baris, encrypted staging dan background worker dengan recheck izin. Seluruh jenis diuji: masters, employee/identity draft, roster draft, opening leave ledger dan compensation draft. Duplicate national ID/changed source tidak membuat profil parsial; formula XLSX ditolak. IMPORTS_BACKEND.md mencatat batas ukuran, data format dan sisa UAT/load.
+
+## Reports/export/search milestone
+
+Full suite lulus167 tests / 2668 assertions sebelum ekstensi operasi berikutnya. Report JSON domain, closed attendance/overtime snapshot drill-down, encrypted CSV/XLSX exports dengan24jam expiry/recheck team-scope serta pencarian ringkasan berizin tersedia. CSV formula-neutralized dan XLSX explicit-string. Histori exit baru memakai offboarding_from. REPORTS_SEARCH_BACKEND.md mencatat batas sinkron, query-plan/scale dan filter finansial historis yang perlu dilengkapi. Belum full acceptance backend.

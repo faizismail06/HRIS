@@ -27,7 +27,7 @@ class Employee extends Model
                 return 'PREBOARDING';
             }
 
-            return $period->offboarding ? 'OFFBOARDING' : 'ACTIVE';
+            return $period->offboarding && (! $period->offboarding_from || $period->offboarding_from <= $date) ? 'OFFBOARDING' : 'ACTIVE';
         }
 
         return $this->periods()->where('starts_on', '>', $date)->exists() ? 'PREBOARDING' : 'ENDED';

@@ -14,10 +14,18 @@ use App\Http\Controllers\OperationsHealthController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PrivateFileController;
 use App\Http\Controllers\PrivateProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WorkflowController;
+use App\Http\Controllers\WorkspaceSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::get('/search', WorkspaceSearchController::class);
+    Route::get('/reports/{kind}', [ReportController::class, 'show']);
+    Route::get('/attendance-snapshots/{id}', [ReportController::class, 'snapshot'])->whereNumber('id');
+    Route::post('/reports/{kind}/exports', [ReportController::class, 'export']);
+    Route::get('/report-exports/{id}', [ReportController::class, 'status'])->whereNumber('id');
+    Route::get('/report-exports/{id}/download', [ReportController::class, 'download'])->whereNumber('id');
     Route::post('/imports', [ImportController::class, 'upload']);
     Route::get('/imports/{id}', [ImportController::class, 'show'])->whereNumber('id');
     foreach (['map', 'preview', 'commit'] as $action) {

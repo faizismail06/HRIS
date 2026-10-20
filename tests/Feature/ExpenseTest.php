@@ -56,6 +56,7 @@ class ExpenseTest extends AttendanceScenarioCase
         $this->decision($this->finance, $id, 3)->assertUnprocessable();
         $this->decision($this->finance, $id, 3, 'Synthetic receipt/eligibility/duplicate check verified')->assertOk();
         $this->assertDatabaseHas('expense_claims', ['workflow_request_id' => $id, 'status' => 'approved_for_payment']);
+        $this->getJson('/app/api/reports/expenses?starts_on=2026-10-18&ends_on=2026-10-20')->assertOk()->assertJsonPath('data.0.amount_minor', 12345);
         $second = $this->submitClaim();
         $this->assertDatabaseHas('expense_claims', ['workflow_request_id' => $second, 'duplicate_warning' => true]);
         $claim = DB::table('expense_claims')->where('workflow_request_id', $id)->sole()->id;

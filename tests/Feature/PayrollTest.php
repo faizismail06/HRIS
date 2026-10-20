@@ -92,6 +92,7 @@ class PayrollTest extends AttendanceScenarioCase
         $this->assertSame(10002, $snapshot['context']['base']);
         $this->assertSame(3334, $snapshot['deduction_minor']);
         $this->assertSame(6768, $snapshot['net_minor']);
+        $this->getJson('/app/api/reports/payroll?starts_on=2026-10-17&ends_on=2026-10-19&employee_id='.$this->worker->employee_id)->assertOk()->assertJsonPath('data.0.net_minor', 6768)->assertDontSee('001122334455');
         $this->login($this->worker)->get('/app/api/payslips/'.$row.'/download')->assertNotFound();
         $this->travel(2)->hours();
         $pdf = $this->login($this->worker)->get('/app/api/payslips/'.$row.'/download')->assertOk()->getContent();

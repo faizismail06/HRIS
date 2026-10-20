@@ -111,7 +111,8 @@ return new class extends Migration
             $table->jsonb('changes')->default('{}');
             $table->timestampTz('created_at')->useCurrent();
         });
-        DB::unprepared("CREATE FUNCTION protect_hris_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Audit entries are append-only'; END; $$; CREATE TRIGGER protect_hris_audit BEFORE UPDATE OR DELETE ON audit_entries FOR EACH ROW EXECUTE FUNCTION protect_hris_audit(); CREATE TRIGGER protect_hris_audit_truncate BEFORE TRUNCATE ON audit_entries FOR EACH STATEMENT EXECUTE FUNCTION protect_hris_audit();");
+        // PostgreSQL functions survive migrate:fresh table drops, so replace their definitions on rerun.
+        DB::unprepared("CREATE OR REPLACE FUNCTION protect_hris_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Audit entries are append-only'; END; $$; CREATE TRIGGER protect_hris_audit BEFORE UPDATE OR DELETE ON audit_entries FOR EACH ROW EXECUTE FUNCTION protect_hris_audit(); CREATE TRIGGER protect_hris_audit_truncate BEFORE TRUNCATE ON audit_entries FOR EACH STATEMENT EXECUTE FUNCTION protect_hris_audit();");
     }
 
     public function down(): void

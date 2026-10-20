@@ -7,8 +7,9 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // migrate:fresh drops the tables/triggers, but leaves these PostgreSQL functions behind.
         DB::unprepared(<<<'SQL'
-CREATE FUNCTION guard_hris_department() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION guard_hris_department() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
     PERFORM id FROM companies WHERE id = 1 FOR UPDATE;
     IF EXISTS (WITH RECURSIVE ancestors AS (
@@ -21,7 +22,7 @@ BEGIN
 END; $$;
 CREATE TRIGGER guard_hris_department BEFORE INSERT OR UPDATE ON departments FOR EACH ROW EXECUTE FUNCTION guard_hris_department();
 
-CREATE FUNCTION guard_hris_assignment() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION guard_hris_assignment() RETURNS trigger LANGUAGE plpgsql AS $$
 DECLARE p employment_periods%ROWTYPE;
 BEGIN
     PERFORM id FROM companies WHERE id = 1 FOR UPDATE;
@@ -42,7 +43,7 @@ BEGIN
 END; $$;
 CREATE TRIGGER guard_hris_assignment BEFORE INSERT OR UPDATE ON assignments FOR EACH ROW EXECUTE FUNCTION guard_hris_assignment();
 
-CREATE FUNCTION guard_hris_period() RETURNS trigger LANGUAGE plpgsql AS $$
+CREATE OR REPLACE FUNCTION guard_hris_period() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
     PERFORM id FROM companies WHERE id = 1 FOR UPDATE;
     IF EXISTS (SELECT 1 FROM assignments WHERE employment_period_id = NEW.id AND

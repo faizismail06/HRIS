@@ -72,7 +72,9 @@ try {
 php artisan test
 ```
 
-Host, pengguna dan kata sandi harus menunjuk instance pengujian yang benar. Tes memeriksa nama database sebelum membuat fixture bisnis; tidak menjalankan `migrate:fresh` atau menghapus database pengembangan. Jangan menjalankan suite paralel terhadap satu database ini.
+Host, pengguna dan kata sandi harus menunjuk instance pengujian yang benar. Tes memeriksa nama database sebelum membuat fixture bisnis; database pengembangan tidak direset. Tes regresi `MigrationFreshTest` membuat database sementara bernama acak `hris_migration_test_*`, menjalankan `migrate:fresh --seed` dua kali hanya di sana, lalu menghapus database sementara itu. Pengguna PostgreSQL untuk tes ini memerlukan izin `CREATEDB`; tes domain lainnya memakai rollback pada `hris_testing`. Jangan menjalankan suite paralel terhadap satu database ini.
+
+Fungsi PostgreSQL tetap ada setelah tabel dihapus oleh `migrate:fresh`, sehingga migrasi trigger memakai `CREATE OR REPLACE FUNCTION`. Jika sebelumnya migrasi gagal karena `Duplicate function`, jalankan `php artisan migrate --seed` setelah kode diperbarui untuk melanjutkan migrasi yang tertunda; tidak perlu menghapus database atau fungsi secara manual. Seeder tidak membuat akun default.
 
 Tes mencakup password/MFA enrollment/challenge, kode pemulihan sekali pakai, rate limit, reset password, pemutusan sesi, akhir masa kerja, bootstrap/provisioning, scope self/team/branch/department/company, IDOR, riwayat penempatan, overlap/cycle serta audit immutable. Pengujian multi-proses dan beban belum dijalankan. HTTP/build tidak mengesahkan hasil visual: browser otomatis tidak tersedia dan verdict visual tetap **recapture** untuk login, challenge, MFA dan direktori desktop/ponsel.
 

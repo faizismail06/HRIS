@@ -1,5 +1,9 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Perbaikan migrasi ulang PostgreSQL
+
+`migrate:fresh --seed` sempat gagal karena fungsi PostgreSQL tetap ada setelah tabel dihapus. Keempat fungsi audit/riwayat kini memakai `CREATE OR REPLACE FUNCTION`, sehingga definisi dapat dipasang ulang tanpa duplicate function. Database pengembangan yang gagal dipulihkan dengan `migrate --seed` tanpa reset tambahan. Regresi memakai database sementara bernama acak, menjalankan fresh+seed dua kali serta memverifikasi trigger audit masih menolak update; database sementara dibersihkan setelah tes. Gabungan tes migrasi dan identitas: 19 tes / 180 assertions lulus. Pengguna PostgreSQL untuk tes migrasi ini memerlukan CREATEDB; database pengembangan tidak digunakan untuk reset regresi.
+
 ## Backend pertama: identitas, MFA dan skema CoreHR
 
 Login nyata melalui Fortify tersedia di `/login`, pengaturan MFA di `/account/security`, beranda `/app` dan direktori baca saja `/app/employees`. MFA wajib sebelum membaca data; scope query membatasi self/team/branch/department/company dan detail lintas scope menghasilkan 404. Platform Admin tidak memperoleh akses HR otomatis. Pendaftaran publik dan mutasi direktori ditutup. Preview tetap terpisah, sintetis dan baca saja.

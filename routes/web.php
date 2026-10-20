@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PrototypeAdministrationController;
 use App\Http\Controllers\PrototypeAttendanceController;
 use App\Http\Controllers\PrototypeDashboardController;
 use App\Http\Controllers\PrototypeEmploymentController;
@@ -44,6 +45,10 @@ if (app()->environment(['local', 'testing'])) {
         Route::get('/attendance-reports', [PrototypeReportsController::class, 'report'])->name('attendance-reports');
         Route::get('/attendance-periods', [PrototypeReportsController::class, 'periods'])->name('attendance-periods');
         Route::get('/attendance-periods/{period}', [PrototypeReportsController::class, 'period'])->name('attendance-periods.show');
+        Route::get('/settings', [PrototypeAdministrationController::class, 'settings'])->name('settings');
+        Route::get('/audit', [PrototypeAdministrationController::class, 'audit'])->name('audit');
+        Route::get('/imports', [PrototypeAdministrationController::class, 'imports'])->name('imports');
+        Route::get('/imports/{batch}', [PrototypeAdministrationController::class, 'import'])->name('imports.show');
         foreach (['contracts', 'letters', 'career-changes'] as $kind) {
             Route::get('/'.$kind, [PrototypeEmploymentController::class, 'index'])->defaults('kind', $kind)->name($kind);
             Route::get('/'.$kind.'/{record}', [PrototypeEmploymentController::class, 'show'])->defaults('kind', $kind)->name($kind.'.show');

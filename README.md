@@ -1,6 +1,6 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan dan struktur organisasi dengan navigasi **Ruang Tim** serta data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0 belum diimplementasikan.
+Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal dan kehadiran dengan navigasi **Ruang Tim** serta data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0/R1 belum diimplementasikan.
 
 ## Pratinjau dashboard tanpa database
 
@@ -19,7 +19,7 @@ npm run build
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan dan Organisasi; Tugas dan Agenda adalah bagian lokal dashboard. Kehadiran dan agenda berdampingan pada desktop, lalu bertumpuk pada ponsel. Pencarian tugas/karyawan, filter kategori/cabang/prioritas dan detail inline tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
+Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan, Organisasi dan Kehadiran; Tugas dan Agenda adalah bagian lokal dashboard. Kehadiran dan agenda berdampingan pada desktop, lalu bertumpuk pada ponsel. Pencarian tugas/karyawan, filter kategori/cabang/prioritas dan detail inline tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
 
 ## Modul Karyawan & Organisasi
 
@@ -28,6 +28,14 @@ Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama
 - [Organisasi](http://127.0.0.1:8000/prototype/organization): induk Direksi dan lima unit di bawahnya, penanggung jawab, anggota bekerja serta filter cabang. Jumlah anggota hanya mencakup Aktif dan Offboarding. Profil Pra-bergabung/Berakhir tetap tersedia di direktori.
 
 Tidak ada create/edit/delete, pengaturan akses, data sensitif atau dokumen nyata. Ini belum memenuhi acceptance CoreHR R0. Cuplikan 12 profil terpisah dari agregat sintetis dashboard, bukan satu basis data operasional. Tabel direktori mempertahankan kolom dan dapat digeser horizontal pada layar kecil.
+
+## Modul Jadwal & Kehadiran
+
+- [Rekap kehadiran](http://127.0.0.1:8000/prototype/attendance): filter tanggal kerja, karyawan, cabang dan status. Ringkasan menjelaskan cakupan sebelum filter status. Terlambat dan pulang awal tetap terpisah dari status Hadir.
+- [Jadwal mingguan](http://127.0.0.1:8000/prototype/schedules): dua minggu contoh 12–18 dan 19–25 Oktober 2026, lima karyawan, tiga cabang WIB; hari libur per roster, shift pagi/siang/malam/kantor dan tautan detail setiap hari.
+- Detail shift: jadwal dan tanggal pulang berikutnya, clock-in/out sintetis, interval istirahat, durasi contoh, jejak percobaan ditolak, definisi status dan panduan koreksi baca saja. Tautan kembali mempertahankan scope asal; tab rekap/jadwal mempertahankan karyawan/cabang.
+
+Skenario penting: Nadia19 malam tetap hari kerja19 walau pulang20Okt (terlambat12, pulangawal10, durasi398menit); Nadia18 belum lengkap; Dimas19 libur, Fajar19 cuti, Dimas15 percobaan lokasi ditolak, Dimas20 sedang bekerja. Semua peristiwa berlabel SIMULATED, snapshot20Okt08.45WIB. Tidak ada pengambilan GPS/kamera, pengiriman koreksi, penilaian geofence nyata, publikasi roster atau clocking operasional. Fixture ini tidak memenuhi acceptance attendance R1.
 
 Preview ditolak di luar lingkungan local/testing, bahkan bila flag aktif. Flag default false pada `.env.example`; pratinjau ini bukan implementasi instalasi demo DEMO-01. UI dirancang responsif; verifikasi browser desktop/ponsel masih perlu dilakukan karena browser tidak tersedia pada sesi implementasi.
 

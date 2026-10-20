@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-20T04:24:09.647143+00:00",
+  "generatedAt": "2026-10-20T04:47:43.771102+00:00",
   "title": "Design System: Operational HRIS",
   "extensions": {
     "colorMeta": {
@@ -587,9 +587,9 @@
       "name": "Header navigation",
       "kind": "nav",
       "refersTo": "navigation-current",
-      "description": "Three server routes with server-selected active-page state; local section anchors are separate.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Navigasi ruang kerja\"><a class=\"ds-link\" href=\"/prototype/dashboard\">Ringkasan</a><a class=\"ds-link ds-current\" href=\"/prototype/employees\" aria-current=\"page\">Karyawan</a><a class=\"ds-link\" href=\"/prototype/organization\">Organisasi</a></nav>",
-      "css": ".ds-nav{font-family:'Segoe UI', ui-sans-serif, system-ui, sans-serif;display:flex;align-items:stretch;gap:28px}.ds-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 5px;border-bottom:2px solid transparent;color:var(--muted,#716775);font-size:13px;text-decoration:none}.ds-link:hover{color:var(--accent,#704760)}.ds-current{color:var(--accent,#704760);border-bottom-color:var(--accent,#704760);font-weight:600}.ds-link:focus-visible{outline:3px solid var(--focus,#936082);outline-offset:4px;}@media(max-width:760px){.ds-nav{gap:26px}.ds-link{min-height:48px;font-size:12px}}@media(max-width:400px){.ds-nav{gap:8px;justify-content:space-between}}"
+      "description": "Four server routes with server-selected active-page state; local section and attendance links are separate.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Navigasi ruang kerja\"><a class=\"ds-link\" href=\"/prototype/dashboard\">Ringkasan</a><a class=\"ds-link\" href=\"/prototype/employees\">Karyawan</a><a class=\"ds-link\" href=\"/prototype/organization\">Organisasi</a><a class=\"ds-link ds-current\" href=\"/prototype/attendance\" aria-current=\"page\">Kehadiran</a></nav>",
+      "css": ".ds-nav{font-family:'Segoe UI', ui-sans-serif, system-ui, sans-serif;display:flex;align-items:stretch;gap:28px}.ds-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 5px;border-bottom:2px solid transparent;color:var(--muted,#716775);font-size:13px;text-decoration:none}.ds-link:hover{color:var(--accent,#704760)}.ds-current{color:var(--accent,#704760);border-bottom-color:var(--accent,#704760);font-weight:600}.ds-link:focus-visible{outline:3px solid var(--focus,#936082);outline-offset:4px;}@media(max-width:760px){.ds-nav{gap:18px}.ds-link{min-height:48px;font-size:12px}}@media(max-width:400px){.ds-nav{gap:8px;justify-content:space-between}}"
     },
     {
       "name": "Urgent status",
@@ -626,7 +626,7 @@
   ],
   "narrative": {
     "northStar": "Ruang Tim",
-    "overview": "Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.\n\nInformation has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, and organization view with synthetic fixtures; the visual system does not imply operational HR capabilities.",
+    "overview": "Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.\n\nInformation has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, and attendance records with synthetic fixtures; the visual system does not imply operational HR capabilities.",
     "keyCharacteristics": [
       "Open horizontal navigation for the available destinations.",
       "Plum action states on light neutral surfaces.",
@@ -636,7 +636,7 @@
     "rules": [
       {
         "name": "The Available Destination Rule",
-        "body": "Size navigation around destinations that exist, keeping this three-link header directly visible on desktop and mobile.",
+        "body": "Size navigation around destinations that exist, keeping the available header destinations directly visible on desktop and mobile.",
         "section": "typography"
       },
       {
@@ -652,13 +652,13 @@
     ],
     "dos": [
       "Do use plum for action and selected states and retain readable text with semantic status colors.",
-      "Do preserve the three visible navigation destinations and align the header with the main container.",
+      "Do preserve the visible navigation destinations and align the header with the main container.",
       "Do keep contextual task details beside their originating row and preserve active filters.",
       "Do retain visible focus, native controls, and useful content without JavaScript.",
       "Do label synthetic data and unavailable operations clearly."
     ],
     "donts": [
-      "Don't restore the superseded sage rail or add a hamburger for the three current destinations.",
+      "Don't restore the superseded sage rail or add a hamburger for the current destinations.",
       "Don't add gradients, decorative photos, repeated statistic cards, or entrance animations to this direction.",
       "Don't treat source inspection or a passing build as visual approval or accessibility certification."
     ]

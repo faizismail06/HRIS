@@ -1,5 +1,13 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Jadwal & Kehadiran
+
+Preview GET-only tersedia pada `/prototype/attendance`, `/prototype/schedules`, dan `/prototype/attendance/{record}`. `PrototypeAttendance` menyediakan 70 baris sintetis untuk lima karyawan, 12–25 Oktober 2026, pada tiga cabang WIB. Snapshot tetap 20 Oktober 2026 pukul 08.45. Filter GET memakai whitelist dan batas tanggal; perpindahan tab serta tautan kembali mempertahankan karyawan, cabang, dan periode asal. Menu global kini empat tujuan dengan tambahan Kehadiran, tetap tanpa sidebar.
+
+Nadia pada shift malam 19 Oktober pulang pada 20 Oktober, tetap satu tanggal kerja 19 Oktober. Status Hadir tetap disertai terlambat 12 menit dan pulang awal 10 menit; durasi contoh 398 menit setelah istirahat 60 menit. Nadia/Raka pada 18 Oktober belum lengkap; Dimas pada 19 Oktober libur; Fajar pada 19 Oktober cuti; percobaan lokasi Dimas pada 15 Oktober ditolak dan hasil akhirnya Tidak hadir; Dimas pada 20 Oktober sedang bekerja. Shift mendatang berstatus Belum mulai. Tidak ada engine operasional, pengambilan GPS/kamera/foto, publikasi roster, pengajuan koreksi atau approval. Durasi bukan otomatis lembur terbayar.
+
+Build, Pint, kompilasi Blade, HTTP, serta 21 tes dengan 140 assertions lulus. Review statis tidak menemukan penghambat kode. Browser CUA tetap tidak tersedia, sehingga tampilan dan interaksi desktop/mobile belum diverifikasi. Detector hanya menghasilkan advisory skala desain: enam warna lama, 21 ukuran font dan empat radius; drift di luar scope tidak diperbaiki. `docs/attendance-surface.md` mencatat kontrak dan batas fixture. Bagian di bawah adalah riwayat tahap sebelumnya.
+
 ## Modul terbaru: Karyawan & Organisasi
 
 UI baca saja tersedia pada `/prototype/employees`, `/prototype/employees/{employee}`, `/prototype/organization`. Fixture `PrototypePeople` berisi 12 profil, 6 unit termasuk Direksi, 3 cabang. Filter/sort GET menggunakan whitelist validasi Laravel. Profil menampilkan penugasan, relasi atasan/laporan langsung, status dan timeline sintetis. Organisasi menghitung ACTIVE+OFFBOARDING, mengabaikan PREBOARDING/ENDED pada jumlah bekerja namun tetap menyimpan profil di direktori.

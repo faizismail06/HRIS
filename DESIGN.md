@@ -135,7 +135,7 @@ components:
 
 Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.
 
-Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, and organization view with synthetic fixtures; the visual system does not imply operational HR capabilities.
+Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, and attendance records with synthetic fixtures; the visual system does not imply operational HR capabilities.
 
 **Key Characteristics:**
 
@@ -186,18 +186,18 @@ Plum carries interaction while a near-white lavender ground and neutral ink keep
 
 Numbers use tabular figures. Headings use balanced wrapping and paragraphs use pretty wrapping where supported. Detail text has a maximum measure of (70ch).
 
-**The Available Destination Rule.** Size navigation around destinations that exist, keeping this three-link header directly visible on desktop and mobile.
+**The Available Destination Rule.** Size navigation around destinations that exist, keeping the available header destinations directly visible on desktop and mobile.
 
 ## Layout
 
-Header and main share a centered maximum width of (1264px), including horizontal padding of (44px). The desktop header is at least (88px) high, with brand, three horizontal destination links, and persona. There is no reserved side rail or collapsed navigation control.
+Header and main share a centered maximum width of (1264px), including horizontal padding of (44px). The desktop header is at least (88px) high, with brand, four horizontal destination links, and persona. There is no reserved side rail or collapsed navigation control.
 
 Main padding is (26px 44px 32px). The dashboard places attendance and agenda in a top grid with a (1.8:1) column ratio and (24px) gap; the task panel spans the full width below with a (28px) separation. This page-specific order is recorded in `docs/dashboard-surface.md`, not a mandatory layout for every future screen.
 
 Implemented responsive rules, pending browser verification:
 
 - At (1100px) and below, horizontal page padding becomes (30px), the overview ratio becomes (1.5:1), and its gap becomes (20px). The attendance legend uses two columns.
-- At (760px) and below, the header wraps: brand and compact persona occupy the first line, and all three navigation links remain visible on a second line. Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
+- At (760px) and below, the header wraps: brand and compact persona occupy the first line, and all four navigation links remain visible on a second line, with an (18px) gap that becomes (8px) at (400px). Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
 - At (400px) and below, page padding becomes (16px), the attendance legend uses two columns, row avatars disappear, and task columns become a flexible text column plus (66px) deadline and (12px) indicator columns.
 
 The people extension inherits this shell. Its directory preserves table columns inside a horizontal scroll region with a (900px) minimum table width. Profiles use a (1.65:1) field/history grid that stacks at (1000px); field pairs become one column at (450px), and team lists stack at (760px). Directory filters wrap with the same native controls. These are source rules, not browser-verified layouts. Surface-specific composition is recorded in `docs/people-surface.md`.
@@ -218,7 +218,7 @@ Panels retain gently rounded corners (`panel`). Fields and the secondary button 
 
 ### Navigation
 
-Three server routes share the global header: Ringkasan (`/prototype/dashboard`), Karyawan (`/prototype/employees`), and Organisasi (`/prototype/organization`). The server assigns `aria-current="page"` and the current-link style, including on employee profiles. Plum text, a (2px) bottom border, and stronger weight identify the active page. Tugas and Agenda are local dashboard section anchors; profile sections also use local anchors. Dashboard JavaScript focuses local destinations without changing global active-page state. Global navigation stays visible without JavaScript and at mobile widths.
+Four server routes share the global header: Ringkasan (`/prototype/dashboard`), Karyawan (`/prototype/employees`), Organisasi (`/prototype/organization`), and Kehadiran (`/prototype/attendance`). The server assigns `aria-current="page"` and the current-link style, including employee profiles, schedules, and shift details under their parent destination. Plum text, a (2px) bottom border, and stronger weight identify the active page. Tugas and Agenda are local dashboard section anchors; profile sections also use local anchors. Attendance has separate local route links for Rekap kehadiran and Jadwal mingguan. Dashboard JavaScript focuses local destinations without changing global active-page state. Global navigation stays visible without JavaScript and at mobile widths.
 
 ### Buttons and category filters
 
@@ -248,6 +248,14 @@ Use semantic definition lists for identity and assignment fields, and an ordered
 
 Native unit `details` preserve the same disclosure-chevron motion and focus treatment. Unit headings pair responsibility with a labeled working-member count. The branch GET filter narrows membership and counts to Active and Offboarding profiles while preserving the company hierarchy and responsible leads. Empty units explain the filtered result and retain a directory route for broader inspection. Organization structure does not imply authorization rules.
 
+### Schedules, attendance and shift details
+
+The attendance extension inherits native GET controls and existing state colors. Rekap filters use work date, employee, branch and status; schedules use an available week, employee and branch. Local route links, week navigation and detail/back links preserve their supported filter scope. The summary is explicitly calculated before the status filter. Empty combinations offer reset links; all controls remain useful without JavaScript.
+
+The synthetic fixture covers 70 daily records for five people over two weeks (12–25 October 2026). Weekly roster columns identify the shift-start date; shift links state when the end falls on the next day. A night shift beginning on 19 October stays attached to that work date even when it ends on 20 October. The roster and recap keep native table headers inside labeled, focusable horizontal scroll regions rather than hiding columns. These are source provisions pending visual and keyboard verification.
+
+Keep roster plans, raw clock events, and interpreted outcomes distinct. Late and early-departure flags are independent of Present status. Scheduled, In progress, Incomplete, Leave, Day off and Absent remain separately labeled. Detail fields show full start/end context, timezone, break and duration notes; semantic event timelines label the source SIMULATED. Native correction-guidance disclosures explain the example deadline and preserved raw events without offering submission, attachment or approval actions. The seven-day example is a PRD default, not an operational policy. Surface details remain in `docs/attendance-surface.md`.
+
 ### Focus and motion
 
 General keyboard focus uses a (3px) plum outline with (4px) offset, with the search-field exception above. The disclosure indicator rotates over (160ms ease-out). Reduced-motion preference disables transitions, animation and smooth scrolling. These source provisions do not establish accessibility certification.
@@ -257,13 +265,13 @@ General keyboard focus uses a (3px) plum outline with (4px) offset, with the sea
 ### Do:
 
 - Do use plum for action and selected states and retain readable text with semantic status colors.
-- Do preserve the three visible navigation destinations and align the header with the main container.
+- Do preserve the visible navigation destinations and align the header with the main container.
 - Do keep contextual task details beside their originating row and preserve active filters.
 - Do retain visible focus, native controls, and useful content without JavaScript.
 - Do label synthetic data and unavailable operations clearly.
 
 ### Don't:
 
-- Don't restore the superseded sage rail or add a hamburger for the three current destinations.
+- Don't restore the superseded sage rail or add a hamburger for the current destinations.
 - Don't add gradients, decorative photos, repeated statistic cards, or entrance animations to this direction.
 - Don't treat source inspection or a passing build as visual approval or accessibility certification.

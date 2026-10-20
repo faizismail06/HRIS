@@ -1,5 +1,13 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Onboarding, Offboarding & Aset
+
+Preview `/prototype/lifecycle`, `/prototype/assets` dan detail masing-masing memakai `PrototypeLifecycle` serta GET-only controller. Empat kasus dan enam inventaris/barang sintetis; Administrasi kini lima tautan lokal, header global tetap enam tujuan tanpa sidebar. Filter scope kembali dipertahankan, lintas register hanya cabang/karyawan. Cabang siklus kerja dari profil saat ini; cabang aset dari lokasi inventaris.
+
+Maya belum memiliki akun/perangkat aktif karena dependensi verifikasi; Raka tetap offboarding sampai 31 Oktober dengan contoh cabut akses 1 November 00.00 WIB. Intan telah berakhir dan akses aplikasi dicabut dalam skenario, sementara laptop lewat tenggat tetap open. Fajar memiliki periode onboarding baru 2024 dan clearance terdahulu terpisah. Reservasi perangkat tidak membuat pemegang aktif; setiap fixture maksimal satu custody aktif. Barang habis pakai bukan pinjaman. Kasus aset rusak/belum kembali tidak memotong gaji otomatis. Bukti dan petugas IT berupa teks sintetis, bukan integrasi/unggahan.
+
+Pint, build, kompilasi Blade, enam HTTP smoke checks dan 41 tes/424 assertions lulus. Review statis tidak menemukan cacat material. Verdict visual `recapture`: browser inventory kosong, sehingga visual/aksesibilitas dan screenshot masih memerlukan verifikasi. Detector hanya advisory baseline enam warna, 23 ukuran font dan lima radius. Tidak ada mutasi akun, pencabutan sesi, pengecualian HR, scheduler, pemrosesan bukti atau penyelesaian finansial operasional. Kontrak UI: `docs/lifecycle-surface.md`. Bagian berikut adalah riwayat modul.
+
 ## Modul terbaru: Kontrak, Surat & Perubahan Karier
 
 Preview GET-only tersedia pada `/prototype/contracts`, `/prototype/letters`, `/prototype/career-changes` dan detail `/{record}` masing-masing. `PrototypeEmployment` menyediakan enam kontrak, empat surat dan tiga perubahan karier sintetis. Filter q/status/cabang/karyawan divalidasi per jenis; detail mempertahankan scope kembali, sedangkan lintas jenis hanya membawa cabang/karyawan. Header kini enam tujuan dengan Administrasi sebagai pintu tiga register. Pada lebar 1100 px ke bawah nav menempati baris sendiri dan dapat membungkus, tetap tanpa sidebar.

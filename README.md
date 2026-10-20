@@ -55,6 +55,13 @@ Preview ditolak di luar lingkungan local/testing, bahkan bila flag aktif. Flag d
 
 Semua register memiliki filter GET serta detail yang mempertahankan konteks kembali. Filter cabang merujuk profil saat ini, bukan cabang snapshot. Perpindahan jenis catatan hanya membawa cabang/karyawan. Tidak ada unggahan, PDF, unduhan, tanda tangan, penerbitan, penomoran unik, mesin tanggal efektif, notifikasi atau penyesuaian periode tertutup operasional. Ini belum memenuhi acceptance employment R1.
 
+## Modul Onboarding, Offboarding & Aset
+
+- [Siklus kerja](http://127.0.0.1:8000/prototype/lifecycle): empat checklist per periode dengan pemilik tugas, tenggat, ketergantungan, kewajiban dan referensi bukti sintetis. Ada onboarding Maya, offboarding Raka, clearance Intan setelah akhir kerja dan arsip bergabung kembali Fajar.
+- [Aset dan barang](http://127.0.0.1:8000/prototype/assets): lima aset serta satu barang habis pakai. Detail membedakan calon penerima, pemegang aktif, pengembalian terdahulu dan kasus tinjauan tanpa potongan gaji otomatis.
+
+Laptop Intan tetap menjadi tugas terbuka meskipun akses aplikasi sudah dicabut dalam skenario. Reservasi Maya belum menjadi serah terima; barang habis pakai tidak perlu dikembalikan. Clearance periode terdahulu Fajar tetap terpisah. Filter dan tautan detail memakai GET, tanpa menutup tugas atau mengubah akses. Tidak ada lampiran nyata, scheduler, integrasi IT eksternal atau transaksi inventaris; ini belum memenuhi acceptance lifecycle/assets R2.
+
 ## Stack
 
 Laravel 13 + Livewire 4, Blade, Tailwind CSS 4, Vite dan PostgreSQL. Versi patch dikunci di composer.lock dan package-lock.json.

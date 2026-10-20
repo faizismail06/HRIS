@@ -1,5 +1,13 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Laporan & Penutupan Kehadiran
+
+Preview GET-only `/prototype/attendance-reports`, `/prototype/attendance-periods` dan `/prototype/attendance-periods/{period}` memakai `PrototypeReports`. Localnav Kehadiran menjadi empat tujuan Rekap/Jadwal/Laporan/Penutupan; header global tetap tujuh. Laporan mingguan mengambil fixture bersama `PrototypeAttendance`, filter minggu/cabang/departemen/karyawan divalidasi. Tautan sumber menuju detail shift memakai from=reports dan mempertahankan report_week, cabang, departemen serta karyawan saat kembali. URL navigasi sebelumnya tetap dipertahankan.
+
+Hadir selesai=PRESENT dengan dua clock fixture; terlambat/pulang awal subset, bukan kelompok tambahan. IN_PROGRESS terpisah walau memiliki clock-in; rejected attempt tidak dihitung hadir. Total baris hari/roster termasuk libur, bukan total hari kerja. Tiga periode: OPEN12–25Okt; REVIEW12–18Okt dengan V2 tidak sama tinjauanV1 serta dua incomplete; CLOSED cuplikan28–30Sep tiga profil termasukIntan. Arsip memakai snapshot hardcoded, referensi sumber teks, hashSHA256 fixture dan payrollfinalSeptember; tidak menghitung profil sekarang atau mengklaim rawSeptember tersedia. Roster Oktober konsisten RST-OCT-V1 dengan detail shift.
+
+Tidak ada mutasi close/reopen, DB lock, checksum concurrency, validator lengkap, ekspor atau engine lembur. Rencana OVT-007 belum punya aktual terverifikasi. Aturan koreksi setelah payrollfinal diterangkan sebagai penyesuaian terpisah, bukan overwrite. Pint, build, kompilasi Blade, enam HTTP smoke checks dan 56 tes/614 assertions lulus. Review statis tidak menemukan cacat material; temuan kecil tautan sumber periode dua minggu sudah diperbaiki dengan dua tautan berlabel dan dinilai resolved. Verdict visual tetap `recapture` karena browser tidak tersedia; visual/aksesibilitas belum diverifikasi. Detector hanya baseline enam warna, 23 ukuran font dan lima radius. Kontrak UI ada di `docs/reports-surface.md`; bagian berikut riwayat modul terdahulu.
+
 ## Modul terbaru: Payroll & Reimbursement
 
 Preview GET-only `/prototype/payroll`, `/prototype/payroll/{batch}`, `/prototype/payroll/{batch}/payslips/{employee}`, `/prototype/reimbursements`, `/prototype/reimbursements/{claim}` memakai `PrototypeFinance`. Header global kini tujuh tujuan dengan Keuangan; navigasi menempati baris sendiri pada <=1280 px, tetap membungkus tanpa sidebar. Filter batch q/status/periode dan klaim q/status/karyawan/cabang di-whitelist; konteks kembali dipertahankan, lintas payroll/klaim tidak membawa filter berbeda makna.

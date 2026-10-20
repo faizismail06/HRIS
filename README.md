@@ -70,6 +70,13 @@ Laptop Intan tetap menjadi tugas terbuka meskipun akses aplikasi sudah dicabut d
 
 Nominal memakai integer IDR sintetis. Klaim Arif tetap Rp 420.000 meskipun baru Rp 200.000 berhasil; transfer gagal Rp 220.000 tidak menambah terbayar. Klaim Nadia hanya masuk payroll Oktober. Peringatan bukti serupa bukan keputusan kecurangan. Tidak ada tarif pajak/BPJS, formula/prorata regulasi, rekening, ekspor bank, transfer, PDF privat, limit klaim versi atau otorisasi slip produksi. Semua preview tetap GET-only; belum memenuhi acceptance payroll/expense R3.
 
+## Modul Laporan & Penutupan Kehadiran
+
+- [Laporan mingguan](http://127.0.0.1:8000/prototype/attendance-reports): filter minggu/cabang/departemen/karyawan, jumlah per hasil shift dan sumber yang dapat ditelusuri. Detail shift mempertahankan filter laporan saat kembali. Terlambat/pulang awal adalah subset Hadir selesai; shift berjalan dan percobaan ditolak tetap dibedakan.
+- [Penutupan periode](http://127.0.0.1:8000/prototype/attendance-periods): contoh Terbuka, Dalam tinjauan dan Ditutup dengan versi sumber/tinjauan, roster/kebijakan, penghambat versus peringatan dan riwayat revisi. Arsip 28–30 September menyimpan snapshot tiga karyawan termasuk Intan dan tautan payroll final terkait.
+
+Laporan berjalan mengambil fixture attendance; arsip tertutup terpisah dan bukan laporan bulan penuh. Hash SHA-256 hanya atas data contoh, bukan lock/transaksi produksi. Koreksi sesudah payroll final memerlukan penyesuaian terpisah; lembur rencana tidak otomatis menjadi masukan terbayar. Tidak ada penutupan/pembukaan ulang, ekspor, validator lengkap atau mesin pembayaran operasional. Browser/aksesibilitas belum diverifikasi.
+
 ## Stack
 
 Laravel 13 + Livewire 4, Blade, Tailwind CSS 4, Vite dan PostgreSQL. Versi patch dikunci di composer.lock dan package-lock.json.

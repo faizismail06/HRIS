@@ -7,9 +7,21 @@ use App\Domain\Identity\AccountSecurity;
 use App\Models\Employee;
 use App\Models\User;
 use App\Models\WorkflowRequest;
+use App\Models\WorkflowStep;
 
 class WorkflowAccess
 {
+    public static function stepEligible(User $user, WorkflowRequest $request, WorkflowStep $step): bool
+    {
+        if ($step->role === 'counterparty') {
+            $handler = app(WorkflowRegistry::class)->handler($request->kind);
+
+            return AccountSecurity::available($user) && $handler instanceof ParticipantWorkflow && $handler->participantEligible($user, $request, $step->role);
+        }
+
+        return self::eligible($user, $step->role, $request->employee_id);
+    }
+
     public static function eligible(User $user, string $role, ?int $employeeId): bool
     {
         if (! AccountSecurity::available($user)) {
@@ -32,12 +44,12 @@ class WorkflowAccess
             return true;
         }
         foreach ($request->steps()->get() as $step) {
-            if (in_array($user->id, $step->approver_ids, true) && self::eligible($user, $step->role, $request->employee_id)) {
+            if (in_array($user->id, $step->approver_ids, true) && self::stepEligible($user, $request, $step)) {
                 return true;
             }
         }
         $hrKinds = ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'letter', 'career', 'onboarding', 'offboarding'];
 
-        return in_array($request->kind, $hrKinds, true) && $request->employee_id && $user->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($user, today()->toDateString())->whereKey($request->employee_id)->exists();
+        return in_array($request->kind, $hrKinds, true) && $request->employee_id && $user->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($user, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
     }
 }

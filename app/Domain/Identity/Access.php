@@ -25,6 +25,7 @@ class Access
             'assets.manage' => ['it_asset_officer'],
             'payroll.prepare' => ['payroll_officer'],
             'payroll.approve' => ['finance_approver'],
+            'operations.manage' => ['platform_admin'],
             default => [],
         };
 

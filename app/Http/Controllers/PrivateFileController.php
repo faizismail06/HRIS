@@ -8,6 +8,13 @@ use Illuminate\Http\Request;
 
 class PrivateFileController extends Controller
 {
+    public function shiftPhoto(OperationalRequest $r, string $id, PrivateFiles $files)
+    {
+        $r->validate(['file' => ['required', 'file']]);
+
+        return response()->json($files->shiftPhoto($r->user(), (int) $id, $r->file('file'), $r->key()), 201);
+    }
+
     public function store(OperationalRequest $r, string $id, PrivateFiles $files)
     {
         $r->validate(['file' => ['required', 'file']]);

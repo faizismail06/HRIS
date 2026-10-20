@@ -1,13 +1,41 @@
 <?php
 
+use App\Http\Controllers\AttendanceCloseController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\InboxController;
+use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\OperationsHealthController;
 use App\Http\Controllers\PrivateFileController;
 use App\Http\Controllers\WorkflowController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::get('/operations/health', [OperationsHealthController::class, 'index'])->name('operations.health');
+    Route::post('/operations/deliveries/{id}/retry', [OperationsHealthController::class, 'retry'])->whereNumber('id')->name('operations.retry');
+    Route::post('/attendance-periods', [AttendanceCloseController::class, 'create'])->name('attendance-periods.store');
+    foreach (['review', 'close', 'reopen'] as $action) {
+        Route::post('/attendance-periods/{id}/'.$action, [AttendanceCloseController::class, $action])->whereNumber('id')->name('attendance-periods.'.$action);
+    }
+    Route::post('/overtime/{id}/actual', [AttendanceCloseController::class, 'actual'])->whereNumber('id')->name('overtime.actual');
+    Route::post('/overtime/{id}/verify', [AttendanceCloseController::class, 'verify'])->whereNumber('id')->name('overtime.verify');
+    Route::post('/leave-types', [LeaveController::class, 'type'])->name('leave.types.store');
+    Route::get('/leave-types', [LeaveController::class, 'types'])->name('leave.types');
+    Route::post('/leave-credits', [LeaveController::class, 'grant'])->name('leave.grant');
+    Route::get('/my-leave-balances', [LeaveController::class, 'balances'])->name('leave.balances');
+    Route::post('/work-locations', [AttendanceController::class, 'location'])->name('locations.store');
+    Route::post('/work-calendar-dates', [AttendanceController::class, 'calendarDate'])->name('calendar.store');
+    Route::get('/team-calendar', [AttendanceController::class, 'teamCalendar'])->name('calendar.team');
+    Route::post('/shift-templates', [AttendanceController::class, 'template'])->name('shifts.store');
+    Route::post('/rosters/preview', [AttendanceController::class, 'preview'])->name('rosters.preview');
+    Route::post('/rosters', [AttendanceController::class, 'draft'])->name('rosters.store');
+    Route::post('/rosters/{id}/publish', [AttendanceController::class, 'publish'])->whereNumber('id')->name('rosters.publish');
+    Route::get('/my-schedule', [AttendanceController::class, 'mine'])->name('schedule.mine');
+    Route::post('/attendance/clock-{direction}', [AttendanceController::class, 'clock'])->where('direction', 'in|out')->name('attendance.clock');
+    Route::get('/attendance/{id}', [AttendanceController::class, 'result'])->whereNumber('id')->name('attendance.show');
+    Route::post('/attendance/{id}/photo', [PrivateFileController::class, 'shiftPhoto'])->whereNumber('id')->name('attendance.photo');
     Route::post('/workflow-definitions', [WorkflowController::class, 'definitions'])->name('workflow.define');
     Route::get('/requests', [WorkflowController::class, 'index'])->name('requests');
+    Route::post('/requests/bulk-decisions', [WorkflowController::class, 'bulkDecide'])->name('requests.bulk-decide');
     Route::post('/requests', [WorkflowController::class, 'store'])->name('requests.store');
     Route::get('/requests/{id}', [WorkflowController::class, 'show'])->whereNumber('id')->name('requests.show');
     foreach (['submit', 'decide', 'withdraw', 'reassign'] as $action) {

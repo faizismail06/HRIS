@@ -5,8 +5,11 @@ namespace Tests\Feature;
 use App\Domain\Operations\Outbox;
 use App\Domain\Workflow\WorkflowRegistry;
 use App\Jobs\DeliverOutbox;
+use App\Models\Branch;
 use App\Models\Company;
+use App\Models\Department;
 use App\Models\Employee;
+use App\Models\Job;
 use App\Models\User;
 use App\Models\WorkflowRequest;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -195,5 +198,58 @@ class WorkflowOperationsTest extends TestCase
         DB::table('account_suspensions')->insert(['user_id' => $owner->id, 'created_by' => $admin->id, 'starts_at' => now()->subMinute(), 'ends_at' => now()->addDay(), 'reason' => encrypt('Test suspension'), 'created_at' => now(), 'updated_at' => now()]);
         $this->login($owner)->getJson('/app/api/inbox')->assertUnauthorized();
         $this->assertTrue($owner->fresh()->is_active);
+    }
+
+    public function test_audit_read_scope_cannot_be_combined_with_an_unrelated_hr_grant_to_read_medical_evidence(): void
+    {
+        Storage::fake('local');
+        $owner = $this->user('employee', true);
+        $branchA = Branch::create(['company_id' => 1, 'code' => 'A', 'name' => 'A']);
+        $branchB = Branch::create(['company_id' => 1, 'code' => 'B', 'name' => 'B']);
+        $department = Department::create(['company_id' => 1, 'code' => 'A', 'name' => 'A']);
+        $job = Job::create(['department_id' => $department->id, 'code' => 'A', 'name' => 'A']);
+        $person = Employee::findOrFail($owner->employee_id);
+        $period = $person->periods()->create(['starts_on' => '2020-01-01']);
+        $person->assignments()->create(['employment_period_id' => $period->id, 'branch_id' => $branchB->id, 'department_id' => $department->id, 'job_id' => $job->id, 'valid_from' => '2020-01-01']);
+        $request = WorkflowRequest::create(['public_id' => (string) Str::uuid(), 'kind' => 'leave', 'employee_id' => $person->id, 'submitted_by' => $owner->id, 'payload' => ['reason' => 'Private medical fixture'], 'summary' => ['label' => 'Unavailable'], 'status' => 'draft']);
+        $this->login($owner);
+        $file = $this->post('/app/api/requests/'.$request->id.'/attachments', ['idempotency_key' => (string) Str::uuid(), 'file' => UploadedFile::fake()->image('evidence.png', 20, 20)], ['Accept' => 'application/json'])->assertCreated()->json('id');
+        $mixed = $this->user('auditor');
+        $mixed->grants()->create(['role' => 'hr_officer', 'scope' => 'branch', 'branch_id' => $branchA->id]);
+        $this->login($mixed)->getJson('/app/api/attachments/'.$file.'/download')->assertNotFound();
+        $this->login($this->user('hr_officer'))->get('/app/api/attachments/'.$file.'/download')->assertOk();
+    }
+
+    public function test_operations_health_and_retry_are_technical_admin_only_and_do_not_expose_payloads(): void
+    {
+        $owner = $this->user('employee', true);
+        Outbox::notify([$owner->id], 'request.synthetic', 'workflow_request', 123, 'health-fixture');
+        $delivery = DB::table('notification_deliveries')->firstOrFail();
+        DB::table('notification_deliveries')->where('id', $delivery->id)->update(['status' => 'failed', 'attempts' => 5]);
+        $this->login($this->user('hr_admin'))->getJson('/app/api/operations/health')->assertForbidden();
+        $this->postJson('/app/api/operations/deliveries/'.$delivery->id.'/retry', ['idempotency_key' => (string) Str::uuid(), 'reason' => 'Retry technical failure'])->assertForbidden();
+        $this->login($this->user('platform_admin'))->getJson('/app/api/operations/health')->assertOk()->assertDontSee($owner->email)->assertDontSee('Private synthetic');
+        $this->postJson('/app/api/operations/deliveries/'.$delivery->id.'/retry', ['idempotency_key' => (string) Str::uuid(), 'reason' => 'Transport recovered'])->assertOk();
+        $this->assertSame('pending', DB::table('notification_deliveries')->where('id', $delivery->id)->value('status'));
+        $this->assertDatabaseHas('audit_entries', ['action' => 'notification.retry_requested']);
+    }
+
+    public function test_bulk_decisions_report_each_result_and_never_approve_the_actors_own_item(): void
+    {
+        $admin = $this->user('hr_admin', true);
+        $owner = $this->user('employee', true);
+        $this->login($admin);
+        $this->define();
+        $own = $this->draft();
+        $this->action($own, 'submit', 1)->assertOk();
+        $this->login($owner);
+        $other = $this->draft();
+        $this->action($other, 'submit', 1)->assertOk();
+        $this->login($admin);
+        $body = ['idempotency_key' => (string) Str::uuid(), 'decision' => 'approve', 'items' => [['id' => $other, 'expected_version' => 2], ['id' => $own, 'expected_version' => 2]]];
+        $this->postJson('/app/api/requests/bulk-decisions', $body)->assertOk()->assertJsonPath('data.0.http_status', 200)->assertJsonPath('data.1.http_status', 403);
+        $this->postJson('/app/api/requests/bulk-decisions', $body)->assertOk()->assertJsonPath('data.0.http_status', 200)->assertJsonPath('data.1.http_status', 403);
+        $this->assertSame(1, DB::table('audit_entries')->where('action', 'test.effect')->count());
+        $this->assertSame('blocked', WorkflowRequest::findOrFail($own)->status);
     }
 }

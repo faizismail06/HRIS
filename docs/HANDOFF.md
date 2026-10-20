@@ -165,3 +165,7 @@ Pilih impeccable untuk desain UI operasional (mode Operate). SKILL.md asli dan r
 Setelah pengguna mengatur GitHub dan meminta lanjut, periksa runtime, baca PRD dan selector, tetapkan arah desain, lalu bangun UI sesuai prioritas R0–R3. Baca referensi skill sebelum edit UI. Tambahkan transitions-dev jika interaksi membutuhkan, polish setelah UI ada. GSAP hanya jika kebutuhan animasi mendukung. Hindari menggandakan Alpine bawaan Livewire.
 
 Navigasi mengikuti bagian 17 PRD, izin dan status rilis. Modul belum tersedia disembunyikan dari pekerjaan sehari-hari; mockup harus jelas berstatus prototipe, tanpa mengklaim keamanan atau data operasional telah berfungsi.
+
+## Backend API 21 Oktober — kehadiran dan ledger
+
+API roster/clocking, koreksi, swap berurutan, cuti dengan reservasi/ledger/reversal, lembur aktual serta review/close dengan snapshot tersedia. Full suite PostgreSQL: 141 tests / 2137 assertions; Pint dan diff check lulus. Tidak ada fresh pada database pengembang. Lihat ATTENDANCE_LEAVE_BACKEND.md untuk aturan dan sisa cakupan. UI statis belum tersambung; seluruh backend belum selesai. Tahap berikut profil sensitif, dokumen/lifecycle/aset, payroll, impor/report dan demo terisolasi.

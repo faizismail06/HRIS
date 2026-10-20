@@ -1,5 +1,7 @@
 # Status proyek
 
+Pembaruan backend 21 Oktober 2026: API workflow bersama, inbox/outbox, roster/clocking privat, koreksi/tukar shift, cuti dengan ledger, lembur aktual dan close/snapshot telah ditambahkan. Rincian terbaru ada di [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md) dan [ATTENDANCE_LEAVE_BACKEND.md](ATTENDANCE_LEAVE_BACKEND.md). Tabel visual historis di bawah bukan status API terbaru. Layar preview belum otomatis tersambung. Seluruh backend belum selesai dan acceptance R0–R3 belum disahkan.
+
 Status setelah penyelesaian cakupan visual statis. Dokumen ini membedakan implementasi layar, pengesahan visual browser dan implementasi domain; jumlah commit atau jumlah layar bukan ukuran kesiapan produksi.
 
 ## Tahap saat ini

@@ -34,6 +34,10 @@ class WorkflowService
             'priority' => ['required', 'integer', 'between:0,100'], 'steps' => ['required', 'array', 'min:1', 'max:8'],
             'steps.*' => ['required', 'array:role'], 'steps.*.role' => ['required', Rule::in($roles)],
         ])->validate();
+        $handler = $this->registry->handler($data['kind']);
+        if ($handler instanceof ParticipantWorkflow) {
+            $handler->validateSteps($data['steps']);
+        }
 
         return Mutation::run($actor, 'workflow.define', $key, $data, fn ($u) => abort_unless(Access::companyPermission($u, 'workflow.manage'), 403), function ($u) use ($data) {
             $version = (int) WorkflowDefinition::where('name', $data['name'])->max('version') + 1;
@@ -69,9 +73,17 @@ class WorkflowService
             abort_unless($prepared['employee_id'] === $r->employee_id, 409);
             $r->summary = $prepared['summary'];
             $definition = $this->definition($r);
+            if ($handler instanceof ParticipantWorkflow) {
+                $handler->validateSteps($definition->steps);
+            }
             $r->fill(['workflow_definition_id' => $definition->id, 'submitted_at' => $this->clock->now(), 'status' => 'in_review', 'version' => $r->version + 1])->save();
             foreach ($definition->steps as $position => $step) {
-                $users = User::where('is_active', true)->whereKeyNot($r->submitted_by)->get()->filter(fn ($candidate) => (! $candidate->employee_id || $candidate->employee_id !== $r->employee_id) && WorkflowAccess::eligible($candidate, $step['role'], $r->employee_id))->pluck('id')->all();
+                $participants = $handler instanceof ParticipantWorkflow ? $handler->participants($r, $step['role']) : null;
+                $candidates = User::where('is_active', true)->whereKeyNot($r->submitted_by);
+                if ($participants !== null) {
+                    $candidates->whereIn('id', $participants);
+                }
+                $users = $candidates->get()->filter(fn ($candidate) => (! $candidate->employee_id || $candidate->employee_id !== $r->employee_id) && ($participants !== null ? $handler->participantEligible($candidate, $r, $step['role']) : WorkflowAccess::eligible($candidate, $step['role'], $r->employee_id)))->pluck('id')->all();
                 $r->steps()->create(['position' => $position + 1, 'role' => $step['role'], 'approver_ids' => $users, 'status' => 'waiting']);
             }
             $handler->submitted($r);
@@ -96,7 +108,7 @@ class WorkflowService
             CoreWrite::version($r->version, $version);
             abort_unless($r->status === 'in_review', 409);
             $step = $r->steps()->where('status', 'pending')->lockForUpdate()->firstOrFail();
-            abort_unless(in_array($u->id, $step->approver_ids, true) && WorkflowAccess::eligible($u, $step->role, $r->employee_id), 403);
+            abort_unless(in_array($u->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($u, $r, $step), 403);
             DB::table('workflow_decisions')->insert(['workflow_step_id' => $step->id, 'actor_id' => $u->id, 'decision' => $decision, 'reason' => $reason ? encrypt($reason) : null, 'created_at' => $this->clock->now()]);
             $step->update(['status' => $decision === 'approve' ? 'approved' : 'rejected', 'version' => $step->version + 1]);
             if ($decision === 'reject') {
@@ -152,8 +164,13 @@ class WorkflowService
             $target = User::findOrFail($replacement);
             abort_if($target->id === $r->submitted_by || ($target->employee_id && $target->employee_id === $r->employee_id), 403);
             $step = $r->steps()->whereIn('status', ['pending', 'blocked'])->lockForUpdate()->firstOrFail();
-            $role = WorkflowAccess::eligible($target, $step->role, $r->employee_id) ? $step->role : 'hr_admin';
-            abort_unless(WorkflowAccess::eligible($target, $role, $r->employee_id), 403);
+            if ($step->role === 'counterparty') {
+                abort_unless(WorkflowAccess::stepEligible($target, $r, $step), 403);
+                $role = 'counterparty';
+            } else {
+                $role = WorkflowAccess::eligible($target, $step->role, $r->employee_id) ? $step->role : 'hr_admin';
+                abort_unless(WorkflowAccess::eligible($target, $role, $r->employee_id), 403);
+            }
             $step->update(['role' => $role, 'approver_ids' => [$target->id], 'version' => $step->version + 1]);
             $this->activate($r, $step);
             $r->version++;

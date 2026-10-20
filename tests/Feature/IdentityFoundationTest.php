@@ -313,11 +313,11 @@ class IdentityFoundationTest extends TestCase
 
     public function test_mutation_policies_are_default_deny_and_non_admin_cannot_change_grants(): void
     {
-        $user = $this->account();
+        $user = $this->account('employee', 'self');
         $employee = $this->employee('A', $this->organization('A'));
         $this->assertFalse(Gate::forUser($user)->allows('create', Employee::class));
         $this->assertFalse(Gate::forUser($user)->allows('update', $employee));
-        $this->post('/app/employees', [])->assertMethodNotAllowed();
+        $this->signedIn($user)->postJson('/app/employees', [])->assertForbidden();
         $this->expectException(HttpException::class);
         app(AccountAccess::class)->replace($user, $user, [], false);
     }

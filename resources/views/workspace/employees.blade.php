@@ -1,5 +1,8 @@
 <x-identity-layout title="Direktori karyawan">
     <p>Identitas kerja sesuai cakupan akses Anda pada tanggal yang dipilih.</p>
+    @can('create', App\Models\Employee::class)
+        <p><a class="primary-button" href="{{ route('workspace.employees.create') }}">Tambah karyawan</a> · <a class="inline-link" href="{{ route('workspace.changes') }}">Pengajuan perubahan</a></p>
+    @endcan
     <form class="identity-form" method="GET" action="{{ route('workspace.employees') }}">
         <label for="q">Nama atau nomor karyawan<input id="q" name="q" value="{{ request('q') }}" maxlength="100" type="search"></label>
         <label for="as_of">Berlaku pada<input id="as_of" name="as_of" type="date" value="{{ $date }}" max="{{ today()->toDateString() }}" required></label>

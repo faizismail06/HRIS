@@ -18,6 +18,9 @@
                 @can('viewAny', App\Models\Employee::class)
                     <a class="inline-link" href="{{ route('workspace.employees') }}">Karyawan</a>
                 @endcan
+                @if (App\Domain\Identity\Access::companyPermission(auth()->user(), 'organization.manage'))
+                    <a class="inline-link" href="{{ route('workspace.organization') }}">Organisasi</a>
+                @endif
                 <a class="inline-link" href="{{ route('account.security') }}">Keamanan akun</a>
                 <form method="POST" action="{{ route('logout') }}">@csrf<button class="secondary-button" type="submit">Keluar</button></form>
             </nav>
@@ -36,7 +39,7 @@
         @if ($errors->any())
             <div class="identity-errors" role="alert" tabindex="-1">
                 <p>Periksa kembali isian Anda.</p>
-                <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
+                <ul>@foreach ($errors->messages() as $field => $messages)@foreach ($messages as $error)<li>@if (in_array($field, ['email', 'password', 'code', 'recovery_code', 'password_confirmation', 'name', 'work_email', 'starts_on', 'ends_on', 'employee_number', 'timezone', 'parent_id', 'department_id', 'is_active', 'branch_id', 'job_id', 'manager_employee_id', 'effective_on', 'reason', 'review_note', 'decision']))<a class="inline-link" href="#{{ $field }}">{{ $error }}</a>@else{{ $error }}@endif</li>@endforeach@endforeach</ul>
             </div>
         @endif
         {{ $slot }}

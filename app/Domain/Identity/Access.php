@@ -16,6 +16,7 @@ class Access
             'accounts.manage' => ['platform_admin'],
             'organization.manage' => ['hr_admin'],
             'employees.manage' => ['hr_admin', 'hr_officer'],
+            'employees.review' => ['hr_admin'],
             default => [],
         };
 

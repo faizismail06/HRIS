@@ -22,12 +22,12 @@ class EmployeePolicy
 
     public function create(User $user): bool
     {
-        return false;
+        return Access::companyPermission($user, 'employees.manage');
     }
 
     public function update(User $user, Employee $employee): bool
     {
-        return false;
+        return Access::companyPermission($user, 'employees.manage');
     }
 
     public function delete(User $user, Employee $employee): bool

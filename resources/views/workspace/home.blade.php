@@ -6,5 +6,8 @@
     @can('viewAny', App\Models\Employee::class)
         <p><a class="primary-button" href="{{ route('workspace.employees') }}">Buka direktori karyawan</a></p>
     @endcan
-    <p class="history-note">Modul operasional sedang dibangun. Direktori menampilkan identitas kerja sesuai izin akun; workflow transaksi belum tersedia.</p>
+    @if (App\Domain\Identity\Access::companyPermission($user, 'employees.manage'))
+        <p><a class="inline-link" href="{{ route('workspace.changes') }}">Tinjau pengajuan perubahan karyawan</a></p>
+    @endif
+    <p class="history-note">Modul operasional sedang dibangun. Direktori dan pengajuan perubahan identitas kerja/penempatan tersedia sesuai izin. Alur HR lainnya menyusul.</p>
 </x-identity-layout>

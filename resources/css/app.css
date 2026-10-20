@@ -13,8 +13,9 @@
 .identity-nav form { margin-left: auto; }
 .identity-form { display: grid; gap: 22px; max-width: 480px; margin: 28px 0; }
 .identity-form label { display: grid; gap: 8px; font-weight: 600; }
-.identity-form input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: white; color: var(--ink); font: inherit; font-weight: 400; }
-.identity-form input[aria-invalid="true"] { border-color: var(--urgent); }
+.identity-form input, .identity-form select, .identity-form textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: white; color: var(--ink); font: inherit; font-weight: 400; }
+.identity-form [aria-invalid="true"] { border-color: var(--urgent); }
+.identity-form .identity-field-error { color: var(--urgent); font-weight: 400; }
 .identity-form button { justify-self: start; }
 .identity-errors, .identity-notice { margin: 24px 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: white; }
 .identity-errors { color: var(--urgent); }

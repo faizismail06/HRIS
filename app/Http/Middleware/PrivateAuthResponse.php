@@ -20,7 +20,7 @@ class PrivateAuthResponse
         $run = function () use ($request, $next) {
             $pending = ! $request->user() && $request->session()->has('login.id');
             $id = $request->user()?->id ?? $request->session()->get('login.id');
-            if ($id && ! $request->isMethod('GET')) {
+            if ($id && ! $request->isMethod('GET') && ! $request->is('app', 'app/*')) {
                 // Serialize challenges/settings so two concurrent requests cannot consume one recovery code.
                 $user = User::query()->lockForUpdate()->find($id);
                 $version = $request->session()->get($pending ? 'login.security_version' : 'auth.security_version', 0);

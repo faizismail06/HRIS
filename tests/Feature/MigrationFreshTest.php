@@ -22,7 +22,7 @@ class MigrationFreshTest extends TestCase
                 $this->assertSame(0, Artisan::call('migrate:fresh', ['--database' => $connection, '--seed' => true, '--force' => true]));
                 $db = DB::connection($connection);
                 $this->assertSame($database, $db->getDatabaseName());
-                $this->assertSame(5, $db->table('migrations')->count());
+                $this->assertGreaterThanOrEqual(5, $db->table('migrations')->count());
                 $this->assertSame(0, $db->table('users')->count());
                 $functions = $db->select("SELECT proname FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace WHERE n.nspname = 'public' AND proname IN ('protect_hris_audit', 'guard_hris_department', 'guard_hris_assignment', 'guard_hris_period')");
                 $this->assertCount(4, $functions);

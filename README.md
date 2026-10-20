@@ -2,6 +2,8 @@
 
 Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti, kalender tim, administrasi kontrak/surat/karier, lifecycle/aset serta payroll/reimbursement dengan navigasi **Ruang Tim** dan data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0–R3 belum diimplementasikan.
 
+**Tahap saat ini: prototipe UI, belum selesai keseluruhan.** Laporan/penutupan serta pengaturan/audit/impor juga tersedia sebagai contoh baca saja. Login, database bisnis, transaksi dan alur operasional belum tersedia. Lihat [status proyek dan sisa pekerjaan](docs/PROJECT_STATUS.md) untuk membedakan layar yang tersedia dari implementasi domain.
+
 ## Pratinjau dashboard tanpa database
 
 Dependensi PHP dan frontend telah dipasang pada mesin pengembangan. Untuk instalasi baru, jalankan `composer install` dan `npm ci`. Salin `.env.example` ke `.env` jika belum ada, lalu atur:
@@ -76,6 +78,14 @@ Nominal memakai integer IDR sintetis. Klaim Arif tetap Rp 420.000 meskipun baru 
 - [Penutupan periode](http://127.0.0.1:8000/prototype/attendance-periods): contoh Terbuka, Dalam tinjauan dan Ditutup dengan versi sumber/tinjauan, roster/kebijakan, penghambat versus peringatan dan riwayat revisi. Arsip 28–30 September menyimpan snapshot tiga karyawan termasuk Intan dan tautan payroll final terkait.
 
 Laporan berjalan mengambil fixture attendance; arsip tertutup terpisah dan bukan laporan bulan penuh. Hash SHA-256 hanya atas data contoh, bukan lock/transaksi produksi. Koreksi sesudah payroll final memerlukan penyesuaian terpisah; lembur rencana tidak otomatis menjadi masukan terbayar. Tidak ada penutupan/pembukaan ulang, ekspor, validator lengkap atau mesin pembayaran operasional. Browser/aksesibilitas belum diverifikasi.
+
+## Modul Pengaturan, Audit & Impor
+
+- [Pengaturan](http://127.0.0.1:8000/prototype/settings): rancangan scope sembilan peran, batas mandat, larangan self-approval, delegasi dan keamanan akun. Nilai target belum diterapkan; tidak membaca atau menampilkan isi `.env`.
+- [Audit contoh](http://127.0.0.1:8000/prototype/audit): enam peristiwa sintetis, filter aktor/referensi/modul/hasil, konteks sebelum/sesudah, alasan dan korelasi. Ini bukan logger aktif atau audit aktivitas pengguna.
+- [Pratinjau impor](http://127.0.0.1:8000/prototype/imports): empat batch dengan pemetaan, kolom/baris bermasalah dan perbaikan. Batch invalid menolak seluruh baris dalam skenario; payload berulang mengacu hash dan batch asal tanpa penggandaan contoh.
+
+Tidak ada perubahan peran, unggahan, parsing CSV/XLSX, commit data atau ekspor. Formula pada contoh hanya teks. Batas 5.000 baris/10 MB adalah rancangan PRD, bukan limit yang sudah diberlakukan. Status selesai/deduplikasi pada batch adalah fixture; penulisan nyata oleh UI selalu nol. Modul belum memenuhi acceptance authorization/audit/import R0.
 
 ## Stack
 

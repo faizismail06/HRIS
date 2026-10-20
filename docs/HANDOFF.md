@@ -1,5 +1,15 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Status dan modul terbaru: Pengaturan, Audit & Impor
+
+Pengguna bertanya apakah semuanya selesai dan tahap sekarang. Jawaban: belum; ini masih tahap prototipe UI dengan fixture baca saja, belum autentikasi/policies, database bisnis, workflow atau implementasi operasional R0–R3. `docs/PROJECT_STATUS.md` kini menjadi peta cakupan dan sisa pekerjaan, ditautkan dekat awal README. Tahap pengerjaan fondasi/UI/backend/integrasi pada dokumen itu berbeda dari release R0–R3 PRD. UI berikutnya masih notifikasi/pencarian lintas modul, pengalaman Employee/Manager dan formulir/state transaksi; visual browser juga belum disahkan.
+
+Preview GET-only `/prototype/settings`, `/prototype/audit`, `/prototype/imports`, `/prototype/imports/{batch}` menggunakan `PrototypeAdministration`. Globalnav tujuh tetap, local Administrasi kini delapan tautan yang membungkus tanpa sidebar. Pengaturan menampilkan target sembilan peran, mandat dan batas; tidak membaca `.env` atau menerapkan konfigurasi. Audit enam fixture berlabel bukan log nyata, dengan before/after/alasan/korelasi tanpa payload sensitif.
+
+Empat batch impor: IMP-001 memiliki tiga baris, dua bermasalah (tiga pesan kolom), nol diterapkan; IMP-002 roster lintas tengah malam siap ditinjau tetapi tidak dipublikasikan; IMP-003 contoh selesai dua baris saldo, tanpa perubahan nyata; IMP-004 payload/jenis/hash sama dengan IMP-003, nol diterapkan dalam skenario dan tautan ke asal. Formula '=2+3' hanya teks, tidak dieksekusi. Tidak ada parser/unggahan/commit atomik/deduplikasi operasional, logger append-only atau manajemen izin sebenarnya. Semua query whitelist dan detail/backscope dipertahankan.
+
+Pint, build, kompilasi Blade, enam HTTP smoke checks dan 63 tes/695 assertions lulus. Review statis tidak menemukan cacat material yang terkonfirmasi. Verdict visual `recapture`: browser inventory kosong dan screenshot belum dapat dibuat; visual/aksesibilitas belum diverifikasi. Detector hanya advisory baseline enam warna, 23 ukuran font dan lima radius. Kontrak UI di `docs/administration-surface.md`. Bagian berikut adalah riwayat modul sebelumnya.
+
 ## Modul terbaru: Laporan & Penutupan Kehadiran
 
 Preview GET-only `/prototype/attendance-reports`, `/prototype/attendance-periods` dan `/prototype/attendance-periods/{period}` memakai `PrototypeReports`. Localnav Kehadiran menjadi empat tujuan Rekap/Jadwal/Laporan/Penutupan; header global tetap tujuh. Laporan mingguan mengambil fixture bersama `PrototypeAttendance`, filter minggu/cabang/departemen/karyawan divalidasi. Tautan sumber menuju detail shift memakai from=reports dan mempertahankan report_week, cabang, departemen serta karyawan saat kembali. URL navigasi sebelumnya tetap dipertahankan.

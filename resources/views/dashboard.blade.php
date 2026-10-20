@@ -1,33 +1,9 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="robots" content="noindex, nofollow">
-    <title>Ringkasan HR · Operational HRIS</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="hris-app" data-dashboard>
-    <a class="skip-link" href="#main">Langsung ke konten</a>
-    <header class="app-header">
-        <div class="header-inner">
-            <a class="brand" href="#ringkasan" aria-label="Operational HRIS, ringkasan"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>hris<span class="brand-dot">.</span></span></a>
-            <nav id="workspace-nav" class="workspace-nav" aria-label="Navigasi ruang kerja">
-                <a href="#ringkasan" class="nav-item is-current" aria-current="location">Ringkasan</a>
-                <a href="#antrean" class="nav-item">Tugas <span class="nav-count">{{ count($tasks) }}</span></a>
-                <a href="#agenda" class="nav-item">Agenda</a>
-            </nav>
-            <div class="persona"><span class="avatar avatar-hr" aria-hidden="true">HR</span><span><strong>Tim HR</strong><small>Persona sintetis</small></span></div>
-        </div>
-    </header>
-    <div class="workspace">
-        <main id="main" tabindex="-1">
-            <div class="preview-notice"><x-icon name="info" size="17"/><p><strong>Prototipe UI</strong><span class="notice-divider">·</span>Data sintetis. Pratinjau ini tidak mengubah catatan HR.</p><a href="#tentang">Pelajari batasnya <x-icon name="arrow" size="15"/></a></div>
-
+<x-app-layout title="Ringkasan HR" active="dashboard" :dashboard="true">
             <section id="ringkasan" class="overview" aria-labelledby="page-title">
                 <div class="page-heading"><div><h1 id="page-title">Selamat pagi, tim HR.</h1><p>Gambaran tim dan pekerjaan Anda hari ini, dalam satu tempat.</p></div><div class="snapshot"><x-icon name="calendar" size="17"/><span>{{ $date }}<small>Snapshot contoh · {{ $snapshot }}</small></span></div></div>
 
 
+                <nav class="section-links" aria-label="Bagian ringkasan"><a href="#antrean">Tugas {{ count($tasks) }}</a><a href="#agenda">Agenda hari ini</a></nav>
                 <div class="overview-grid">
                 <section class="attendance-strip" aria-labelledby="attendance-title">
                     <div class="section-heading"><div><h2 id="attendance-title">Kehadiran hari ini</h2><p>Semua cabang · {{ array_sum(array_column($attendance, 'count')) }} karyawan terjadwal</p></div><span class="data-label">Data sintetis</span></div>
@@ -83,8 +59,4 @@
 
             </div>
 
-            <footer id="tentang" class="preview-footer"><details><summary><x-icon name="info" size="16"/>Tentang prototipe ini<x-icon name="chevron" size="14"/></summary><div><p>Semua nama, tugas, jumlah, dan jadwal di halaman ini adalah data sintetis dengan tanggal contoh 20 Oktober 2026. Persona HR bukan akun login. Pencarian dan filter hanya mengubah tampilan pada perangkat ini.</p><p>Modul karyawan, organisasi, absensi, persetujuan, dan payroll belum aktif. Data sintetis ini tidak masuk laporan operasional. Pratinjau UI ini belum merupakan instalasi demo terisolasi yang dijelaskan dalam PRD.</p></div></details><span>Operational HRIS · Pratinjau antarmuka</span></footer>
-        </main>
-    </div>
-</body>
-</html>
+</x-app-layout>

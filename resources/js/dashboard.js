@@ -51,23 +51,9 @@ if (dashboard) {
         search.focus();
     });
 
-    const navigationLinks = [...dashboard.querySelectorAll('.workspace-nav a')];
-
-    function syncCurrentSection() {
-        const hash = window.location.hash || '#ringkasan';
-        navigationLinks.forEach((item) => {
-            const current = item.getAttribute('href') === hash;
-            item.classList.toggle('is-current', current);
-            if (current) item.setAttribute('aria-current', 'location');
-            else item.removeAttribute('aria-current');
-        });
-    }
-
-    syncCurrentSection();
-    window.addEventListener('hashchange', syncCurrentSection);
-
-    dashboard.querySelectorAll('.workspace-nav a, .brand').forEach((link) => link.addEventListener('click', () => {
+    dashboard.querySelectorAll('.section-links a').forEach((link) => link.addEventListener('click', () => {
         const target = dashboard.querySelector(link.getAttribute('href'));
+        if (!target) return;
         target.setAttribute('tabindex', '-1');
         target.focus({ preventScroll: true });
     }));

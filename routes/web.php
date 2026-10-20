@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PrototypeDashboardController;
+use App\Http\Controllers\PrototypePeopleController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
 use Illuminate\Support\Facades\Route;
 
@@ -13,7 +14,10 @@ Route::get('/', function () {
 });
 
 if (app()->environment(['local', 'testing'])) {
-    Route::get('/prototype/dashboard', PrototypeDashboardController::class)
-        ->middleware(EnsureUiPreviewIsEnabled::class)
-        ->name('prototype.dashboard');
+    Route::middleware(EnsureUiPreviewIsEnabled::class)->prefix('prototype')->name('prototype.')->group(function () {
+        Route::get('/dashboard', PrototypeDashboardController::class)->name('dashboard');
+        Route::get('/employees', [PrototypePeopleController::class, 'index'])->name('employees');
+        Route::get('/employees/{employee}', [PrototypePeopleController::class, 'show'])->name('employees.show');
+        Route::get('/organization', [PrototypePeopleController::class, 'organization'])->name('organization');
+    });
 }

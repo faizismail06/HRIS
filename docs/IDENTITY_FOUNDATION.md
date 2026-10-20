@@ -31,7 +31,7 @@ php artisan hris:provision-account manager --scope=team --employee=2
 php artisan hris:revoke-account 3 --actor=1
 ```
 
-ID di atas hanya contoh dan harus diganti dengan catatan yang benar-benar tersedia. Karyawan, cabang, departemen dan jabatan belum memiliki endpoint mutasi; UI CRUD adalah modul berikutnya. Akun Employee/Manager harus ditautkan ke karyawan. Provisioning/revoke adalah tindakan operator dengan akses shell, bukan endpoint publik atau pengganti autentikasi admin di web. Argumen `--actor` mencatat penanggung jawab dan memvalidasi peran aktif, bukan membuktikan identitas operator shell.
+ID di atas hanya contoh dan harus diganti dengan catatan yang benar-benar tersedia. Master organisasi dan tambah/perubahan identitas kerja kini tersedia sesuai [COREHR_WORKFLOW.md](COREHR_WORKFLOW.md). Akun Employee/Manager harus ditautkan ke karyawan. Provisioning/revoke adalah tindakan operator dengan akses shell, bukan endpoint publik atau pengganti autentikasi admin di web. Argumen `--actor` mencatat penanggung jawab dan memvalidasi peran aktif, bukan membuktikan identitas operator shell.
 
 ## Batas akses
 
@@ -80,4 +80,4 @@ Tes mencakup password/MFA enrollment/challenge, kode pemulihan sekali pakai, rat
 
 Sebelum produksi: sediakan HTTPS, proxy tepercaya yang tepat, cookie aman, APP_DEBUG=false, mailer nyata, cache/session bersama yang persisten, backup/restore APP_KEY dan database, hak database minimum, pengawasan pengiriman reset serta UAT akses. Di production, request HTTP ditolak dan pengiriman reset ditolak jika mailer masih `log`/`array`. Respons permintaan reset sama untuk email dikenal/tidak dikenal. SMTP delivery belum diuji; mail lokal `log` bukan layanan pemulihan operasional.
 
-Berikutnya: CRUD organisasi/karyawan dengan validasi, transaksi, audit perubahan dan pembatasan field; kemudian workflow domain lain. Modul ini tidak mengubah fixture preview menjadi data nyata dan tidak mengimplementasikan payroll, persetujuan, impor atau demo persona.
+Mutasi awal organisasi/karyawan dan persetujuan perubahan kerja kini tersedia pada [modul CoreHR](COREHR_WORKFLOW.md), dengan izin eksplisit company HR serta transaksi/audit. Workflow domain lain, payroll, impor dan demo persona menyusul. Fixture preview tetap terpisah dari data nyata.

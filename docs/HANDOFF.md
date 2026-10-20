@@ -1,5 +1,15 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Organisasi dan workflow karyawan
+
+Master cabang/departemen/jabatan kini menerima create/update/archive oleh HR Admin company. Nomor karyawan, nama/email kerja, periode dan penempatan awal dibuat atomik oleh HR Officer/Admin company. Perubahan nama/email dan cabang/departemen/jabatan/atasan melalui pengajuan dengan snapshot sebelum/usulan, catatan keputusan dan versi. Approval hanya HR Admin company lain; pengaju dan subjek ditolak. Scope terbatas tetap baca saja. Tidak ada hard delete, mutasi profil sensitif, rehire, lifecycle atau workflow umum.
+
+Perubahan penempatan hanya mendatang dan membagi rentang [from,to) tanpa mengubah hari ini atau menunggu scheduler. Versi stale/review berulang menghasilkan409. Master aktif, jabatan/departemen, manager, overlap dan siklus diperiksa sebelum simpan; approval memvalidasi ulang master dan versi. Kegagalan membatalkan seluruh transaksi. Locks perusahaan/actor seragam dengan layanan akses; middleware challenge identitas tidak lagi mengambil lock actor sebelum layanan CoreHR mengambil lock perusahaan. Audit before/after memakai whitelist.
+
+Pemeriksaan akhir: **114 tes / 1785 assertions lulus**, Pint, kompilasi Blade dan build Vite lulus. Tes validasi mengikuti cookie sesi pada redirect agar menguji flash input/error seperti browser. Migrasi tambahan berjalan di database pengembangan/testing tanpa reset pengembangan; fresh regression hanya pada database sementara. Tidak ada tes beban/multi-proses atau pengiriman nyata.
+
+Review source menyelesaikan tiga temuan: fallback seterusnya, asosiasi error field input/select/textarea dan retensi keputusan. Komponen core-field mempertahankan kontrol native. Detector sekali hanya34advisory baseline lama. Verdict visual recapture karena browser kosong, tanpa pengesahan screenshot/keyboard/kontras. Documenter mempertahankan DESIGN.md/sidecar dan melaporkan deskripsi scope statis lama tanpa memperbaikinya di luar scope. Ruang Tim/no-sidebar dipertahankan. Panduan: [COREHR_WORKFLOW.md](COREHR_WORKFLOW.md), kontrak UI: [corehr-surface.md](corehr-surface.md). Bagian berikut adalah riwayat tahap sebelumnya.
+
 ## Perbaikan migrasi ulang PostgreSQL
 
 `migrate:fresh --seed` sempat gagal karena fungsi PostgreSQL tetap ada setelah tabel dihapus. Keempat fungsi audit/riwayat kini memakai `CREATE OR REPLACE FUNCTION`, sehingga definisi dapat dipasang ulang tanpa duplicate function. Database pengembangan yang gagal dipulihkan dengan `migrate --seed` tanpa reset tambahan. Regresi memakai database sementara bernama acak, menjalankan fresh+seed dua kali serta memverifikasi trigger audit masih menolak update; database sementara dibersihkan setelah tes. Gabungan tes migrasi dan identitas: 19 tes / 180 assertions lulus. Pengguna PostgreSQL untuk tes migrasi ini memerlukan CREATEDB; database pengembangan tidak digunakan untuk reset regresi.

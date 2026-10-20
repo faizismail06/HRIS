@@ -14,7 +14,7 @@
         <div class="header-inner">
             <a class="brand" href="{{ route('prototype.dashboard') }}" aria-label="Operational HRIS, ringkasan"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>hris<span class="brand-dot">.</span></span></a>
             <nav class="workspace-nav" aria-label="Navigasi ruang kerja">
-                @foreach(['dashboard' => 'Ringkasan', 'employees' => 'Karyawan', 'organization' => 'Organisasi', 'attendance' => 'Kehadiran', 'requests' => 'Pengajuan'] as $page => $label)
+                @foreach(['dashboard' => 'Ringkasan', 'employees' => 'Karyawan', 'organization' => 'Organisasi', 'attendance' => 'Kehadiran', 'requests' => 'Pengajuan', 'contracts' => 'Administrasi'] as $page => $label)
                     <a href="{{ route('prototype.'.$page) }}" class="nav-item {{ $active === $page ? 'is-current' : '' }}" @if($active === $page) aria-current="page" @endif>{{ $label }}</a>
                 @endforeach
             </nav>

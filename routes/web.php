@@ -15,6 +15,8 @@ use App\Http\Controllers\PrototypeWorkspaceController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
 use Illuminate\Support\Facades\Route;
 
+require __DIR__.'/workspace.php';
+
 Route::get('/', function () {
     if (app()->environment(['local', 'testing']) && config('hris.ui_preview_enabled')) {
         return redirect()->route('prototype.dashboard');

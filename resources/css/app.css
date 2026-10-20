@@ -8,6 +8,31 @@
     --font-sans: 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
 }
 
+.hris-app main.identity-shell { max-width: 860px; padding: 40px 28px 72px; margin: 0 auto; }
+.identity-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+.identity-nav form { margin-left: auto; }
+.identity-form { display: grid; gap: 22px; max-width: 480px; margin: 28px 0; }
+.identity-form label { display: grid; gap: 8px; font-weight: 600; }
+.identity-form input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: white; color: var(--ink); font: inherit; font-weight: 400; }
+.identity-form input[aria-invalid="true"] { border-color: var(--urgent); }
+.identity-form button { justify-self: start; }
+.identity-errors, .identity-notice { margin: 24px 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: white; }
+.identity-errors { color: var(--urgent); }
+.identity-errors ul, .identity-section ul { list-style: disc; padding-left: 24px; }
+.identity-section { padding: 28px 0; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.identity-shell h2 { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+.identity-recovery { margin: 28px 0; }
+.identity-recovery summary { color: var(--accent); cursor: pointer; min-height: 44px; padding: 10px 0; text-decoration: underline; text-underline-offset: 3px; }
+.identity-codes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 20px 0; }
+.identity-qr { background: white; width: fit-content; max-width: 100%; padding: 16px; margin: 24px 0; }
+.identity-qr svg { max-width: 100%; height: auto; }
+.identity-directory { margin: 32px 0; }
+.identity-directory > li, .identity-facts > div { padding: 18px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.identity-directory p, .identity-facts dt { color: var(--muted); }
+.identity-facts { margin: 24px 0; }
+.identity-facts dd { margin: 6px 0 0; }
+@media (max-width: 480px) { .hris-app main.identity-shell { padding: 24px 20px 48px; } .identity-codes { grid-template-columns: 1fr; } .identity-form button { width: 100%; } }
+
 .hris-app {
     --ink: #332c36;
     --muted: #716775;

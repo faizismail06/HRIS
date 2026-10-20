@@ -9,6 +9,10 @@ class AccountSecurity
 {
     public static function available(User $user): bool
     {
+        if (DB::table('account_suspensions')->where('user_id', $user->id)->whereNull('revoked_at')->where('starts_at', '<=', now())->where(fn ($q) => $q->whereNull('ends_at')->orWhere('ends_at', '>', now()))->exists()) {
+            return false;
+        }
+
         return $user->is_active && (! $user->employee_id || ! $user->employee->periods()->exists() || $user->employee->statusAt(today()->toDateString()) !== 'ENDED');
     }
 

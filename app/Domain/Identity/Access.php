@@ -17,6 +17,14 @@ class Access
             'organization.manage' => ['hr_admin'],
             'employees.manage' => ['hr_admin', 'hr_officer'],
             'employees.review' => ['hr_admin'],
+            'workflow.manage' => ['hr_admin'],
+            'schedules.manage' => ['hr_admin', 'hr_officer'],
+            'leave.manage' => ['hr_admin'],
+            'attendance.close' => ['hr_admin'],
+            'documents.manage' => ['hr_admin', 'hr_officer'],
+            'assets.manage' => ['it_asset_officer'],
+            'payroll.prepare' => ['payroll_officer'],
+            'payroll.approve' => ['finance_approver'],
             default => [],
         };
 

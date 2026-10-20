@@ -1,5 +1,9 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## 21 Oktober — fondasi approval dan operasi
+
+Mulai pelaksanaan seluruh backend sesuai [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md). Fondasi mesin approval bersama tersedia sebagai layanan dan API sesi/CSRF/MFA; domain tanpa handler nyata tetap ditolak. Ada snapshot kandidat/tahap, idempotency receipts, efek keputusan atomik, blocked/reassign, inbox/outbox/delivery lease, scheduler/reminder dan berkas privat. Payload workflow dienkripsi/tidak diserialisasi. Suspension terpisah diperiksa runtime. Rincian dan batas: [WORKFLOW_OPERATIONS.md](WORKFLOW_OPERATIONS.md). Tes penuh121tes/1858assertions lulus. Domain attendance dan modul setelahnya masih dikerjakan; ini bukan penyelesaian seluruh backend.
+
 ## Organisasi dan workflow karyawan
 
 Master cabang/departemen/jabatan kini menerima create/update/archive oleh HR Admin company. Nomor karyawan, nama/email kerja, periode dan penempatan awal dibuat atomik oleh HR Officer/Admin company. Perubahan nama/email dan cabang/departemen/jabatan/atasan melalui pengajuan dengan snapshot sebelum/usulan, catatan keputusan dan versi. Approval hanya HR Admin company lain; pengaju dan subjek ditolak. Scope terbatas tetap baca saja. Tidak ada hard delete, mutasi profil sensitif, rehire, lifecycle atau workflow umum.

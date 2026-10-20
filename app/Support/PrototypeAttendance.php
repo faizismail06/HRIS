@@ -28,6 +28,7 @@ class PrototypeAttendance
     {
         $records = [];
         $snapshot = CarbonImmutable::parse(self::SNAPSHOT, 'Asia/Jakarta');
+        $approvedLeave = PrototypeRequests::approvedLeaveDates();
         foreach (self::employees() as $person) {
             for ($day = 12; $day <= 25; $day++) {
                 $date = sprintf('2026-10-%02d', $day);
@@ -48,7 +49,7 @@ class PrototypeAttendance
                 $end = $workDate->addDays($overnight ? 1 : 0)->setTimeFromTimeString($endTime);
                 $breakStart = $workDate->addDays($overnight ? 1 : 0)->setTimeFromTimeString($breakTime);
                 $status = $off ? 'DAY_OFF' : ($start->isAfter($snapshot) ? 'SCHEDULED' : ($end->isAfter($snapshot) ? 'IN_PROGRESS' : 'PRESENT'));
-                if (! $off && $person['id'] === 'EMP-010' && $day === 19) {
+                if (! $off && isset($approvedLeave[$person['id']][$date])) {
                     $status = 'LEAVE';
                 }
                 if (! $off && (($person['id'] === 'EMP-004' && $day === 18) || ($person['id'] === 'EMP-009' && $day === 18))) {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PrototypeAttendanceController;
 use App\Http\Controllers\PrototypeDashboardController;
 use App\Http\Controllers\PrototypePeopleController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
@@ -19,5 +20,8 @@ if (app()->environment(['local', 'testing'])) {
         Route::get('/employees', [PrototypePeopleController::class, 'index'])->name('employees');
         Route::get('/employees/{employee}', [PrototypePeopleController::class, 'show'])->name('employees.show');
         Route::get('/organization', [PrototypePeopleController::class, 'organization'])->name('organization');
+        Route::get('/attendance', [PrototypeAttendanceController::class, 'index'])->name('attendance');
+        Route::get('/attendance/{record}', [PrototypeAttendanceController::class, 'show'])->name('attendance.show');
+        Route::get('/schedules', [PrototypeAttendanceController::class, 'schedules'])->name('schedules');
     });
 }

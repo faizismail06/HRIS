@@ -87,6 +87,13 @@ Laporan berjalan mengambil fixture attendance; arsip tertutup terpisah dan bukan
 
 Tidak ada perubahan peran, unggahan, parsing CSV/XLSX, commit data atau ekspor. Formula pada contoh hanya teks. Batas 5.000 baris/10 MB adalah rancangan PRD, bukan limit yang sudah diberlakukan. Status selesai/deduplikasi pada batch adalah fixture; penulisan nyata oleh UI selalu nol. Modul belum memenuhi acceptance authorization/audit/import R0.
 
+## Modul Notifikasi & Pencarian
+
+- [Notifikasi](http://127.0.0.1:8000/prototype/notifications): enam pesan sintetis, status baca terpisah dari pengiriman email, detail pesan dan tautan sumber, antrean jam tenang serta retry contoh. Membuka detail tidak mengubah status baca. Kegagalan pengiriman tidak membatalkan pengajuan sumber.
+- [Pencarian lintas modul](http://127.0.0.1:8000/prototype/search): minimal dua karakter, filter sepuluh kategori, hasil menuju route sumber. Indeks contoh memakai ringkasan terpilih tanpa nominal gaji, komponen slip, isi surat, alasan pribadi, email atau bukti klaim.
+
+Dua tautan utilitas tersedia pada semua halaman preview, tanpa menambah tujuan global atau sidebar. Badge tiga pesan belum dibaca berasal dari fixture tetap. Tidak ada inbox/outbox tersimpan, pengiriman email, penandaan dibaca, preferensi aktif, retry job atau indeks/otorisasi pencarian produksi. Kembali dari hasil pencarian memakai browser Back; query tidak diteruskan sebagai filter lokal yang berbeda makna.
+
 ## Stack
 
 Laravel 13 + Livewire 4, Blade, Tailwind CSS 4, Vite dan PostgreSQL. Versi patch dikunci di composer.lock dan package-lock.json.

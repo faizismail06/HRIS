@@ -1,5 +1,15 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Notifikasi & Pencarian Lintas Modul
+
+Preview GET-only `/prototype/notifications`, `/prototype/notifications/{notification}`, `/prototype/search` memakai `PrototypeWorkspace`. Globalnav tetap tujuh; dua tautan utilitas ada di main di atas previewnotice dan dapat membungkus. Badge tiga belum dibaca mempunyai nama aksesibel pada tautan, angka visual aria-hidden. Tidak ada sidebar. `docs/PROJECT_STATUS.md` kini mencatat modul tersedia sebagai UI, bukan inbox/search operasional; fase proyek tetap prototipe UI.
+
+Enam notifikasi: tiga unread, dua read, satu archived. Status emailNONE/SENT/FAILED/QUEUED terpisah dari status baca dan sumber. Detail/backscope mempertahankan q/state/delivery. COR-026 gagal email setelah tiga percobaan contoh sebelum jamtenang, jadwal berikut09.00WIB, pengajuan tetapIN_REVIEW. CTR-001 queued tanpa percobaan, tidak memperpanjang kontrak. Jamtenang21–09/digest09 adalah contoh, tidak disimpan. Pesan tidak memuat nominal gaji, alasan medis atau lampiran. GET tidak menandai dibaca atau mengubah transaksi.
+
+Pencarian minimal2maks100karakter, filter10kategori, initial/empty/reset. Proyeksi eksplisit dari fixture existing, tanpa privatepayload, email, nominal, isi surat atau bukti klaim. Route/parameter tetap dari kode; query tidak memilih endpoint. Hasil memakai browser Back untuk konteks pencarian, tidak mengoper q ke filter sumber berbeda makna. Belum ada indeks berizin, otorisasi owner/team atau querylogging produksi.
+
+Pint, build, kompilasi Blade, enam HTTP smoke checks serta HTTP ulang setelah perbaikan copy dan 71 tes/921 assertions lulus. Review statis tidak menemukan cacat logika material; satu temuan copy istilah implementasi sudah diganti bahasa pengguna dan dinilai resolved. Verdict visual tetap `recapture` karena browser inventory kosong; visual/aksesibilitas belum disahkan. Detector hanya baseline enam warna, 23 ukuran font dan lima radius. Tidak ada pengiriman, retryjob/outbox, preferensi/mutasi atau koneksi ke data operasional. Kontrak UI `docs/workspace-surface.md`. Bagian berikut adalah riwayat modul sebelumnya.
+
 ## Status dan modul terbaru: Pengaturan, Audit & Impor
 
 Pengguna bertanya apakah semuanya selesai dan tahap sekarang. Jawaban: belum; ini masih tahap prototipe UI dengan fixture baca saja, belum autentikasi/policies, database bisnis, workflow atau implementasi operasional R0–R3. `docs/PROJECT_STATUS.md` kini menjadi peta cakupan dan sisa pekerjaan, ditautkan dekat awal README. Tahap pengerjaan fondasi/UI/backend/integrasi pada dokumen itu berbeda dari release R0–R3 PRD. UI berikutnya masih notifikasi/pencarian lintas modul, pengalaman Employee/Manager dan formulir/state transaksi; visual browser juga belum disahkan.

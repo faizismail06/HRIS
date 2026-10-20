@@ -1,6 +1,6 @@
 # Status proyek
 
-Status setelah modul Pengaturan, Audit & Impor. Dokumen ini membedakan prototipe tampilan dari implementasi domain; jumlah commit atau jumlah layar bukan ukuran kesiapan produksi.
+Status setelah modul Notifikasi & Pencarian. Dokumen ini membedakan prototipe tampilan dari implementasi domain; jumlah commit atau jumlah layar bukan ukuran kesiapan produksi.
 
 ## Tahap saat ini
 
@@ -26,13 +26,13 @@ Tahap pengerjaan di atas bukan penamaan release R0–R3 pada PRD. R0–R3 adalah
 | Payroll dan reimbursement | Snapshot, penghambat, komponen, slip HTML dan pembayaran contoh | Belum kalkulasi regulasi, finalisasi, pembayaran, bank export atau akses slip privat |
 | Laporan dan penutupan | Agregasi mingguan, sumber shift dan arsip contoh | Belum close/reopen, snapshot transaksi, lock, ekspor atau rekonsiliasi nyata |
 | Pengaturan, audit dan impor | Matriks target, peristiwa sintetis dan validasi batch contoh | Belum pengaturan tersimpan, audit append-only, upload/parser/commit atomik |
-| Notifikasi dan pencarian lintas modul | Belum tersedia | Belum inbox/outbox, pengiriman atau indeks berizin |
+| Notifikasi dan pencarian lintas modul | Kotak masuk/status pengiriman contoh dan pencarian ringkasan sepuluh jenis catatan | Belum inbox/outbox tersimpan, pengiriman/retry, preferensi aktif atau indeks berizin |
 | Pengalaman Employee/Manager dan formulir mutasi | Belum lengkap | Belum alur submit sampai hasil akhir |
 | Demo terisolasi | Preview local/testing berlabel sintetis | Belum instalasi demo, skenario terisolasi, persona auth atau reset berizin |
 
 ## Pekerjaan UI berikutnya
 
-Notifikasi/pencarian lintas modul, pengalaman Employee/Manager, formulir beserta state gagal/terlarang/stale/queued, dan penyatuan alur lintas modul masih perlu diselesaikan sesuai scope. Review browser desktop/ponsel, keyboard, zoom, kontras dan screen reader belum dapat disahkan karena browser sesi implementasi tidak tersedia. UI baca saja ini belum merupakan implementasi seluruh interaksi PRD.
+Pengalaman Employee/Manager, formulir beserta state gagal/terlarang/stale/queued, dan penyatuan alur lintas modul masih perlu diselesaikan sesuai scope. Notifikasi/pencarian kini tersedia sebagai preview; aksi baca/arsip/preferensi dan pembatasan hasil per akun belum operasional. Review browser desktop/ponsel, keyboard, zoom, kontras dan screen reader belum dapat disahkan karena browser sesi implementasi tidak tersedia. UI baca saja ini belum merupakan implementasi seluruh interaksi PRD.
 
 ## Sebelum dipakai operasional
 

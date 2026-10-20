@@ -31,4 +31,8 @@ Thumbs.db
 /.cache
 /.impeccable/config.local.json
 /.impeccable/live
+/.impeccable/questions
+/.impeccable/mocks
+/.impeccable/review
+/.impeccable/build
 

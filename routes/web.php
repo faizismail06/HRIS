@@ -3,6 +3,7 @@
 use App\Http\Controllers\PrototypeAttendanceController;
 use App\Http\Controllers\PrototypeDashboardController;
 use App\Http\Controllers\PrototypeEmploymentController;
+use App\Http\Controllers\PrototypeLifecycleController;
 use App\Http\Controllers\PrototypePeopleController;
 use App\Http\Controllers\PrototypeRequestsController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
@@ -29,6 +30,10 @@ if (app()->environment(['local', 'testing'])) {
         Route::get('/requests/{requestId}', [PrototypeRequestsController::class, 'show'])->name('requests.show');
         Route::get('/leave-balances', [PrototypeRequestsController::class, 'balances'])->name('leave-balances');
         Route::get('/team-calendar', [PrototypeRequestsController::class, 'calendar'])->name('team-calendar');
+        Route::get('/lifecycle', [PrototypeLifecycleController::class, 'index'])->name('lifecycle');
+        Route::get('/lifecycle/{record}', [PrototypeLifecycleController::class, 'show'])->name('lifecycle.show');
+        Route::get('/assets', [PrototypeLifecycleController::class, 'assets'])->name('assets');
+        Route::get('/assets/{record}', [PrototypeLifecycleController::class, 'asset'])->name('assets.show');
         foreach (['contracts', 'letters', 'career-changes'] as $kind) {
             Route::get('/'.$kind, [PrototypeEmploymentController::class, 'index'])->defaults('kind', $kind)->name($kind);
             Route::get('/'.$kind.'/{record}', [PrototypeEmploymentController::class, 'show'])->defaults('kind', $kind)->name($kind.'.show');

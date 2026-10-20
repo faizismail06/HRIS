@@ -185,3 +185,7 @@ Pengguna mengonfirmasi belum ada kebijakan: siapkan draft. Tidak ada policy/tari
 ## Reimbursement API dan kanal settlement
 
 16 tests / 308 assertions untuk expense/payroll/workflow lulus. Bukti wajib, alur manager-Finance, limit kategori/eligibility, duplicate-warning dan finance verification evidence tersedia. Unique allocation mengunci kanal payroll/reimbursement, settlement parsial append-only dan outcome payroll terhubung tanpa debit ganda. Payroll membayar salary dahulu lalu claim menurut allocation ID. Detail EXPENSE_BACKEND.md. Masih perlu import/report/demo dan kelengkapan acceptance yang dicatat per modul.
+
+## Impor atomik dan staging
+
+5 ImportTest / 92 assertions lulus setelah perbaikan UUID namespace dan roster receipt. Dukungan CSV/XLSX, upload-map-preview-commit, checksum, error per baris, encrypted staging dan background worker dengan recheck izin. Seluruh jenis diuji: masters, employee/identity draft, roster draft, opening leave ledger dan compensation draft. Duplicate national ID/changed source tidak membuat profil parsial; formula XLSX ditolak. IMPORTS_BACKEND.md mencatat batas ukuran, data format dan sisa UAT/load.

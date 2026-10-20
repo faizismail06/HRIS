@@ -6,6 +6,7 @@ use App\Http\Controllers\AttendanceCloseController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LifecycleController;
@@ -17,6 +18,11 @@ use App\Http\Controllers\WorkflowController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::post('/imports', [ImportController::class, 'upload']);
+    Route::get('/imports/{id}', [ImportController::class, 'show'])->whereNumber('id');
+    foreach (['map', 'preview', 'commit'] as $action) {
+        Route::post('/imports/{id}/'.$action, [ImportController::class, $action])->whereNumber('id');
+    }
     Route::post('/expense-policies', [ExpenseController::class, 'policy']);
     Route::get('/expense-claims/{id}', [ExpenseController::class, 'detail'])->whereNumber('id');
     Route::post('/expense-claims/{id}/allocate', [ExpenseController::class, 'allocate'])->whereNumber('id');

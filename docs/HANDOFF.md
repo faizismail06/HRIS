@@ -1,5 +1,17 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Backend pertama: identitas, MFA dan skema CoreHR
+
+Login nyata melalui Fortify tersedia di `/login`, pengaturan MFA di `/account/security`, beranda `/app` dan direktori baca saja `/app/employees`. MFA wajib sebelum membaca data; scope query membatasi self/team/branch/department/company dan detail lintas scope menghasilkan 404. Platform Admin tidak memperoleh akses HR otomatis. Pendaftaran publik dan mutasi direktori ditutup. Preview tetap terpisah, sintetis dan baca saja.
+
+Migrasi PostgreSQL telah dijalankan pada database pengembangan yang sebelumnya kosong serta database khusus `hris_testing`. Tabel organisasi, periode kerja/penempatan bertanggal efektif, grants dan audit tersedia. Exclusion constraints menolak overlap, trigger menolak siklus departemen/atasan serta penempatan di luar periode, dan audit menolak update/delete/truncate. Tabel jabatan memakai `job_positions` agar tidak berbenturan dengan antrean Laravel `jobs`. Akun operasional nyata belum dibuat; `DatabaseSeeder` tidak membuat akun default. Bootstrap/provision dan revoke disediakan lewat terminal tepercaya.
+
+Tes penuh pertama: **90 tes / 1519 assertions lulus**, termasuk 78 tes preview lama dan 12 tes backend. Setelah tambahan pengujian provisioning/bootstrap, akhir masa kerja, pembatasan MFA, kebijakan default deny, manual setup dan validasi password, suite backend terbaru: **18 tes / 168 assertions lulus**. Tes PostgreSQL memakai rollback transaksi pada `hris_testing`; tidak ada `migrate:fresh` atau penghapusan data pengembangan. Pint, kompilasi Blade dan build Vite lulus. Uji beban/multi-proses, SMTP dan UAT belum dilakukan.
+
+Review source menemukan kebutuhan setup MFA manual pada satu ponsel; disclosure kunci TOTP beserta penerbit/akun telah ditambahkan dan dinilai resolved. Verdict visual tetap **recapture** karena browser inventory kosong: capture desktop/ponsel login, challenge, setup/confirmed dan direktori belum tersedia. Detector sukses sekali, hanya advisory baseline lama; documenter mempertahankan DESIGN.md/sidecar karena ekstensi mengikuti Ruang Tim. Tidak ada klaim kelulusan render atau aksesibilitas browser.
+
+Panduan operasional, grants, keamanan, pengujian dan batas scope: [IDENTITY_FOUNDATION.md](IDENTITY_FOUNDATION.md). Kontrak UI: [identity-surface.md](identity-surface.md). Tahap berikutnya CRUD organisasi/karyawan melalui policy, validasi dan transaksi di atas fondasi ini. Ini belum acceptance R0 atau kesiapan produksi. Bagian berikut adalah riwayat modul terdahulu.
+
 ## Penyelesaian cakupan visual statis
 
 Pengguna meminta seluruh visual statis diselesaikan. Ditambahkan katalog `/prototype/screens`, 48 spesifikasi `/prototype/screens/{screen}` dengan state ready/invalid, 12 halaman `/prototype/states/{state}` dan tujuh beranda `/prototype/portals/{persona}`. Katalog menghubungkan daftar/detail lama, role views, formulir dan tiga rute peninjauan lintas modul. `docs/STATIC_SCREENS.md` memetakan kelompok PRD. Status proyek kini membedakan cakupan implementasi statis yang telah dilengkapi dari QA browser tertunda dan backend yang belum tersedia.

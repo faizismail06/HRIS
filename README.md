@@ -1,8 +1,12 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti, kalender tim, administrasi kontrak/surat/karier, lifecycle/aset serta payroll/reimbursement dengan navigasi **Ruang Tim** dan data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0–R3 belum diimplementasikan.
+Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Tersedia prototipe visual modul HRIS dengan navigasi **Ruang Tim** dan data sintetis. Backend pertama kini mencakup login/MFA/reset, akses berdasarkan peran/scope, direktori kerja baca saja serta migrasi organisasi/riwayat dan audit. CRUD, workflow domain, demo terisolasi dan acceptance R0–R3 belum selesai.
 
-**Cakupan visual statis inti telah dilengkapi; QA browser masih tertunda.** Buka [Panduan semua layar](http://127.0.0.1:8000/prototype/screens): tujuh beranda peran, 48 formulir awal/validasi gagal, 12 state serta tautan ke daftar/detail modul. Login, database bisnis, transaksi dan alur operasional belum tersedia. Lihat [status proyek](docs/PROJECT_STATUS.md) dan [inventaris layar](docs/STATIC_SCREENS.md) untuk batas penyelesaian.
+**Cakupan visual statis inti telah dilengkapi; QA browser masih tertunda.** Buka [Panduan semua layar](http://127.0.0.1:8000/prototype/screens): tujuh beranda peran, 48 formulir awal/validasi gagal, 12 state serta tautan ke daftar/detail modul. Form preview tetap nonoperasional. Lihat [status proyek](docs/PROJECT_STATUS.md), [inventaris layar](docs/STATIC_SCREENS.md) dan [panduan backend identitas](docs/IDENTITY_FOUNDATION.md).
+
+## Login dan backend pertama
+
+Setelah koneksi PostgreSQL disiapkan, jalankan `php artisan migrate`, lalu `php artisan hris:provision-account platform_admin --bootstrap --company="Nama Perusahaan"` dari terminal interaktif. Perintah meminta nama, email dan password tersembunyi; tidak ada akun/password default. Buka `/login` dan selesaikan pengaturan MFA. Admin platform tidak otomatis memperoleh akses data karyawan. Panduan akun HR, scope, pengujian PostgreSQL dan batas kesiapan produksi ada di [IDENTITY_FOUNDATION.md](docs/IDENTITY_FOUNDATION.md).
 
 ## Pratinjau dashboard tanpa database
 

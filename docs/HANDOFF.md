@@ -2,6 +2,18 @@
 
 Pengguna meminta fondasi dahulu agar dapat mengatur GitHub sebelum melanjutkan UI dengan model lain. UI keseluruhan belum dikerjakan pada tahap ini.
 
+## Revisi terbaru: Ruang Tim
+
+Pengguna menolak Fokus Tugas karena menu aktif hanya tiga dan meminta UI modern yang tidak generik. Shell kini navigasi horizontal tanpa sidebar, palet plum/putih-lavender tipis, kehadiran dan agenda berdampingan, daftar tugas lebar penuh di bawah. Ukuran teks dan hit area diperbesar. Filter dan detail inline tetap tersedia; tidak ada perubahan akses atau backend. Dasarkan shell pada jumlah menu yang aktif, bukan seluruh roadmap. Bagian Fokus Tugas di bawah adalah riwayat tahap sebelumnya. Build Vite, kompilasi Blade, enam tes/13 assertions dan HTTP 200 telah diperiksa ulang setelah revisi. Review statis menemukan status navigasi yang bisa tertinggal saat hash/history berubah; sudah diperbaiki dan diterima pada review perbaikan. Browser CUA tetap kosong sehingga tampilan desktop/mobile belum diverifikasi secara visual. Advisory detector mengenai palet/type muncul terhadap DESIGN.md lama dan ditangani melalui pembaruan dokumentasi desain yang diotorisasi pengguna.
+
+## Pembaruan: dashboard dan navigasi
+
+Pengguna selesai push GitHub dan meminta lanjut, lalu memilih dashboard HR/navigasi sebagai tahap berikut. Branch aktif `dev`. PHP sudah 8.5.11 dan Composer install/check-platform-reqs berhasil. Bagian inisialisasi di bawah merupakan catatan historis.
+
+UI Fokus Tugas tersedia pada `/prototype/dashboard`: sidebar sage terang, ringkasan kehadiran, antrean yang bisa dicari/difilter, detail inline, agenda, dan navigasi mobile. Fixture hanya baca di `app/Support/PrototypeDashboard.php`; tidak ada koneksi ke model bisnis atau aksi keputusan. Flag `HRIS_UI_PREVIEW_ENABLED` harus true, lingkungan local/testing; production tetap ditolak saat flag aktif. `.env` lokal menggunakan session/cache file agar pratinjau tidak membutuhkan PostgreSQL. Konfigurasi DB default tetap PostgreSQL.
+
+Pemeriksaan tahap UI: build Vite, kompilasi Blade, PHP syntax, Composer platform/validate, Pint, HTTP 200 dan 6 tes (13 assertions) berhasil. Detector desain mengembalikan `[]`. Browser CUA tidak tersedia (inventory kosong); screenshot desktop/mobile dan pengujian interaksi browser belum dilakukan. Tidak ada klaim kelulusan aksesibilitas atau visual. Login, izin, domain R0 dan instalasi demo terisolasi masih pekerjaan lanjutan.
+
 ## Kondisi proyek
 
 - Scaffold resmi `laravel/laravel` v13.0.0 di root HRIS, Laravel dan Livewire dikunci per patch di composer.lock.

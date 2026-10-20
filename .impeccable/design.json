@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-20T03:46:20.950281+00:00",
+  "generatedAt": "2026-10-20T04:24:09.647143+00:00",
   "title": "Design System: Operational HRIS",
   "extensions": {
     "colorMeta": {
@@ -587,9 +587,9 @@
       "name": "Header navigation",
       "kind": "nav",
       "refersTo": "navigation-current",
-      "description": "Three destinations remain visible at all supported widths.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Contoh navigasi\"><a class=\"ds-link ds-current\" href=\"#ds-ringkasan\" aria-current=\"location\">Ringkasan</a><a class=\"ds-link\" href=\"#ds-tugas\">Tugas <span class=\"ds-count\">6</span></a><a class=\"ds-link\" href=\"#ds-agenda\">Agenda</a></nav>",
-      "css": ".ds-nav{font-family:'Segoe UI', ui-sans-serif, system-ui, sans-serif;display:flex;align-items:stretch;gap:28px}.ds-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 5px;border-bottom:2px solid transparent;color:var(--muted,#716775);font-size:13px;text-decoration:none}.ds-link:hover{color:var(--accent,#704760)}.ds-current{color:var(--accent,#704760);border-bottom-color:var(--accent,#704760);font-weight:600}.ds-link:focus-visible{outline:3px solid var(--focus,#936082);outline-offset:4px;}.ds-count{display:grid;place-items:center;min-width:21px;height:21px;padding:0 5px;background:var(--selected,#f0e8ef);color:var(--accent,#704760);border-radius:5px;font-size:11px}@media(max-width:760px){.ds-nav{gap:26px}.ds-link{min-height:48px;font-size:12px}}@media(max-width:400px){.ds-nav{gap:8px;justify-content:space-between}}"
+      "description": "Three server routes with server-selected active-page state; local section anchors are separate.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Navigasi ruang kerja\"><a class=\"ds-link\" href=\"/prototype/dashboard\">Ringkasan</a><a class=\"ds-link ds-current\" href=\"/prototype/employees\" aria-current=\"page\">Karyawan</a><a class=\"ds-link\" href=\"/prototype/organization\">Organisasi</a></nav>",
+      "css": ".ds-nav{font-family:'Segoe UI', ui-sans-serif, system-ui, sans-serif;display:flex;align-items:stretch;gap:28px}.ds-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 5px;border-bottom:2px solid transparent;color:var(--muted,#716775);font-size:13px;text-decoration:none}.ds-link:hover{color:var(--accent,#704760)}.ds-current{color:var(--accent,#704760);border-bottom-color:var(--accent,#704760);font-weight:600}.ds-link:focus-visible{outline:3px solid var(--focus,#936082);outline-offset:4px;}@media(max-width:760px){.ds-nav{gap:26px}.ds-link{min-height:48px;font-size:12px}}@media(max-width:400px){.ds-nav{gap:8px;justify-content:space-between}}"
     },
     {
       "name": "Urgent status",
@@ -626,7 +626,7 @@
   ],
   "narrative": {
     "northStar": "Ruang Tim",
-    "overview": "Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.\n\nInformation has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression is a read-only dashboard with synthetic fixtures; the visual system does not imply operational HR capabilities.",
+    "overview": "Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.\n\nInformation has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, and organization view with synthetic fixtures; the visual system does not imply operational HR capabilities.",
     "keyCharacteristics": [
       "Open horizontal navigation for the available destinations.",
       "Plum action states on light neutral surfaces.",

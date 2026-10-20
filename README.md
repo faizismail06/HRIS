@@ -1,6 +1,6 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard HR dan navigasi **Ruang Tim** dengan data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan modul bisnis belum diimplementasikan.
+Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan dan struktur organisasi dengan navigasi **Ruang Tim** serta data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0 belum diimplementasikan.
 
 ## Pratinjau dashboard tanpa database
 
@@ -19,7 +19,15 @@ npm run build
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Tugas dan Agenda. Kehadiran dan agenda berdampingan pada desktop, lalu bertumpuk pada ponsel. Pencarian tugas/karyawan, filter kategori/cabang/prioritas dan detail inline tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
+Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan dan Organisasi; Tugas dan Agenda adalah bagian lokal dashboard. Kehadiran dan agenda berdampingan pada desktop, lalu bertumpuk pada ponsel. Pencarian tugas/karyawan, filter kategori/cabang/prioritas dan detail inline tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
+
+## Modul Karyawan & Organisasi
+
+- [Direktori](http://127.0.0.1:8000/prototype/employees): 12 profil sintetis, pencarian nama/nomor/jabatan, filter status/departemen/cabang, urutan nama/tanggal bergabung dan pemulihan hasil kosong. Filter memakai GET sehingga berfungsi tanpa JavaScript dan bisa dibagikan sebagai URL lokal.
+- Profil: identitas kerja, penugasan, atasan/laporan langsung dan timeline contoh. Kembali ke direktori mempertahankan filter. Contoh Nadia (`EMP-004`) memisahkan jabatan saat ini dari perubahan 1 November; Maya (`EMP-006`) belum bergabung; Raka (`EMP-009`) offboarding; Intan (`EMP-011`) berakhir.
+- [Organisasi](http://127.0.0.1:8000/prototype/organization): induk Direksi dan lima unit di bawahnya, penanggung jawab, anggota bekerja serta filter cabang. Jumlah anggota hanya mencakup Aktif dan Offboarding. Profil Pra-bergabung/Berakhir tetap tersedia di direktori.
+
+Tidak ada create/edit/delete, pengaturan akses, data sensitif atau dokumen nyata. Ini belum memenuhi acceptance CoreHR R0. Cuplikan 12 profil terpisah dari agregat sintetis dashboard, bukan satu basis data operasional. Tabel direktori mempertahankan kolom dan dapat digeser horizontal pada layar kecil.
 
 Preview ditolak di luar lingkungan local/testing, bahkan bila flag aktif. Flag default false pada `.env.example`; pratinjau ini bukan implementasi instalasi demo DEMO-01. UI dirancang responsif; verifikasi browser desktop/ponsel masih perlu dilakukan karena browser tidak tersedia pada sesi implementasi.
 
@@ -56,7 +64,7 @@ vendor/bin/pint --test
 npm run build
 ```
 
-Tes database menggunakan PostgreSQL hris_testing pada phpunit.xml; isi kredensial melalui .env.testing yang diabaikan Git. Tes bawaan adalah smoke test scaffold, bukan penerimaan R0. Scheduler dapat dijalankan dengan php artisan schedule:work saat fitur terjadwal tersedia.
+Tes database menggunakan PostgreSQL hris_testing pada phpunit.xml; isi kredensial melalui .env.testing yang diabaikan Git. Tes saat ini mencakup scaffold dan perilaku prototipe UI, termasuk gate produksi, filter, riwayat contoh dan navigasi profil; bukan penerimaan domain R0. Scheduler dapat dijalankan dengan php artisan schedule:work saat fitur terjadwal tersedia.
 
 ## Hubungkan GitHub
 

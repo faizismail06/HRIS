@@ -135,7 +135,7 @@ components:
 
 Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.
 
-Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression is a read-only dashboard with synthetic fixtures; the visual system does not imply operational HR capabilities.
+Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, and organization view with synthetic fixtures; the visual system does not imply operational HR capabilities.
 
 **Key Characteristics:**
 
@@ -200,6 +200,8 @@ Implemented responsive rules, pending browser verification:
 - At (760px) and below, the header wraps: brand and compact persona occupy the first line, and all three navigation links remain visible on a second line. Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
 - At (400px) and below, page padding becomes (16px), the attendance legend uses two columns, row avatars disappear, and task columns become a flexible text column plus (66px) deadline and (12px) indicator columns.
 
+The people extension inherits this shell. Its directory preserves table columns inside a horizontal scroll region with a (900px) minimum table width. Profiles use a (1.65:1) field/history grid that stacks at (1000px); field pairs become one column at (450px), and team lists stack at (760px). Directory filters wrap with the same native controls. These are source rules, not browser-verified layouts. Surface-specific composition is recorded in `docs/people-surface.md`.
+
 The 360px and 1440px acceptance sizes remain browser verification targets. Browser inventory was empty; this documentation records CSS/JS intent and source evidence, not approved rendered appearance.
 
 ## Elevation & Depth
@@ -216,11 +218,11 @@ Panels retain gently rounded corners (`panel`). Fields and the secondary button 
 
 ### Navigation
 
-The three real section links share the header. The current link has plum text, a (2px) bottom border, and stronger weight; hover changes text color. Counts use selected-lavender fills. JavaScript updates `aria-current` and moves focus to the destination. Navigation remains fully visible without JavaScript and at mobile widths.
+Three server routes share the global header: Ringkasan (`/prototype/dashboard`), Karyawan (`/prototype/employees`), and Organisasi (`/prototype/organization`). The server assigns `aria-current="page"` and the current-link style, including on employee profiles. Plum text, a (2px) bottom border, and stronger weight identify the active page. Tugas and Agenda are local dashboard section anchors; profile sections also use local anchors. Dashboard JavaScript focuses local destinations without changing global active-page state. Global navigation stays visible without JavaScript and at mobile widths.
 
 ### Buttons and category filters
 
-The bordered secondary button clears filters with a minimum height of (44px). Hover uses the selected fill. Category filters use rounded, filled selected states rather than underline tabs; minimum height is (40px) on desktop and (44px) on mobile. They retain `aria-pressed` group semantics. No filled primary action is present in the prototype. Disabled buttons use opacity (.55) and a not-allowed cursor.
+The bordered secondary button clears filters with a minimum height of (44px). Hover uses the selected fill. Category filters use rounded, filled selected states rather than underline tabs; minimum height is (40px) on desktop and (44px) on mobile. They retain `aria-pressed` group semantics. The directory adds a filled primary submit button using the existing accent and hover tokens, white text, the control radius, a (44px) minimum height, and (10px 17px) padding. Its label is Terapkan; it applies GET filters without mutating HR records. Disabled buttons use opacity (.55) and a not-allowed cursor.
 
 ### Search and native controls
 
@@ -233,6 +235,18 @@ White bordered panels use the shared rounded shape. Desktop panel insets are app
 ### Inline task context
 
 Task rows use native `details` and `summary`. Desktop summary padding is (20px 26px), and the columns are flexible task text plus (130px) deadline and (64px) action. Hover and open fills remain subtle. Context appears directly below with ownership and next-step information. Filtering closes hidden disclosures; without JavaScript all fixture rows and native disclosures still work, while unavailable filters stay hidden with an explanatory notice.
+
+### Directory filters and employee table
+
+Status links retain the other query filters and use `aria-current` to identify the selected status. Native GET fields cover search, department, branch and sorting; submitted values remain visible after navigation. Apply and reset work without JavaScript. Empty results offer a clear reset destination, and invalid filters have an alert message. The table keeps column headers and row-header person links; its labeled, focusable horizontal region preserves column relationships on narrow screens. Person and detail links are at least (44px) high. Employment badges reuse existing green, blue, warm and neutral pairs with explicit labels; employment status stays separate from attendance or account access.
+
+### Profile fields, history and team links
+
+Use semantic definition lists for identity and assignment fields, and an ordered timeline with native `time` elements for employment history. Planned changes keep an outlined marker and explicit scheduled wording; they do not replace current assignment text. Profile, manager, report, and return-to-directory links preserve the originating directory query filters. Related-person links keep initials, readable name, role and branch together. This is read-only context, not an editable form or an audit trail.
+
+### Organization disclosures
+
+Native unit `details` preserve the same disclosure-chevron motion and focus treatment. Unit headings pair responsibility with a labeled working-member count. The branch GET filter narrows membership and counts to Active and Offboarding profiles while preserving the company hierarchy and responsible leads. Empty units explain the filtered result and retain a directory route for broader inspection. Organization structure does not imply authorization rules.
 
 ### Focus and motion
 

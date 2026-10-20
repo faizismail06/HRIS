@@ -1,5 +1,13 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Karyawan & Organisasi
+
+UI baca saja tersedia pada `/prototype/employees`, `/prototype/employees/{employee}`, `/prototype/organization`. Fixture `PrototypePeople` berisi 12 profil, 6 unit termasuk Direksi, 3 cabang. Filter/sort GET menggunakan whitelist validasi Laravel. Profil menampilkan penugasan, relasi atasan/laporan langsung, status dan timeline sintetis. Organisasi menghitung ACTIVE+OFFBOARDING, mengabaikan PREBOARDING/ENDED pada jumlah bekerja namun tetap menyimpan profil di direktori.
+
+Shell diekstrak ke `components/app-layout.blade.php`. Menu global tetap tiga tanpa sidebar: Ringkasan, Karyawan, Organisasi. Tugas/Agenda menjadi tautan lokal dashboard; highlight global dari route server, bukan hash. Prototipe tetap fail-closed dengan middleware/flag sebelumnya. Tidak ada mutasi atau integrasi database. Filter direktori dipertahankan saat berpindah ke profil atasan/laporan langsung lalu kembali; regresi ini sudah diuji dan diperiksa ulang. Daftar 12 profil dan agregat dashboard adalah fixture terpisah, dijelaskan di footer.
+
+Build, Pint, kompilasi Blade, 14 tes/67 assertions dan HTTP terhadap dashboard/direktori/organisasi/profil berbagai status berhasil. Verifikasi browser tetap belum tersedia; jangan mengklaim UI/aksesibilitas teruji dari sumber saja. Detector menghasilkan advisory nilai desain yang sebagian sudah ada sebelum modul; tidak dilakukan perbaikan drift di luar scope.
+
 Pengguna meminta fondasi dahulu agar dapat mengatur GitHub sebelum melanjutkan UI dengan model lain. UI keseluruhan belum dikerjakan pada tahap ini.
 
 ## Revisi terbaru: Ruang Tim

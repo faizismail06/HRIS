@@ -1,5 +1,13 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Kontrak, Surat & Perubahan Karier
+
+Preview GET-only tersedia pada `/prototype/contracts`, `/prototype/letters`, `/prototype/career-changes` dan detail `/{record}` masing-masing. `PrototypeEmployment` menyediakan enam kontrak, empat surat dan tiga perubahan karier sintetis. Filter q/status/cabang/karyawan divalidasi per jenis; detail mempertahankan scope kembali, sedangkan lintas jenis hanya membawa cabang/karyawan. Header kini enam tujuan dengan Administrasi sebagai pintu tiga register. Pada lebar 1100 px ke bawah nav menempati baris sendiri dan dapat membungkus, tetap tanpa sidebar.
+
+Kontrak terjadwal Nadia mulai 1 November tidak mengganti versi aktif atau jabatan Koordinator pada snapshot 20 Oktober. Arsip 2025 tidak menimpa 2026. Pengingat 60/30/14/7 hari pada kontrak aktif berupa tanggal contoh; tidak mengirim notifikasi atau memperpanjang/menutup hubungan kerja. Surat memakai snapshot terpisah dari profil: ejaan lama LTR-001 tetap “Operasi”, LTR-004 terbit ulang “Operasional” dengan nomor baru dan referensi dua arah. Surat Intan memakai periode kerja selesai; draf Maya belum diterbitkan/tidak bernomor final. Perubahan karier membedakan usulan, terjadwal dan efektif; profil saat ini tetap konsisten.
+
+Build Vite, Pint, kompilasi Blade, lima HTTP smoke checks dan 34 tes dengan 322 assertions lulus. Review statis tidak menemukan cacat kode material. Verdict visual Impeccable: `recapture`, karena browser tidak tersedia (inventory kosong) dan screenshot desktop/mobile belum dapat dibuat; visual dan aksesibilitas browser belum diverifikasi. Detector hanya advisory pre-existing: enam warna, 23 ukuran font dan lima radius. Tidak ada file pribadi, PDF, pengesahan, mutasi, penomoran/scheduler/tanggal efektif operasional. Kontrak UI dan batas fixture ada di `docs/employment-surface.md`. Bagian berikut merupakan riwayat modul terdahulu.
+
 ## Modul terbaru: Cuti & Pengajuan
 
 Preview GET-only tersedia pada `/prototype/requests`, `/prototype/requests/{requestId}`, `/prototype/leave-balances`, dan `/prototype/team-calendar`. `PrototypeRequests` menyediakan delapan pengajuan dan ledger lima profil. Filter query di-whitelist. Detail mempertahankan konteks daftar atau saldo; shift sumber memakai tanggal/karyawan yang sesuai. Menu global kini lima tujuan dengan tambahan Pengajuan, tetap tanpa sidebar dan membungkus pada layar sempit.

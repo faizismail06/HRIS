@@ -1,6 +1,6 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti dan kalender tim dengan navigasi **Ruang Tim** serta data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0/R1 belum diimplementasikan.
+Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti, kalender tim serta administrasi kontrak/surat/karier dengan navigasi **Ruang Tim** dan data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0/R1 belum diimplementasikan.
 
 ## Pratinjau dashboard tanpa database
 
@@ -19,7 +19,7 @@ npm run build
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan, Organisasi, Kehadiran dan Pengajuan; Tugas dan Agenda adalah bagian lokal dashboard. Menu membungkus pada layar sempit tanpa sidebar. Pencarian/filter dan detail tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
+Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan, Organisasi, Kehadiran, Pengajuan dan Administrasi; Tugas dan Agenda adalah bagian lokal dashboard. Menu berpindah ke baris sendiri pada lebar 1100 px ke bawah dan dapat membungkus, tanpa sidebar. Pencarian/filter dan detail tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
 
 ## Modul Karyawan & Organisasi
 
@@ -46,6 +46,14 @@ Skenario penting: Nadia19 malam tetap hari kerja19 walau pulang20Okt (terlambat1
 Jumlah hari dan keputusan di atas seluruhnya ilustrasi, bukan hak cuti atau ketentuan hukum. Approved dates menggunakan satu sumber fixture untuk rekap dan kalender (Fajar 19 Oktober, Nadia 23 Oktober); pengajuan tertunda tidak mengubah hasil final. Koreksi Nadia belum mengubah raw event, rencana lembur belum berarti pembayaran, dan pertukaran yang ditarik tidak mengubah roster. Tidak ada submit, approve/reject, cancel, notifikasi atau transaksi saldo yang dikirim oleh UI. Ini belum memenuhi acceptance workflow/leave R1.
 
 Preview ditolak di luar lingkungan local/testing, bahkan bila flag aktif. Flag default false pada `.env.example`; pratinjau ini bukan implementasi instalasi demo DEMO-01. UI dirancang responsif; verifikasi browser desktop/ponsel masih perlu dilakukan karena browser tidak tersedia pada sesi implementasi.
+
+## Modul Kontrak, Surat & Perubahan Karier
+
+- [Kontrak](http://127.0.0.1:8000/prototype/contracts): enam versi/periode aktif, terjadwal, tinjauan dan arsip. Detail kontrak aktif menampilkan tanggal pengingat contoh 60/30/14/7 hari sebelum akhir periode; tanpa pengiriman atau perpanjangan otomatis.
+- [Surat](http://127.0.0.1:8000/prototype/letters): empat snapshot termasuk versi asli, penerbitan ulang bernomor berbeda, surat pengalaman setelah periode kerja selesai dan draf tanpa nomor final. Pratinjau HTML memakai nilai tersimpan per versi, dengan cap data sintetis.
+- [Perubahan karier](http://127.0.0.1:8000/prototype/career-changes): nilai sebelum/sesudah dan tanggal efektif. Promosi Nadia mulai November dan usulan cabang Sinta tidak mengubah profil hari ini; perubahan atasan Arif sudah efektif pada snapshot.
+
+Semua register memiliki filter GET serta detail yang mempertahankan konteks kembali. Filter cabang merujuk profil saat ini, bukan cabang snapshot. Perpindahan jenis catatan hanya membawa cabang/karyawan. Tidak ada unggahan, PDF, unduhan, tanda tangan, penerbitan, penomoran unik, mesin tanggal efektif, notifikasi atau penyesuaian periode tertutup operasional. Ini belum memenuhi acceptance employment R1.
 
 ## Stack
 

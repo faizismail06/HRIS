@@ -5,7 +5,7 @@ namespace App\Domain\Workflow;
 use App\Models\User;
 use App\Models\WorkflowRequest;
 
-interface ParticipantWorkflow
+interface ParticipantWorkflow extends WorkflowRouting
 {
     public function participants(WorkflowRequest $request, string $role): ?array;
 

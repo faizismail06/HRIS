@@ -5,6 +5,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AttendanceCloseController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LifecycleController;
@@ -16,6 +17,10 @@ use App\Http\Controllers\WorkflowController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::post('/expense-policies', [ExpenseController::class, 'policy']);
+    Route::get('/expense-claims/{id}', [ExpenseController::class, 'detail'])->whereNumber('id');
+    Route::post('/expense-claims/{id}/allocate', [ExpenseController::class, 'allocate'])->whereNumber('id');
+    Route::post('/expense-allocations/{id}/settle', [ExpenseController::class, 'settle'])->whereNumber('id');
     Route::post('/payroll-policies', [PayrollController::class, 'policy']);
     Route::get('/payroll-policies/{id}', [PayrollController::class, 'policyDetail'])->whereNumber('id');
     Route::get('/requests/{id}/proposed-compensation', [PayrollController::class, 'proposedCompensation'])->whereNumber('id');

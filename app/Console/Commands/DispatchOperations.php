@@ -5,8 +5,9 @@ namespace App\Console\Commands;
 use App\Domain\Documents\ContractReminders;
 use App\Domain\Lifecycle\EmploymentRevocations;
 use App\Domain\Operations\Outbox;
+use App\Domain\Workflow\WorkflowAccess;
 use App\Jobs\DeliverOutbox;
-use App\Models\User;
+use App\Models\WorkflowRequest;
 use App\Models\WorkflowStep;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -30,7 +31,7 @@ class DispatchOperations extends Command
                 }
                 Outbox::notify($fresh->approver_ids, 'request.reminder', 'workflow_request', $fresh->workflow_request_id, 'reminder:'.$fresh->id);
                 if ($fresh->escalate_at <= now()) {
-                    $hr = User::where('is_active', true)->whereHas('grants', fn ($q) => $q->where('role', 'hr_admin')->where('scope', 'company'))->pluck('id')->all();
+                    $hr = WorkflowAccess::operators(WorkflowRequest::findOrFail($fresh->workflow_request_id));
                     Outbox::notify($hr, 'request.escalated', 'workflow_request', $fresh->workflow_request_id, 'escalation:'.$fresh->id);
                 }
             });

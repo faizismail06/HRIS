@@ -96,6 +96,7 @@ class PayrollService
                     Outbox::notify($owners, 'payroll.slip_scheduled', 'payroll_row', $row->id, 'slip:'.$row->id);
                 }
                 DB::table('attendance_periods')->where('id', $b->attendance_period_id)->update(['payroll_finalized' => true]);
+                DB::table('expense_allocations')->where('payroll_batch_id', $id)->update(['status' => 'finalized']);
             }
             DB::table('payroll_batches')->where('id', $id)->update($changes);
             Audit::record($u->id, 'payroll.'.$status, 'payroll_batch', $id, ['source_checksum' => $b->source_checksum]);

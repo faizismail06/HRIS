@@ -9,6 +9,7 @@ use App\Domain\CoreHR\ProfileChangeHandler;
 use App\Domain\CoreHR\SensitiveProfiles;
 use App\Domain\Documents\ContractHandler;
 use App\Domain\Documents\LetterHandler;
+use App\Domain\Expenses\ExpenseHandler;
 use App\Domain\Leave\LeaveCancellationHandler;
 use App\Domain\Leave\LeaveHandler;
 use App\Domain\Lifecycle\OffboardingHandler;
@@ -48,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->make(WorkflowRegistry::class)->register('onboarding', OnboardingHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('offboarding', OffboardingHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('compensation', CompensationHandler::class);
+        $this->app->make(WorkflowRegistry::class)->register('expense', ExpenseHandler::class);
         foreach (['profile_change' => 'general', 'identity_change' => 'identity', 'bank_change' => 'bank', 'tax_change' => 'tax'] as $kind => $category) {
             $this->app->make(WorkflowRegistry::class)->register($kind, 'workflow.profile.'.$category);
         }

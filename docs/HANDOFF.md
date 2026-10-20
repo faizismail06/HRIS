@@ -181,3 +181,7 @@ Full suite PostgreSQL lulus 152 tests / 2303 assertions; Pint, composer validate
 ## Payroll draft API
 
 Pengguna mengonfirmasi belum ada kebijakan: siapkan draft. Tidak ada policy/tarif produksi yang di-seed/disahkan agent. API kompensasi efektif, kalkulasi integer/rational, policy expert gate, source invalidation, final snapshot/PDF privat, bank-template confirmation/export dan payment outcomes tersedia. Tiga tes PayrollTest lulus123assertions sebelum hardening trigger tambahan. Lihat PAYROLL_BACKEND.md untuk basis prorata, minor unit, aturan yang didukung dan sisa cakupan regulasi/adjustment/claim. Seluruh backend belum selesai.
+
+## Reimbursement API dan kanal settlement
+
+16 tests / 308 assertions untuk expense/payroll/workflow lulus. Bukti wajib, alur manager-Finance, limit kategori/eligibility, duplicate-warning dan finance verification evidence tersedia. Unique allocation mengunci kanal payroll/reimbursement, settlement parsial append-only dan outcome payroll terhubung tanpa debit ganda. Payroll membayar salary dahulu lalu claim menurut allocation ID. Detail EXPENSE_BACKEND.md. Masih perlu import/report/demo dan kelengkapan acceptance yang dicatat per modul.

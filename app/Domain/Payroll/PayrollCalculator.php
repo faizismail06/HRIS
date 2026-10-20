@@ -132,11 +132,24 @@ class PayrollCalculator
             if ($net < 0) {
                 $blockers[] = ['code' => 'negative_net', 'employee_id' => $employee->id];
             }
+            $reimbursements = DB::table('expense_allocations')->join('expense_claims', 'expense_claims.id', '=', 'expense_allocations.expense_claim_id')->where('payroll_batch_id', $batch->id)->where('expense_claims.employee_id', $employee->id)->orderBy('expense_allocations.id')->get(['expense_allocations.id as allocation_id', 'expense_claims.id as claim_id', 'expense_claims.amount_minor', 'expense_claims.status'])->map(fn ($c) => (array) $c)->all();
+            foreach ($reimbursements as $claim) {
+                if ($claim['status'] !== 'approved_for_payment') {
+                    $blockers[] = ['code' => 'claim_not_payable', 'claim_id' => $claim['claim_id']];
+                }
+                $lines[] = ['code' => 'CLAIM_'.$claim['claim_id'], 'kind' => 'reimbursement', 'amount_minor' => $claim['amount_minor'], 'allocation_id' => $claim['allocation_id'], 'method' => 'approved_claim'];
+                $net = IntegerMoney::sum($net, $claim['amount_minor']);
+            }
             $rows[] = ['employee_id' => $employee->id, 'employee_number' => $employee->employee_number, 'employee_name' => $employee->name, 'currency' => 'IDR', 'minor_unit' => 'sen', 'period' => [$period->starts_on, $period->ends_on], 'policy_id' => $policy->id, 'policy_version' => $policy->version, 'attendance_revision' => $period->revision, 'attendance_hashes' => $attendance->filter(fn ($a) => json_decode($a->snapshot, true)['employee_id'] === $employee->id)->pluck('sha256')->all(), 'bank' => $bank?->data, 'bank_version' => $bank?->version, 'tax_version' => $tax?->version, 'lines' => $lines, 'context' => $context, 'gross_minor' => $context['gross'], 'deduction_minor' => $deductions, 'net_minor' => $net];
-            $sourceEmployees[] = ['id' => $employee->id, 'version' => $employee->version, 'compensation' => $compensations->all(), 'employment' => $employment->toArray(), 'assignments' => $assignments->toArray(), 'bank_version' => $bank?->version, 'tax_version' => $tax?->version];
+            $rows[array_key_last($rows)]['reimbursements'] = $reimbursements;
+            $sourceEmployees[] = ['id' => $employee->id, 'version' => $employee->version, 'compensation' => $compensations->all(), 'employment' => $employment->toArray(), 'assignments' => $assignments->toArray(), 'bank_version' => $bank?->version, 'tax_version' => $tax?->version, 'reimbursements' => $reimbursements];
         }
         if (! $rows) {
             $blockers[] = ['code' => 'no_employees'];
+        }
+        $included = collect($rows)->flatMap(fn ($row) => array_column($row['reimbursements'], 'allocation_id'))->all();
+        foreach (DB::table('expense_allocations')->where('payroll_batch_id', $batch->id)->whereNotIn('id', $included)->pluck('expense_claim_id') as $claimId) {
+            $blockers[] = ['code' => 'claim_employee_missing_from_payroll', 'claim_id' => $claimId];
         }
         $checksum = hash('sha256', json_encode(['period' => $period, 'policy' => $policy, 'attendance' => $attendance->pluck('sha256')->all(), 'employees' => $sourceEmployees], JSON_THROW_ON_ERROR));
 

@@ -35,7 +35,7 @@ class WorkflowService
             'steps.*' => ['required', 'array:role'], 'steps.*.role' => ['required', Rule::in($roles)],
         ])->validate();
         $handler = $this->registry->handler($data['kind']);
-        if ($handler instanceof ParticipantWorkflow) {
+        if ($handler instanceof WorkflowRouting) {
             $handler->validateSteps($data['steps']);
         }
 
@@ -73,7 +73,7 @@ class WorkflowService
             abort_unless($prepared['employee_id'] === $r->employee_id, 409);
             $r->summary = $prepared['summary'];
             $definition = $this->definition($r);
-            if ($handler instanceof ParticipantWorkflow) {
+            if ($handler instanceof WorkflowRouting) {
                 $handler->validateSteps($definition->steps);
             }
             $r->fill(['workflow_definition_id' => $definition->id, 'submitted_at' => $this->clock->now(), 'status' => 'in_review', 'version' => $r->version + 1])->save();
@@ -111,6 +111,10 @@ class WorkflowService
             abort_unless(in_array($u->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($u, $r, $step), 403);
             DB::table('workflow_decisions')->insert(['workflow_step_id' => $step->id, 'actor_id' => $u->id, 'decision' => $decision, 'reason' => $reason ? encrypt($reason) : null, 'created_at' => $this->clock->now()]);
             $step->update(['status' => $decision === 'approve' ? 'approved' : 'rejected', 'version' => $step->version + 1]);
+            $handler = $this->registry->handler($r->kind);
+            if ($decision === 'approve' && $handler instanceof StageWorkflow) {
+                $handler->stageApproved($r, $step);
+            }
             if ($decision === 'reject') {
                 $this->registry->handler($r->kind)->released($r);
                 $r->steps()->whereIn('status', ['waiting', 'blocked'])->update(['status' => 'cancelled']);
@@ -204,7 +208,7 @@ class WorkflowService
         $step->update(['status' => $blocked ? 'blocked' : 'pending', 'activated_at' => $this->clock->now(), 'due_at' => $this->clock->now()->addHours(24), 'escalate_at' => $this->clock->now()->addHours(48)]);
         $r->status = $blocked ? 'blocked' : 'in_review';
         $r->save();
-        $users = $blocked ? User::where('is_active', true)->whereHas('grants', fn ($q) => $q->where('role', 'hr_admin')->where('scope', 'company'))->pluck('id')->all() : $step->approver_ids;
+        $users = $blocked ? WorkflowAccess::operators($r) : $step->approver_ids;
         Outbox::notify($users, $blocked ? 'request.missing_approver' : 'request.action_required', 'workflow_request', $r->id, 'activate:'.$step->id.':'.$step->version);
     }
 }

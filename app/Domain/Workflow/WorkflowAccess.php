@@ -48,8 +48,18 @@ class WorkflowAccess
                 return true;
             }
         }
+        if (in_array($request->kind, ['compensation', 'bank_change', 'tax_change', 'expense'], true) && self::eligible($user, 'finance_approver', $request->employee_id)) {
+            return true;
+        }
         $hrKinds = ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'letter', 'career', 'onboarding', 'offboarding'];
 
         return in_array($request->kind, $hrKinds, true) && $request->employee_id && $user->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($user, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
+    }
+
+    public static function operators(WorkflowRequest $request): array
+    {
+        $role = in_array($request->kind, ['compensation', 'bank_change', 'tax_change', 'expense'], true) ? 'finance_approver' : 'hr_admin';
+
+        return User::where('is_active', true)->whereHas('grants', fn ($q) => $q->where('role', $role))->get()->filter(fn ($u) => self::eligible($u, $role, $request->employee_id))->pluck('id')->all();
     }
 }

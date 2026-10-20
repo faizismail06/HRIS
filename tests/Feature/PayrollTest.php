@@ -2,8 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Models\Employee;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Tests\Support\AttendanceScenarioCase;
 
@@ -141,5 +144,34 @@ class PayrollTest extends AttendanceScenarioCase
         $input['amount_minor'] = 3768;
         $this->postJson('/app/api/payroll-rows/'.$row.'/payment-outcomes', $input)->assertOk()->assertJsonPath('payment_status', 'PAID');
         $this->assertDatabaseCount('payroll_payment_outcomes', 2);
+    }
+
+    public function test_claim_allocated_to_payroll_cannot_also_be_paid_separately(): void
+    {
+        Storage::fake('local');
+        $batch = $this->readyBatch();
+        $boss = Employee::create(['employee_number' => 'EXPENSE-BOSS', 'name' => 'Synthetic Manager']);
+        $manager = $this->user('employee', $boss->id);
+        $manager->grants()->create(['role' => 'manager', 'scope' => 'team']);
+        $this->worker->employee->assignments()->update(['manager_employee_id' => $boss->id]);
+        $this->login($this->hr)->postJson('/app/api/workflow-definitions', ['idempotency_key' => (string) Str::uuid(), 'name' => 'Synthetic payroll expense', 'kind' => 'expense', 'min_amount_minor' => 0, 'priority' => 10, 'steps' => [['role' => 'manager'], ['role' => 'finance_approver']]])->assertOk();
+        $policy = $this->login($this->finance)->postJson('/app/api/expense-policies', ['idempotency_key' => (string) Str::uuid(), 'category' => 'SYNTHETIC_CLAIM', 'valid_from' => '2026-01-01', 'valid_until' => '2027-01-01', 'max_claim_minor' => 100000, 'max_month_minor' => 100000, 'minimum_tenure_days' => 0, 'job_ids' => []])->assertCreated()->json('id');
+        $request = $this->login($this->worker)->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'expense', 'payload' => ['expense_policy_id' => $policy, 'incurred_on' => '2026-10-18', 'amount_minor' => 1000, 'cost_center_id' => $this->worker->employee->assignments()->sole()->department_id, 'description' => 'Synthetic claim via payroll']])->assertCreated()->json('id');
+        $file = UploadedFile::fake()->createWithContent('receipt.pdf', "%PDF-1.4\nSYNTHETIC\n%%EOF");
+        $this->post('/app/api/requests/'.$request.'/attachments', ['idempotency_key' => (string) Str::uuid(), 'file' => $file], ['Accept' => 'application/json'])->assertCreated();
+        $this->postJson('/app/api/requests/'.$request.'/submit', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1])->assertOk();
+        $this->login($manager)->postJson('/app/api/requests/'.$request.'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'decision' => 'approve'])->assertOk();
+        $this->login($this->finance)->postJson('/app/api/requests/'.$request.'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 3, 'decision' => 'approve', 'reason' => 'Synthetic verification'])->assertOk();
+        $claim = DB::table('expense_claims')->sole()->id;
+        $allocation = $this->postJson('/app/api/expense-claims/'.$claim.'/allocate', ['idempotency_key' => (string) Str::uuid(), 'channel' => 'payroll', 'payroll_batch_id' => $batch])->assertCreated()->json('id');
+        $this->postJson('/app/api/expense-allocations/'.$allocation.'/settle', ['idempotency_key' => (string) Str::uuid(), 'external_event_id' => 'FORBIDDEN_OTHER_CHANNEL', 'amount_minor' => 1000, 'reference' => 'FORBIDDEN', 'paid_on' => '2026-10-19'])->assertConflict();
+        $row = $this->finalize($batch);
+        $this->assertSame(7768, decrypt(DB::table('payroll_final_snapshots')->sole()->snapshot)['net_minor']);
+        foreach ([6768, 500, 500] as $i => $amount) {
+            $this->postJson('/app/api/payroll-rows/'.$row.'/payment-outcomes', ['idempotency_key' => (string) Str::uuid(), 'external_event_id' => 'SYNTHETIC_PAY_'.$i, 'status' => 'paid', 'amount_minor' => $amount, 'reference' => 'SYNTHETIC_PAY_REF_'.$i, 'paid_on' => '2026-10-19'])->assertOk();
+            $this->assertDatabaseHas('expense_claims', ['id' => $claim, 'status' => $i === 2 ? 'paid' : 'approved_for_payment']);
+        }
+        $this->assertDatabaseCount('expense_settlements', 2);
+        $this->assertSame(1000, (int) DB::table('expense_settlements')->sum('amount_minor'));
     }
 }

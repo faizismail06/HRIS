@@ -3,6 +3,7 @@
 namespace App\Domain\Payroll;
 
 use App\Domain\CoreHR\CoreWrite;
+use App\Domain\Expenses\ExpenseService;
 use App\Domain\Identity\Audit;
 use App\Domain\Operations\Mutation;
 use App\Models\User;
@@ -126,6 +127,9 @@ class PaymentService
             $paid = (int) DB::table('payroll_payment_outcomes')->where('payroll_row_id', $rowId)->where('status', 'paid')->sum('amount_minor');
             abort_if($paid + $d['amount_minor'] > $snapshot['net_minor'], 422, 'Pembayaran melebihi sisa net payroll.');
             $id = DB::table('payroll_payment_outcomes')->insertGetId($d + ['payroll_row_id' => $rowId, 'recorded_by' => $u->id, 'created_at' => now()]);
+            if ($d['status'] === 'paid') {
+                app(ExpenseService::class)->payrollSettlement($id, $snapshot, $paid + $d['amount_minor'], $u);
+            }
             Audit::record($u->id, 'payroll.payment_reconciled', 'payroll_payment_outcome', $id, ['payroll_row_id' => $rowId, 'status' => $d['status']]);
 
             return ['id' => $id, 'payroll_row_id' => $rowId, 'payment_status' => $paid + $d['amount_minor'] === $snapshot['net_minor'] ? 'PAID' : (($paid + $d['amount_minor']) > 0 ? 'PARTIAL' : ($d['status'] === 'failed' ? 'FAILED' : 'UNPAID'))];

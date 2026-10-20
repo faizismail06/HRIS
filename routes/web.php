@@ -3,6 +3,7 @@
 use App\Http\Controllers\PrototypeAttendanceController;
 use App\Http\Controllers\PrototypeDashboardController;
 use App\Http\Controllers\PrototypeEmploymentController;
+use App\Http\Controllers\PrototypeFinanceController;
 use App\Http\Controllers\PrototypeLifecycleController;
 use App\Http\Controllers\PrototypePeopleController;
 use App\Http\Controllers\PrototypeRequestsController;
@@ -34,6 +35,11 @@ if (app()->environment(['local', 'testing'])) {
         Route::get('/lifecycle/{record}', [PrototypeLifecycleController::class, 'show'])->name('lifecycle.show');
         Route::get('/assets', [PrototypeLifecycleController::class, 'assets'])->name('assets');
         Route::get('/assets/{record}', [PrototypeLifecycleController::class, 'asset'])->name('assets.show');
+        Route::get('/payroll', [PrototypeFinanceController::class, 'payrolls'])->name('payroll');
+        Route::get('/payroll/{batch}', [PrototypeFinanceController::class, 'payroll'])->name('payroll.show');
+        Route::get('/payroll/{batch}/payslips/{employee}', [PrototypeFinanceController::class, 'payslip'])->name('payroll.payslip');
+        Route::get('/reimbursements', [PrototypeFinanceController::class, 'claims'])->name('reimbursements');
+        Route::get('/reimbursements/{claim}', [PrototypeFinanceController::class, 'claim'])->name('reimbursements.show');
         foreach (['contracts', 'letters', 'career-changes'] as $kind) {
             Route::get('/'.$kind, [PrototypeEmploymentController::class, 'index'])->defaults('kind', $kind)->name($kind);
             Route::get('/'.$kind.'/{record}', [PrototypeEmploymentController::class, 'show'])->defaults('kind', $kind)->name($kind.'.show');

@@ -492,7 +492,7 @@
 .letter-preview h3 { font-size: 18px; }
 .letter-preview > p { margin-top: 8px; }
 .letter-preview .letter-disclaimer { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.8; }
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
     .header-inner { flex-wrap: wrap; gap: 0; min-height: 0; padding-top: 20px; }
     .workspace-nav { order: 3; flex-basis: 100%; margin-top: 17px; flex-wrap: wrap; gap: 0 18px; }
     .nav-item { min-height: 48px; }

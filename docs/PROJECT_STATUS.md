@@ -1,13 +1,13 @@
 # Status proyek
 
-Status setelah modul Notifikasi & Pencarian. Dokumen ini membedakan prototipe tampilan dari implementasi domain; jumlah commit atau jumlah layar bukan ukuran kesiapan produksi.
+Status setelah penyelesaian cakupan visual statis. Dokumen ini membedakan implementasi layar, pengesahan visual browser dan implementasi domain; jumlah commit atau jumlah layar bukan ukuran kesiapan produksi.
 
 ## Tahap saat ini
 
 Urutan pengerjaan proyek ini:
 
 1. Fondasi proyek dan GitHub: tersedia. Laravel/Blade/Vite, dependency lockfiles, preview gate dan workflow branch `dev` sudah dipakai.
-2. Prototipe UI: **sedang dikerjakan**. Modul utama mempunyai layar baca saja dengan fixture sintetis, filter dan tautan detail. Ini bukan aplikasi HRIS operasional.
+2. Visual statis: **cakupan layar inti telah dilengkapi; QA browser masih tertunda**. Daftar/detail modul, tujuh beranda peran, 48 formulir (awal/validasi gagal), 12 state dan panduan lintas modul tersedia. Ini bukan aplikasi HRIS operasional atau pengesahan kualitas render.
 3. Implementasi backend/domain: **belum dikerjakan**. Login, policies, database bisnis, transaksi, workflow dan integrasi belum tersedia.
 4. Integrasi, pengujian end-to-end, UAT dan deployment: **belum selesai/belum dimulai untuk domain**. Build dan tes preview tidak menggantikan tahap ini.
 
@@ -17,7 +17,7 @@ Tahap pengerjaan di atas bukan penamaan release R0–R3 pada PRD. R0–R3 adalah
 
 | Area PRD | Kondisi UI | Kondisi operasional |
 | --- | --- | --- |
-| Dashboard dan navigasi | Preview HR tanpa sidebar | Persona bukan akun; belum dashboard berdasarkan izin/login |
+| Dashboard dan navigasi | Dashboard HR dan tujuh beranda peran dengan navigasi contoh tanpa sidebar | Persona bukan akun; belum dashboard berdasarkan izin/login |
 | Karyawan dan organisasi | Direktori, profil, riwayat dan struktur contoh | Belum create/edit/import nyata, policies atau database bisnis |
 | Jadwal dan kehadiran | Roster, rekap dan detail event sintetis | Belum publikasi jadwal, clocking, GPS/foto atau koreksi tersimpan |
 | Cuti dan pengajuan | Daftar, progres tahap, saldo dan kalender | Belum submit/approve, engine workflow, transaksi saldo atau notifikasi |
@@ -27,12 +27,14 @@ Tahap pengerjaan di atas bukan penamaan release R0–R3 pada PRD. R0–R3 adalah
 | Laporan dan penutupan | Agregasi mingguan, sumber shift dan arsip contoh | Belum close/reopen, snapshot transaksi, lock, ekspor atau rekonsiliasi nyata |
 | Pengaturan, audit dan impor | Matriks target, peristiwa sintetis dan validasi batch contoh | Belum pengaturan tersimpan, audit append-only, upload/parser/commit atomik |
 | Notifikasi dan pencarian lintas modul | Kotak masuk/status pengiriman contoh dan pencarian ringkasan sepuluh jenis catatan | Belum inbox/outbox tersimpan, pengiriman/retry, preferensi aktif atau indeks berizin |
-| Pengalaman Employee/Manager dan formulir mutasi | Belum lengkap | Belum alur submit sampai hasil akhir |
-| Demo terisolasi | Preview local/testing berlabel sintetis | Belum instalasi demo, skenario terisolasi, persona auth atau reset berizin |
+| Pengalaman Employee/Manager dan formulir mutasi | Beranda peran, profil/shift/saldo/tugas, 48 form awal/invalid dan 12 state statis | Seluruh field/aksi mutasi dinonaktifkan; belum alur submit sampai hasil akhir |
+| Demo terisolasi | Form persona/lokasi/waktu skenario dan konfirmasi seed/reset statis | Belum instalasi demo, skenario terisolasi, persona auth atau reset berizin |
 
-## Pekerjaan UI berikutnya
+## Batas penyelesaian visual statis
 
-Pengalaman Employee/Manager, formulir beserta state gagal/terlarang/stale/queued, dan penyatuan alur lintas modul masih perlu diselesaikan sesuai scope. Notifikasi/pencarian kini tersedia sebagai preview; aksi baca/arsip/preferensi dan pembatasan hasil per akun belum operasional. Review browser desktop/ponsel, keyboard, zoom, kontras dan screen reader belum dapat disahkan karena browser sesi implementasi tidak tersedia. UI baca saja ini belum merupakan implementasi seluruh interaksi PRD.
+Pintu masuk [Panduan layar statis](http://127.0.0.1:8000/prototype/screens) menautkan seluruh kelompok visual inti. [Inventaris layar](STATIC_SCREENS.md) mencatat 48 form dalam dua kondisi, tujuh beranda dan 12 state beserta pemetaan PRD. Field form, login, file dan aksi transaksi dinonaktifkan; yang berfungsi adalah navigasi/filter preview. Tiga rute peninjauan lintas modul bukan satu transaksi end-to-end tersambung.
+
+Review browser desktop/ponsel, keyboard, zoom, kontras dan screen reader **belum disahkan**. Browser IAB dicoba langsung tetapi tidak tersedia; verdict visual tetap `recapture`. CSS responsif dan source semantics sudah diimplementasikan, tetapi tes HTTP/build bukan bukti hasil render. Aksi mutasi, otorisasi, realtime states dan semua interaksi operasional menunggu backend/integrasi. Penyelesaian statis bukan acceptance R0–R3.
 
 ## Sebelum dipakai operasional
 

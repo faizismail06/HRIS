@@ -1,5 +1,15 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Penyelesaian cakupan visual statis
+
+Pengguna meminta seluruh visual statis diselesaikan. Ditambahkan katalog `/prototype/screens`, 48 spesifikasi `/prototype/screens/{screen}` dengan state ready/invalid, 12 halaman `/prototype/states/{state}` dan tujuh beranda `/prototype/portals/{persona}`. Katalog menghubungkan daftar/detail lama, role views, formulir dan tiga rute peninjauan lintas modul. `docs/STATIC_SCREENS.md` memetakan kelompok PRD. Status proyek kini membedakan cakupan implementasi statis yang telah dilengkapi dari QA browser tertunda dan backend yang belum tersedia.
+
+Beranda Employee menggunakan Nadia: libur20Okt, shift berikut21Okt, saldo7hari/reservasi2hari, profil/jabatan kini dan pengajuan sendiri. Manager Bima menampilkan tiga laporan langsung bekerja, task aktif OVT-007 dan exception shift tim. Finance memisahkan transfer gagal dan sebagian; IT menampilkan readiness Maya/clearance Intan. HR, Auditor, Platform mempunyai mandat/tujuan masing-masing. Header menerima optionalpersona/navigation untuk variasi ini; default tujuh tujuan tidak berubah. Persona hanya tampilan, tidak mengubah akun atau izin.
+
+48 form mencakup seluruh kelompok inti termasuk profiledit/lokasi/kebijakan, delegatedapproval, aktuallembur, templatesurat, tugaschecklist, bankverification/rilisslip, close/reopen/adjustment, auth/MFA/recovery dan demo. Fieldset disabled, tidak ada nama field submit; password kosong/file tidak diterima. Dua kondisi menggunakan GETtervalidasi. Tombol dinonaktifkan dengan label spesifik, auth tidak menyediakan draf. Dua belas state meliputi akses/expiry tanpa payload, input contoh setelah gagal, V1/V2 stale, antre, konfirmasi scope reset dan izin perangkat ditolak. Tidak ada requestGPS/kamera, email, upload, reset, login, transaksi atau mutasi apa pun.
+
+Pint, build Vite, kompilasi Blade, HTTP smoke checks awal/ulang dan 78 tes/1403 assertions lulus. Seluruh 48 form pada dua kondisi, tujuh portal dan 12 state dirender melalui tes. Review source menemukan konteks input offline dan tipe field numerik; keduanya diperbaiki dan dinilai resolved. Format retained values dipindahkan ke controller setelah tes menangkap masalah directive Blade; semua tes final lulus. Browser IAB dicoba langsung: `Browser is not available: iab`. Tidak ada screenshot atau kelulusan visual/aksesibilitas. Detector sekali hanya advisory baseline enam warna, 23 ukuran font dan lima radius; token di luar scope tidak diperbaiki. Kontrak: `docs/static-completion-surface.md`. Bagian berikut riwayat modul sebelumnya.
+
 ## Modul terbaru: Notifikasi & Pencarian Lintas Modul
 
 Preview GET-only `/prototype/notifications`, `/prototype/notifications/{notification}`, `/prototype/search` memakai `PrototypeWorkspace`. Globalnav tetap tujuh; dua tautan utilitas ada di main di atas previewnotice dan dapat membungkus. Badge tiga belum dibaca mempunyai nama aksesibel pada tautan, angka visual aria-hidden. Tidak ada sidebar. `docs/PROJECT_STATUS.md` kini mencatat modul tersedia sebagai UI, bukan inbox/search operasional; fase proyek tetap prototipe UI.

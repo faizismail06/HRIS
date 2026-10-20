@@ -2,7 +2,7 @@
 
 Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti, kalender tim, administrasi kontrak/surat/karier, lifecycle/aset serta payroll/reimbursement dengan navigasi **Ruang Tim** dan data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0–R3 belum diimplementasikan.
 
-**Tahap saat ini: prototipe UI, belum selesai keseluruhan.** Laporan/penutupan serta pengaturan/audit/impor juga tersedia sebagai contoh baca saja. Login, database bisnis, transaksi dan alur operasional belum tersedia. Lihat [status proyek dan sisa pekerjaan](docs/PROJECT_STATUS.md) untuk membedakan layar yang tersedia dari implementasi domain.
+**Cakupan visual statis inti telah dilengkapi; QA browser masih tertunda.** Buka [Panduan semua layar](http://127.0.0.1:8000/prototype/screens): tujuh beranda peran, 48 formulir awal/validasi gagal, 12 state serta tautan ke daftar/detail modul. Login, database bisnis, transaksi dan alur operasional belum tersedia. Lihat [status proyek](docs/PROJECT_STATUS.md) dan [inventaris layar](docs/STATIC_SCREENS.md) untuk batas penyelesaian.
 
 ## Pratinjau dashboard tanpa database
 
@@ -93,6 +93,14 @@ Tidak ada perubahan peran, unggahan, parsing CSV/XLSX, commit data atau ekspor. 
 - [Pencarian lintas modul](http://127.0.0.1:8000/prototype/search): minimal dua karakter, filter sepuluh kategori, hasil menuju route sumber. Indeks contoh memakai ringkasan terpilih tanpa nominal gaji, komponen slip, isi surat, alasan pribadi, email atau bukti klaim.
 
 Dua tautan utilitas tersedia pada semua halaman preview, tanpa menambah tujuan global atau sidebar. Badge tiga pesan belum dibaca berasal dari fixture tetap. Tidak ada inbox/outbox tersimpan, pengiriman email, penandaan dibaca, preferensi aktif, retry job atau indeks/otorisasi pencarian produksi. Kembali dari hasil pencarian memakai browser Back; query tidak diteruskan sebagai filter lokal yang berbeda makna.
+
+## Penyelesaian visual statis
+
+- [Panduan layar](http://127.0.0.1:8000/prototype/screens) menautkan beranda Karyawan, Manager, HR, Finance, IT/Aset, Auditor dan Platform. Beranda memakai fixture bersama; pemilihan persona hanya tampilan, bukan pergantian akun atau izin.
+- 48 formulir mencakup CoreHR, lokasi/kalender, pengajuan/persetujuan, roster/clock, employment, lifecycle/aset, keuangan, laporan, konfigurasi, akun dan demo. Masing-masing memiliki kondisi awal serta validasi gagal dengan nilai contoh lain dipertahankan. Semua field dan aksi transaksi dinonaktifkan; tidak menerima file atau kredensial.
+- 12 state: kosong, memuat statis, gagal, terlarang, data berubah, antre, konfirmasi diterima, offline, izin perangkat ditolak, sesi/tautan berakhir, tidak ditemukan dan konfirmasi reset berbatas scope. Auth memiliki shell ringkas tanpa navigasi HR. Katalog juga memiliki tiga rute pemeriksaan lintas modul, bukan tes E2E bisnis.
+
+Penggunaan nyata, perilaku input/submit, izin server dan semua proses domain tetap belum tersedia. Verifikasi visual desktop/mobile masih memerlukan browser; percobaan membuka IAB gagal karena browser tidak tersedia.
 
 ## Stack
 

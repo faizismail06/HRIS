@@ -1,6 +1,6 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti, kalender tim serta administrasi kontrak/surat/karier dengan navigasi **Ruang Tim** dan data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0/R1 belum diimplementasikan.
+Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti, kalender tim, administrasi kontrak/surat/karier, lifecycle/aset serta payroll/reimbursement dengan navigasi **Ruang Tim** dan data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0–R3 belum diimplementasikan.
 
 ## Pratinjau dashboard tanpa database
 
@@ -19,7 +19,7 @@ npm run build
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan, Organisasi, Kehadiran, Pengajuan dan Administrasi; Tugas dan Agenda adalah bagian lokal dashboard. Menu berpindah ke baris sendiri pada lebar 1100 px ke bawah dan dapat membungkus, tanpa sidebar. Pencarian/filter dan detail tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
+Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan, Organisasi, Kehadiran, Pengajuan, Administrasi dan Keuangan; Tugas dan Agenda adalah bagian lokal dashboard. Menu berpindah ke baris sendiri pada lebar 1280 px ke bawah dan dapat membungkus, tanpa sidebar. Pencarian/filter dan detail tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
 
 ## Modul Karyawan & Organisasi
 
@@ -61,6 +61,14 @@ Semua register memiliki filter GET serta detail yang mempertahankan konteks kemb
 - [Aset dan barang](http://127.0.0.1:8000/prototype/assets): lima aset serta satu barang habis pakai. Detail membedakan calon penerima, pemegang aktif, pengembalian terdahulu dan kasus tinjauan tanpa potongan gaji otomatis.
 
 Laptop Intan tetap menjadi tugas terbuka meskipun akses aplikasi sudah dicabut dalam skenario. Reservasi Maya belum menjadi serah terima; barang habis pakai tidak perlu dikembalikan. Clearance periode terdahulu Fajar tetap terpisah. Filter dan tautan detail memakai GET, tanpa menutup tugas atau mengubah akses. Tidak ada lampiran nyata, scheduler, integrasi IT eksternal atau transaksi inventaris; ini belum memenuhi acceptance lifecycle/assets R2.
+
+## Modul Payroll & Reimbursement
+
+- [Batch payroll](http://127.0.0.1:8000/prototype/payroll): September final dengan pembayaran sebagian/gagal, Oktober dihitung ulang V2 dengan penghambat, serta rencana penyesuaian terpisah. Detail menampilkan sumber komponen, status versi, pemeriksaan, aktor persiapan/persetujuan dan penerima snapshot periode.
+- Slip contoh: pratinjau HTML hanya untuk penerima pada batch final yang sudah dirilis. Komponen menyimpan snapshot nominal periode, bukan master bulan berikutnya. Status final perhitungan berbeda dari lunasnya pembayaran; bukan slip resmi/PDF.
+- [Reimbursement](http://127.0.0.1:8000/prototype/reimbursements): enam klaim, kanal tunggal payroll atau batch terpisah, settlement berhasil/gagal dengan referensi/tanggal/aktor, pembayaran sebagian, bukti serupa yang perlu ditinjau dan status ditolak.
+
+Nominal memakai integer IDR sintetis. Klaim Arif tetap Rp 420.000 meskipun baru Rp 200.000 berhasil; transfer gagal Rp 220.000 tidak menambah terbayar. Klaim Nadia hanya masuk payroll Oktober. Peringatan bukti serupa bukan keputusan kecurangan. Tidak ada tarif pajak/BPJS, formula/prorata regulasi, rekening, ekspor bank, transfer, PDF privat, limit klaim versi atau otorisasi slip produksi. Semua preview tetap GET-only; belum memenuhi acceptance payroll/expense R3.
 
 ## Stack
 

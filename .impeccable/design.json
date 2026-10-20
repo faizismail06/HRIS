@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-20T08:49:19.054894+00:00",
+  "generatedAt": "2026-10-20T08:56:34.454967+00:00",
   "title": "Design System: Operational HRIS",
   "extensions": {
     "colorMeta": {
@@ -587,9 +587,9 @@
       "name": "Header navigation",
       "kind": "nav",
       "refersTo": "navigation-current",
-      "description": "Six server routes with server-selected active-page state; local module links are separate.",
-      "html": "<nav class=\"ds-nav\" aria-label=\"Navigasi ruang kerja\"><a class=\"ds-link\" href=\"/prototype/dashboard\">Ringkasan</a><a class=\"ds-link\" href=\"/prototype/employees\">Karyawan</a><a class=\"ds-link\" href=\"/prototype/organization\">Organisasi</a><a class=\"ds-link\" href=\"/prototype/attendance\">Kehadiran</a><a class=\"ds-link\" href=\"/prototype/requests\">Pengajuan</a><a class=\"ds-link ds-current\" href=\"/prototype/contracts\" aria-current=\"page\">Administrasi</a></nav>",
-      "css": ".ds-nav{font-family:'Segoe UI', ui-sans-serif, system-ui, sans-serif;display:flex;align-items:stretch;gap:28px}.ds-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 5px;border-bottom:2px solid transparent;color:var(--muted,#716775);font-size:13px;text-decoration:none}.ds-link:hover{color:var(--accent,#704760)}.ds-current{color:var(--accent,#704760);border-bottom-color:var(--accent,#704760);font-weight:600}.ds-link:focus-visible{outline:3px solid var(--focus,#936082);outline-offset:4px;}@media(max-width:1100px){.ds-nav{order:3;flex-basis:100%;margin-top:17px;flex-wrap:wrap;gap:0 18px}.ds-link{min-height:48px}}@media(max-width:760px){.ds-nav{flex-wrap:wrap;gap:0 18px}.ds-link{min-height:48px;font-size:12px}}@media(max-width:400px){.ds-nav{gap:0 8px;justify-content:space-between}}"
+      "description": "Seven server routes with server-selected active-page state; local module links are separate.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Navigasi ruang kerja\"><a class=\"ds-link\" href=\"/prototype/dashboard\">Ringkasan</a><a class=\"ds-link\" href=\"/prototype/employees\">Karyawan</a><a class=\"ds-link\" href=\"/prototype/organization\">Organisasi</a><a class=\"ds-link\" href=\"/prototype/attendance\">Kehadiran</a><a class=\"ds-link\" href=\"/prototype/requests\">Pengajuan</a><a class=\"ds-link\" href=\"/prototype/contracts\">Administrasi</a><a class=\"ds-link ds-current\" href=\"/prototype/payroll\" aria-current=\"page\">Keuangan</a></nav>",
+      "css": ".ds-nav{font-family:'Segoe UI', ui-sans-serif, system-ui, sans-serif;display:flex;align-items:stretch;gap:28px}.ds-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 5px;border-bottom:2px solid transparent;color:var(--muted,#716775);font-size:13px;text-decoration:none}.ds-link:hover{color:var(--accent,#704760)}.ds-current{color:var(--accent,#704760);border-bottom-color:var(--accent,#704760);font-weight:600}.ds-link:focus-visible{outline:3px solid var(--focus,#936082);outline-offset:4px;}@media(max-width:1280px){.ds-nav{order:3;flex-basis:100%;margin-top:17px;flex-wrap:wrap;gap:0 18px}.ds-link{min-height:48px}}@media(max-width:760px){.ds-nav{flex-wrap:wrap;gap:0 18px}.ds-link{min-height:48px;font-size:12px}}@media(max-width:400px){.ds-nav{gap:0 8px;justify-content:space-between}}"
     },
     {
       "name": "Urgent status",
@@ -626,7 +626,7 @@
   ],
   "narrative": {
     "northStar": "Ruang Tim",
-    "overview": "Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.\n\nInformation has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, attendance records, requests, leave balances, team availability, employment administration, lifecycle checklists, and assets with synthetic fixtures; the visual system does not imply operational HR capabilities.",
+    "overview": "Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.\n\nInformation has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, attendance records, requests, leave balances, team availability, employment administration, lifecycle checklists, assets, payroll, and reimbursement with synthetic fixtures; the visual system does not imply operational HR capabilities.",
     "keyCharacteristics": [
       "Open horizontal navigation for the available destinations.",
       "Plum action states on light neutral surfaces.",

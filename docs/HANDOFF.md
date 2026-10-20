@@ -1,5 +1,15 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Payroll & Reimbursement
+
+Preview GET-only `/prototype/payroll`, `/prototype/payroll/{batch}`, `/prototype/payroll/{batch}/payslips/{employee}`, `/prototype/reimbursements`, `/prototype/reimbursements/{claim}` memakai `PrototypeFinance`. Header global kini tujuh tujuan dengan Keuangan; navigasi menempati baris sendiri pada <=1280 px, tetap membungkus tanpa sidebar. Filter batch q/status/periode dan klaim q/status/karyawan/cabang di-whitelist; konteks kembali dipertahankan, lintas payroll/klaim tidak membawa filter berbeda makna.
+
+Tiga batch dan enam klaim, semua nominal integer IDR sintetis. September final total17.500.000 tetapi terbayar berhasil7.400.000, termasuk transfer Arif gagal dan pembayaran Intan sebagian. Snapshot September tidak mengikuti nilai nominal Oktober. Oktober V2 kehilangan tinjauan/persetujuan V1 dan memiliki penghambat kehadiran belum ditutup, parameter belum disahkan dan nilai negatif. Komponen kerja tetap dapat dilihat sebelum final; route slip ditolak sebelum final/rilis atau bagi penerima di luar batch. Rencana koreksi Intan terpisah, bukan perubahan batch final dan bukan potongan aset.
+
+EXP-001 hanya kanal payrollOktober. EXP-002 nominal asal420.000, berhasil200.000, gagal220.000 dan sisa220.000. EXP-003 lunas dengan referensi/tanggal/aktor; EXP-004/005 peringatan bukti serupa tanpa menetapkan kecurangan; EXP-006 Finance-verified belum approved-for-payment. Bukti/transfer hanya kode contoh, tanpa berkas atau rekening. Tidak ada tarif hukum, ekspor, bankAPI, PDF, mesin payroll atau transaksi pembayaran operasional.
+
+Pint, build, kompilasi Blade, tujuh HTTP smoke checks serta 49 tes/541 assertions lulus. Review statis tidak menemukan cacat material. Verdict visual `recapture`: browser inventory kosong, sehingga screenshot/visual/aksesibilitas belum dapat diverifikasi. Detector tetap advisory baseline enam warna, 23 ukuran font dan lima radius. Lihat `docs/finance-surface.md` untuk kontrak UI dan batas scope. Bagian berikut merupakan riwayat modul sebelumnya.
+
 ## Modul terbaru: Onboarding, Offboarding & Aset
 
 Preview `/prototype/lifecycle`, `/prototype/assets` dan detail masing-masing memakai `PrototypeLifecycle` serta GET-only controller. Empat kasus dan enam inventaris/barang sintetis; Administrasi kini lima tautan lokal, header global tetap enam tujuan tanpa sidebar. Filter scope kembali dipertahankan, lintas register hanya cabang/karyawan. Cabang siklus kerja dari profil saat ini; cabang aset dari lokasi inventaris.

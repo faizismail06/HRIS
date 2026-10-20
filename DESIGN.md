@@ -135,7 +135,7 @@ components:
 
 Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.
 
-Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, attendance records, requests, leave balances, team availability, employment administration, lifecycle checklists, and assets with synthetic fixtures; the visual system does not imply operational HR capabilities.
+Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, attendance records, requests, leave balances, team availability, employment administration, lifecycle checklists, assets, payroll, and reimbursement with synthetic fixtures; the visual system does not imply operational HR capabilities.
 
 **Key Characteristics:**
 
@@ -190,15 +190,16 @@ Numbers use tabular figures. Headings use balanced wrapping and paragraphs use p
 
 ## Layout
 
-Header and main share a centered maximum width of (1264px), including horizontal padding of (44px). The desktop header is at least (88px) high, with brand, six horizontal destination links, and persona. There is no reserved side rail or collapsed navigation control.
+Header and main share a centered maximum width of (1264px), including horizontal padding of (44px). The desktop header is at least (88px) high, with brand, seven horizontal destination links, and persona. There is no reserved side rail or collapsed navigation control.
 
 Main padding is (26px 44px 32px). The dashboard places attendance and agenda in a top grid with a (1.8:1) column ratio and (24px) gap; the task panel spans the full width below with a (28px) separation. This page-specific order is recorded in `docs/dashboard-surface.md`, not a mandatory layout for every future screen.
 
 Implemented responsive rules, pending browser verification:
 
-- At (1100px) and below, the header wraps with navigation on its own full-width, wrapping row below brand and persona. Navigation links are at least (48px) high, with no vertical gap and an (18px) horizontal gap. Horizontal page padding becomes (30px), the overview ratio becomes (1.5:1), and its gap becomes (20px). The attendance legend uses two columns.
+- At (1280px) and below, the header wraps with navigation on its own full-width, wrapping row below brand and persona. Navigation links are at least (48px) high, with no vertical gap and an (18px) horizontal gap.
+- At (1100px) and below, horizontal page padding becomes (30px), the overview ratio becomes (1.5:1), and its gap becomes (20px). The attendance legend uses two columns.
 - At (1000px) and below, persona text is hidden; the header retains its separate navigation row.
-- At (760px) and below, brand and compact persona occupy the first line, and all six navigation links stay visible on their wrapping row. Navigation uses no vertical gap and an (18px) horizontal gap, reducing to (8px) at (400px). Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
+- At (760px) and below, brand and compact persona occupy the first line, and all seven navigation links stay visible on their wrapping row. Navigation uses no vertical gap and an (18px) horizontal gap, reducing to (8px) at (400px). Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
 - At (400px) and below, page padding becomes (16px), the attendance legend uses two columns, row avatars disappear, and task columns become a flexible text column plus (66px) deadline and (12px) indicator columns.
 
 The people extension inherits this shell. Its directory preserves table columns inside a horizontal scroll region with a (900px) minimum table width. Profiles use a (1.65:1) field/history grid that stacks at (1000px); field pairs become one column at (450px), and team lists stack at (760px). Directory filters wrap with the same native controls. These are source rules, not browser-verified layouts. Surface-specific composition is recorded in `docs/people-surface.md`.
@@ -219,7 +220,7 @@ Panels retain gently rounded corners (`panel`). Fields and the secondary button 
 
 ### Navigation
 
-Six server routes share the global header: Ringkasan (`/prototype/dashboard`), Karyawan (`/prototype/employees`), Organisasi (`/prototype/organization`), Kehadiran (`/prototype/attendance`), Pengajuan (`/prototype/requests`), and Administrasi (`/prototype/contracts`). The server assigns `aria-current="page"` and the current-link style, including employee profiles, schedules, and shift details under their parent destination. Plum text, a (2px) bottom border, and stronger weight identify the active page. Tugas and Agenda are local dashboard section anchors; profile sections also use local anchors. Attendance has separate local route links for Rekap kehadiran and Jadwal mingguan. Pengajuan has local route links for Daftar pengajuan, Saldo cuti, and Kalender tim. Administrasi groups five local routes—Kontrak, Surat, Perubahan karier, Siklus kerja, and Aset—under the same server-selected global destination. Global navigation remains six destinations. Dashboard JavaScript focuses local destinations without changing global active-page state. Global navigation stays visible without JavaScript and at mobile widths.
+Seven server routes share the global header: Ringkasan (`/prototype/dashboard`), Karyawan (`/prototype/employees`), Organisasi (`/prototype/organization`), Kehadiran (`/prototype/attendance`), Pengajuan (`/prototype/requests`), Administrasi (`/prototype/contracts`), and Keuangan (`/prototype/payroll`). The server assigns `aria-current="page"` and the current-link style, including employee profiles, schedules, and shift details under their parent destination. Plum text, a (2px) bottom border, and stronger weight identify the active page. Tugas and Agenda are local dashboard section anchors; profile sections also use local anchors. Attendance has separate local route links for Rekap kehadiran and Jadwal mingguan. Pengajuan has local route links for Daftar pengajuan, Saldo cuti, and Kalender tim. Administrasi groups five local routes—Kontrak, Surat, Perubahan karier, Siklus kerja, and Aset—under the same server-selected global destination. Keuangan groups Batch payroll and Reimbursement under one server-selected global destination. Global navigation has seven destinations. Dashboard JavaScript focuses local destinations without changing global active-page state. Global navigation stays visible without JavaScript and at mobile widths.
 
 ### Buttons and category filters
 
@@ -282,6 +283,16 @@ Onboarding and offboarding reuse native GET registers, labeled focusable table r
 Checklist templates belong to a specific employment period. Keep owner, due date, required/optional label, dependency, status and synthetic evidence reference visible as text. Dependencies explain blocked tasks without presenting completion controls. Joining date, last working day, employment end and scenario access timing remain distinct. Open asset obligations do not imply active account access; a former employee can have revoked access and an outstanding return. Rehire checklists preserve the previous period's clearance archive separately. Evidence is text only, with no attachment acceptance, account activation, session revocation or reminder action.
 
 Asset details distinguish a reserved recipient from an active holder, condition from custody, and returnable equipment from consumables. An ordered custody history shows handover, return, due date and evidence; the fixture contains at most one active holder per asset and preserves earlier holders. This does not establish operational conflict prevention. Consumables have a recorded recipient without entering a borrowing or return queue. Missing or damaged equipment can have a separate settlement-review case; its status neither assigns liability nor triggers salary deductions. Surface details remain in `docs/lifecycle-surface.md`.
+
+### Payroll, payslip previews and reimbursement
+
+Keuangan inherits native GET registers, labeled focusable table-scroll regions and read-only detail fields. Register filters persist through detail and back links; switching payroll and reimbursement drops filters with different meanings. Monetary values are synthetic integer IDR, formatted with the existing tabular-number typography. No rates, statutory calculations or payment actions are implied.
+
+Present calculation status and payment status as separate labeled facts. A finalized batch can still have failed or partial payment. Preserve period-specific payee, assignment, component and source-version snapshots rather than replacing them with current master values; later adjustments remain separate. Show blockers, warnings and notes explicitly, including negative net values. Changed source versions invalidate earlier review/approval context. Before release, native disclosures expose working components clearly labeled as calculations rather than payslips.
+
+Payslip previews are HTML only and require a finalized batch, a release date reached at the fixed snapshot, and membership in that batch. These fixture gates are not production owner authorization or private document storage. A slip explains calculation components and references, not proof of transfer. Settlement timelines separately identify successful and failed records with synthetic reference, date, actor and amount.
+
+Each reimbursement claim has one settlement channel: payroll or a separate reimbursement batch. Keep original claim amount, successful amount and remaining portion distinct. Only successful settlements count as paid; failures do not reduce the original amount, and partial success remains partial. Rejected or withdrawn unpaid portions are not approved liabilities. Similar evidence/date/amount produces a review warning, not a fraud finding. No transfer, export, duplicate prevention or operational settlement runs from these pages. Surface details remain in `docs/finance-surface.md`.
 
 ### Focus and motion
 

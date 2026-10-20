@@ -1,0 +1,27 @@
+# Payroll draft dan rekonsiliasi
+
+Tidak ada kebijakan/tarif produksi yang di-seed. Pengguna memilih konfigurasi draft karena kebijakan perusahaan belum tersedia. Fixtures tests sengaja berlabel SYNTHETIC dan bukan angka pajak/BPJS/lembur Indonesia. Approval ahli payroll/Finance atas sumber resmi dan applicability wajib sebelum review/finalisasi operasional. Pencantuman URL tidak membuktikan tarif benar; manusia berwenang harus meninjau sumber, tanggal efektif, seluruh aturan dan bukti approval. SMTP/bank transfer nyata tidak dijalankan.
+
+## Versi dan perhitungan
+
+Workflow compensation: Payroll Officer company mengajukan employee_id, valid_from, monthly_base_minor, base_compensation_id dan reason; Finance Approver lain menyetujui. GET requests/{id}/proposed-compensation hanya untuk pengaju Payroll berizin/Finance scope, diaudit/no-store. Identitas umum dan manager tidak mendapat nominal kompensasi. Interval [valid_from,valid_until) nonoverlap; perubahan future tidak mengganti today. Perubahan yang mengenai payroll finalized ditolak dan membutuhkan adjustment khusus.
+
+POST payroll-policies membuat draft versi code, valid_from/valid_until eksklusif, official_sources dan rules. GET payroll-policies/{id} untuk pemeriksaan kedua peran keuangan. Rules memakai integer minor IDR **sen:100sen=Rp1**, rounding half_up/floor/ceiling dan proration_basis calendar_days. Pada implementasi ini denominator adalah jumlah hari kalender **periode batch**, bukan asumsi 30hari atau total bulan kalender. Kompensasi efektif per hari yang berada dalam employment+branch dibagi denominator, dijumlah rational, kemudian dibulatkan sekali. Joiner/leaver dan perubahan nominal mid-period tertelusur per hari. Pilih hanya jika sesuai kebijakan yang disahkan; basis lain belum tersedia.
+
+Komponen earning/deduction memakai fixed, ratio numerator/denominator atau progressive brackets berurutan dengan bracket terakhir up_to null. Basis base/gross/overtime_minutes/late_minutes/unpaid_leave_minutes/absent_shifts, cap opsional, tax_statuses opsional. Earning mendahului deduction, gross hanya untuk deduction; tidak ada PHP/SQL/eval. Formula ini mesin aritmetika terikat, belum klaim kalkulator kepatuhan PPh21 tahunan/TER/gross-up lengkap. Setiap aturan regulasi yang diperlukan tetap harus dimodelkan/diuji/disahkan; policy draft tidak boleh dianggap kalkulasi hukum yang benar.
+
+Payroll-policies/{id}/approve memerlukan Finance berbeda pembuat dan evidence peninjauan ahli. Policy approved immutable; pembaruan membuat versi baru. Batch merujuk attendance_period_id dan payroll_policy_id. State draft→calculate→calculated→review→reviewed→approve→approved→finalize→finalized. Finalize menerima release_at ISO8601. Review oleh Payroll; approve/finalize Finance berbeda penyusun kalkulasi. Sumber dicek ulang setiap tahap; perubahan mengembalikan batch ke draft dan409, menghapus pengesahan lama. Snapshot meliputi periode employment/assignment/kompensasi, identitas, policy version, attendance revision/hash, bank/tax version dan rincian sumber tiap komponen.
+
+Blockers: attendance belum closed, policy belum disahkan/tanggal tidak mencakup, compensation gap, bank belum verified, tax profile wajib belum verified, negative net dan batch kosong. Kalkulasi sinkron dibatasi500pegawai dan62hari attendance period. Integer/rational memakai Brick Math tanpa float; nominal/total maksimal1e15sen sebagai batas operasional. Angka tidak disimpan di audit umum atau email.
+
+## Snapshot, ekspor dan pembayaran
+
+Finalisasi membekukan rows/final snapshot/PDF terenkripsi, menandai attendance period payroll_finalized sehingga tidak dapat reopen, dan mengantre notifikasi generik. payslips/{id}/download hanya setelah release_at bagi pemilik aktif/Payroll/Finance company; HR/manager/platform tidak otomatis diizinkan. PDF tetap sama sesudah perubahan salary master berikutnya. Byte PDF tersimpan privat terenkripsi di database; tidak ada storage URL publik.
+
+bank-export-templates membuat draft kolom/label per bank; Finance berbeda pembuat mengonfirmasi melalui {id}/confirm. Required fields batch_id/account_number/amount_idr; format jumlah dua desimal IDR dari sen. Finalized batch hanya satu instruksi export per template yang dikonfirmasi; retry menghasilkan ID/checksum/isi sama. CSV netralisasi formula, kontrol total terenkripsi, unique batch UUID dan audit download beralasan. POST payroll-batches/{id}/bank-export dan POST bank-exports/{id}/download; export tidak pernah menjadi bukti pembayaran. Demo dilarang export operasional.
+
+Finance merekam payroll-rows/{id}/payment-outcomes dengan external_event_id unik, status paid/failed, amount_minor, reference dan paid_on. Paid harus positif, failed bernominal0, tanggal tidak boleh future. Event identik lintas retry tidak mengganda; event berbeda dengan referensi sukses sama ditolak, total tidak boleh melebihi net. Partial adalah settlement terpisah, bukan edit nominal payroll. Status pembayaran terpisah dari immutable perhitungan. Tidak ada direct bank API.
+
+## Belum acceptance penuh
+
+Variation warning antarperiode, off-cycle/next-period adjustments, pemetaan aturan tahunan pajak/gross-up, prorata basis lain, opening payroll imports, bank-specific quoting/layout/return formats, payment reversal/dispute, alumni distribution, reimbursement integration dan worker batch besar masih perlu dilengkapi. API belum menghubungkan seluruh layar preview. Tidak ada kebijakan produksi nyata yang disahkan atau transaksi bank nyata yang dilakukan oleh agent.

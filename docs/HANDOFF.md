@@ -177,3 +177,7 @@ Lima tes profil privat lulus (68 assertions); identity/account regression 25 tes
 ## Dokumen, lifecycle dan aset — backend API
 
 Full suite PostgreSQL lulus 152 tests / 2303 assertions; Pint, composer validate --strict, composer check-platform-reqs dan diff check lulus. PDF privat immutable, nomor transaksi, kontrak as-of/nonoverlap/reminder, rehire/activation gate, scheduled exit/runtime revoke dan asset custody/settlement tersedia. Batasan acceptance dicatat pada DOCUMENTS_LIFECYCLE.md. PHP CLI ZIP diaktifkan untuk dukungan spreadsheet; proses web yang sudah berjalan perlu restart agar extension ikut termuat. Tidak ada akun/data produksi atau email nyata yang dibuat. Seluruh backend belum selesai; payroll/impor/demo serta kelengkapan R1/R2 masih dilanjutkan.
+
+## Payroll draft API
+
+Pengguna mengonfirmasi belum ada kebijakan: siapkan draft. Tidak ada policy/tarif produksi yang di-seed/disahkan agent. API kompensasi efektif, kalkulasi integer/rational, policy expert gate, source invalidation, final snapshot/PDF privat, bank-template confirmation/export dan payment outcomes tersedia. Tiga tes PayrollTest lulus123assertions sebelum hardening trigger tambahan. Lihat PAYROLL_BACKEND.md untuk basis prorata, minor unit, aturan yang didukung dan sisa cakupan regulasi/adjustment/claim. Seluruh backend belum selesai.

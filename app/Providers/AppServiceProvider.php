@@ -15,6 +15,7 @@ use App\Domain\Lifecycle\OffboardingHandler;
 use App\Domain\Lifecycle\OnboardingHandler;
 use App\Domain\Operations\Clock;
 use App\Domain\Operations\SystemClock;
+use App\Domain\Payroll\CompensationHandler;
 use App\Domain\Workflow\WorkflowRegistry;
 use Illuminate\Support\ServiceProvider;
 
@@ -46,6 +47,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->make(WorkflowRegistry::class)->register('contract', ContractHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('onboarding', OnboardingHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('offboarding', OffboardingHandler::class);
+        $this->app->make(WorkflowRegistry::class)->register('compensation', CompensationHandler::class);
         foreach (['profile_change' => 'general', 'identity_change' => 'identity', 'bank_change' => 'bank', 'tax_change' => 'tax'] as $kind => $category) {
             $this->app->make(WorkflowRegistry::class)->register($kind, 'workflow.profile.'.$category);
         }

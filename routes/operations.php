@@ -9,12 +9,27 @@ use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\OperationsHealthController;
+use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PrivateFileController;
 use App\Http\Controllers\PrivateProfileController;
 use App\Http\Controllers\WorkflowController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::post('/payroll-policies', [PayrollController::class, 'policy']);
+    Route::get('/payroll-policies/{id}', [PayrollController::class, 'policyDetail'])->whereNumber('id');
+    Route::get('/requests/{id}/proposed-compensation', [PayrollController::class, 'proposedCompensation'])->whereNumber('id');
+    Route::post('/payroll-policies/{id}/approve', [PayrollController::class, 'approvePolicy'])->whereNumber('id');
+    Route::post('/payroll-batches', [PayrollController::class, 'create']);
+    Route::get('/payroll-batches/{id}', [PayrollController::class, 'show'])->whereNumber('id');
+    Route::post('/payroll-batches/{id}/calculate', [PayrollController::class, 'calculate'])->whereNumber('id');
+    Route::post('/payroll-batches/{id}/{action}', [PayrollController::class, 'transition'])->whereNumber('id')->where('action', 'review|approve|finalize');
+    Route::get('/payslips/{id}/download', [PayrollController::class, 'payslip'])->whereNumber('id');
+    Route::post('/bank-export-templates', [PayrollController::class, 'bankTemplate']);
+    Route::post('/bank-export-templates/{id}/confirm', [PayrollController::class, 'confirmTemplate'])->whereNumber('id');
+    Route::post('/payroll-batches/{id}/bank-export', [PayrollController::class, 'export'])->whereNumber('id');
+    Route::post('/bank-exports/{id}/download', [PayrollController::class, 'downloadExport'])->whereNumber('id');
+    Route::post('/payroll-rows/{id}/payment-outcomes', [PayrollController::class, 'outcome'])->whereNumber('id');
     Route::post('/lifecycle-templates', [LifecycleController::class, 'template']);
     Route::post('/onboarding-cases', [LifecycleController::class, 'onboarding']);
     Route::get('/lifecycle-cases/{id}', [LifecycleController::class, 'show'])->whereNumber('id');

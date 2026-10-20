@@ -1,6 +1,6 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal dan kehadiran dengan navigasi **Ruang Tim** serta data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0/R1 belum diimplementasikan.
+Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini tersedia prototipe dashboard, direktori/profil karyawan, struktur organisasi, jadwal/kehadiran, pengajuan/cuti dan kalender tim dengan navigasi **Ruang Tim** serta data sintetis. Autentikasi, otorisasi operasional, demo terisolasi dan aturan bisnis R0/R1 belum diimplementasikan.
 
 ## Pratinjau dashboard tanpa database
 
@@ -19,7 +19,7 @@ npm run build
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan, Organisasi dan Kehadiran; Tugas dan Agenda adalah bagian lokal dashboard. Kehadiran dan agenda berdampingan pada desktop, lalu bertumpuk pada ponsel. Pencarian tugas/karyawan, filter kategori/cabang/prioritas dan detail inline tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
+Buka [dashboard lokal](http://127.0.0.1:8000/prototype/dashboard). Halaman utama mengarah ke dashboard hanya saat preview aktif. Navigasi atas memuat Ringkasan, Karyawan, Organisasi, Kehadiran dan Pengajuan; Tugas dan Agenda adalah bagian lokal dashboard. Menu membungkus pada layar sempit tanpa sidebar. Pencarian/filter dan detail tetap tersedia. Semua beroperasi pada fixture baca saja; tidak ada keputusan persetujuan atau penyimpanan data HR. Tanggal snapshot tetap 20 Oktober 2026.
 
 ## Modul Karyawan & Organisasi
 
@@ -36,6 +36,14 @@ Tidak ada create/edit/delete, pengaturan akses, data sensitif atau dokumen nyata
 - Detail shift: jadwal dan tanggal pulang berikutnya, clock-in/out sintetis, interval istirahat, durasi contoh, jejak percobaan ditolak, definisi status dan panduan koreksi baca saja. Tautan kembali mempertahankan scope asal; tab rekap/jadwal mempertahankan karyawan/cabang.
 
 Skenario penting: Nadia19 malam tetap hari kerja19 walau pulang20Okt (terlambat12, pulangawal10, durasi398menit); Nadia18 belum lengkap; Dimas19 libur, Fajar19 cuti, Dimas15 percobaan lokasi ditolak, Dimas20 sedang bekerja. Semua peristiwa berlabel SIMULATED, snapshot20Okt08.45WIB. Tidak ada pengambilan GPS/kamera, pengiriman koreksi, penilaian geofence nyata, publikasi roster atau clocking operasional. Fixture ini tidak memenuhi acceptance attendance R1.
+
+## Modul Cuti & Pengajuan
+
+- [Daftar pengajuan](http://127.0.0.1:8000/prototype/requests): delapan contoh cuti, koreksi absensi, lembur dan tukar shift. Filter nomor/nama, jenis, status, cabang dan karyawan; detail menampilkan pemilik tahap, tenggat, usia sejak pengajuan, keputusan dan tahap menunggu/selesai.
+- [Saldo cuti](http://127.0.0.1:8000/prototype/leave-balances): ledger per profil sintetis dengan kredit, debit, reservasi dan pelepasan. Nadia memiliki kredit 12 hari, debit 3 dan reservasi 2, tersisa 7 hari. Arif memiliki saldo tersedia 9,5 hari termasuk reservasi 0,5 hari; penolakan Dimas melepas reservasi tanpa pemakaian final.
+- [Kalender tim](http://127.0.0.1:8000/prototype/team-calendar): roster dan ketidaktersediaan disetujui per minggu/cabang. Hanya Terjadwal/Tidak tersedia/Libur yang ditampilkan; tidak ada jenis cuti pribadi, diagnosis atau alasan pengajuan.
+
+Jumlah hari dan keputusan di atas seluruhnya ilustrasi, bukan hak cuti atau ketentuan hukum. Approved dates menggunakan satu sumber fixture untuk rekap dan kalender (Fajar 19 Oktober, Nadia 23 Oktober); pengajuan tertunda tidak mengubah hasil final. Koreksi Nadia belum mengubah raw event, rencana lembur belum berarti pembayaran, dan pertukaran yang ditarik tidak mengubah roster. Tidak ada submit, approve/reject, cancel, notifikasi atau transaksi saldo yang dikirim oleh UI. Ini belum memenuhi acceptance workflow/leave R1.
 
 Preview ditolak di luar lingkungan local/testing, bahkan bila flag aktif. Flag default false pada `.env.example`; pratinjau ini bukan implementasi instalasi demo DEMO-01. UI dirancang responsif; verifikasi browser desktop/ponsel masih perlu dilakukan karena browser tidak tersedia pada sesi implementasi.
 

@@ -135,7 +135,7 @@ components:
 
 Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.
 
-Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, and attendance records with synthetic fixtures; the visual system does not imply operational HR capabilities.
+Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, attendance records, requests, leave balances, and team availability with synthetic fixtures; the visual system does not imply operational HR capabilities.
 
 **Key Characteristics:**
 
@@ -190,14 +190,15 @@ Numbers use tabular figures. Headings use balanced wrapping and paragraphs use p
 
 ## Layout
 
-Header and main share a centered maximum width of (1264px), including horizontal padding of (44px). The desktop header is at least (88px) high, with brand, four horizontal destination links, and persona. There is no reserved side rail or collapsed navigation control.
+Header and main share a centered maximum width of (1264px), including horizontal padding of (44px). The desktop header is at least (88px) high, with brand, five horizontal destination links, and persona. There is no reserved side rail or collapsed navigation control.
 
 Main padding is (26px 44px 32px). The dashboard places attendance and agenda in a top grid with a (1.8:1) column ratio and (24px) gap; the task panel spans the full width below with a (28px) separation. This page-specific order is recorded in `docs/dashboard-surface.md`, not a mandatory layout for every future screen.
 
 Implemented responsive rules, pending browser verification:
 
 - At (1100px) and below, horizontal page padding becomes (30px), the overview ratio becomes (1.5:1), and its gap becomes (20px). The attendance legend uses two columns.
-- At (760px) and below, the header wraps: brand and compact persona occupy the first line, and all four navigation links remain visible on a second line, with an (18px) gap that becomes (8px) at (400px). Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
+- At (1000px) and below, header spacing becomes (24px), global navigation spacing becomes (18px), and persona text is hidden.
+- At (760px) and below, the header wraps: brand and compact persona occupy the first line, and all five navigation links stay visible and may wrap below the brand. Navigation uses no vertical gap and an (18px) horizontal gap, reducing to (8px) at (400px). Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
 - At (400px) and below, page padding becomes (16px), the attendance legend uses two columns, row avatars disappear, and task columns become a flexible text column plus (66px) deadline and (12px) indicator columns.
 
 The people extension inherits this shell. Its directory preserves table columns inside a horizontal scroll region with a (900px) minimum table width. Profiles use a (1.65:1) field/history grid that stacks at (1000px); field pairs become one column at (450px), and team lists stack at (760px). Directory filters wrap with the same native controls. These are source rules, not browser-verified layouts. Surface-specific composition is recorded in `docs/people-surface.md`.
@@ -218,7 +219,7 @@ Panels retain gently rounded corners (`panel`). Fields and the secondary button 
 
 ### Navigation
 
-Four server routes share the global header: Ringkasan (`/prototype/dashboard`), Karyawan (`/prototype/employees`), Organisasi (`/prototype/organization`), and Kehadiran (`/prototype/attendance`). The server assigns `aria-current="page"` and the current-link style, including employee profiles, schedules, and shift details under their parent destination. Plum text, a (2px) bottom border, and stronger weight identify the active page. Tugas and Agenda are local dashboard section anchors; profile sections also use local anchors. Attendance has separate local route links for Rekap kehadiran and Jadwal mingguan. Dashboard JavaScript focuses local destinations without changing global active-page state. Global navigation stays visible without JavaScript and at mobile widths.
+Five server routes share the global header: Ringkasan (`/prototype/dashboard`), Karyawan (`/prototype/employees`), Organisasi (`/prototype/organization`), Kehadiran (`/prototype/attendance`), and Pengajuan (`/prototype/requests`). The server assigns `aria-current="page"` and the current-link style, including employee profiles, schedules, and shift details under their parent destination. Plum text, a (2px) bottom border, and stronger weight identify the active page. Tugas and Agenda are local dashboard section anchors; profile sections also use local anchors. Attendance has separate local route links for Rekap kehadiran and Jadwal mingguan. Pengajuan has local route links for Daftar pengajuan, Saldo cuti, and Kalender tim. Dashboard JavaScript focuses local destinations without changing global active-page state. Global navigation stays visible without JavaScript and at mobile widths.
 
 ### Buttons and category filters
 
@@ -255,6 +256,16 @@ The attendance extension inherits native GET controls and existing state colors.
 The synthetic fixture covers 70 daily records for five people over two weeks (12–25 October 2026). Weekly roster columns identify the shift-start date; shift links state when the end falls on the next day. A night shift beginning on 19 October stays attached to that work date even when it ends on 20 October. The roster and recap keep native table headers inside labeled, focusable horizontal scroll regions rather than hiding columns. These are source provisions pending visual and keyboard verification.
 
 Keep roster plans, raw clock events, and interpreted outcomes distinct. Late and early-departure flags are independent of Present status. Scheduled, In progress, Incomplete, Leave, Day off and Absent remain separately labeled. Detail fields show full start/end context, timezone, break and duration notes; semantic event timelines label the source SIMULATED. Native correction-guidance disclosures explain the example deadline and preserved raw events without offering submission, attachment or approval actions. The seven-day example is a PRD default, not an operational policy. Surface details remain in `docs/attendance-surface.md`.
+
+### Requests, leave balances and team availability
+
+The requests extension inherits native GET filters, labeled horizontal table regions, and the existing state colors. Search, type, status, branch and employee narrow the request list; local navigation carries only the filters supported by each destination. Detail/back links preserve the source list scope or the selected balance profile, while source-shift links identify the relevant attendance record. Empty combinations offer reset links without requiring JavaScript.
+
+Ordered workflow steps distinguish completed, active, waiting, rejected and discontinued stages through text as well as markers. Show the example active-stage deadline separately from age since submission; age is not time spent waiting at each stage. Rejected or withdrawn requests have no active approver. These are read-only fixtures without submission, approval or notification actions.
+
+Balance views keep credit, final debit, active reservation and reservation release distinct. Quantities use integer half-day units, formatted as days for readers. The displayed equation is credit minus debit minus active reservation; releasing a reservation does not create usage. The 12-day starting credit is synthetic, not a legal entitlement or operational leave policy. Ledger references link to request details and back to the same selected profile.
+
+The availability calendar receives only roster/approved availability, not request payloads, private reasons or attachments. Labels are Terjadwal, Tidak tersedia and Libur; daily shift counts are not staffing requirements or proof of clock activity. Approved leave dates share one fixture source with attendance, while pending requests do not alter final availability. No approval, balance transaction or raw-event adjustment runs from these pages. Surface details remain in `docs/requests-surface.md`.
 
 ### Focus and motion
 

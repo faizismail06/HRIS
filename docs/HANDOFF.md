@@ -1,5 +1,15 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Modul terbaru: Cuti & Pengajuan
+
+Preview GET-only tersedia pada `/prototype/requests`, `/prototype/requests/{requestId}`, `/prototype/leave-balances`, dan `/prototype/team-calendar`. `PrototypeRequests` menyediakan delapan pengajuan dan ledger lima profil. Filter query di-whitelist. Detail mempertahankan konteks daftar atau saldo; shift sumber memakai tanggal/karyawan yang sesuai. Menu global kini lima tujuan dengan tambahan Pengajuan, tetap tanpa sidebar dan membungkus pada layar sempit.
+
+Kuantitas saldo menggunakan integer unit setengah hari. Nadia memiliki kredit 24 unit, debit 6 dan reservasi 4: tersedia 14 unit atau 7 hari. Arif memiliki reservasi 0,5 hari; Dimas memiliki pasangan reservasi/pelepasan setelah penolakan. Nilai 12 hari kredit merupakan contoh sintetis, bukan hak cuti produksi. Usia pengajuan terpisah dari usia tahap aktif. Pemohon tidak diberi aksi persetujuan atau perubahan status.
+
+`approvedLeaveDates()` menjadi sumber bersama contoh cuti Fajar 19 Oktober dan Nadia 23 Oktober bagi rekap dan kalender. Cuti tertunda tidak mengubah ketersediaan. Controller kalender hanya mengirim label ketersediaan dari roster/izin disetujui, bukan request payload, alasan pribadi atau diagnosis. Koreksi COR-026 belum mengubah raw event; lembur OVT-007 masih rencana; tukar shift SWP-003 ditarik dan roster tetap utuh.
+
+Build, Pint, kompilasi Blade, HTTP serta 27 tes dengan 210 assertions lulus. Tidak ada endpoint mutasi, transaksi saldo, notification atau workflow operasional. Browser belum tersedia pada tahap sebelumnya sehingga visual/aksesibilitas belum disahkan. `docs/requests-surface.md` mencatat batas fixture dan kontrak UI. Bagian di bawah merupakan riwayat modul terdahulu.
+
 ## Modul terbaru: Jadwal & Kehadiran
 
 Preview GET-only tersedia pada `/prototype/attendance`, `/prototype/schedules`, dan `/prototype/attendance/{record}`. `PrototypeAttendance` menyediakan 70 baris sintetis untuk lima karyawan, 12–25 Oktober 2026, pada tiga cabang WIB. Snapshot tetap 20 Oktober 2026 pukul 08.45. Filter GET memakai whitelist dan batas tanggal; perpindahan tab serta tautan kembali mempertahankan karyawan, cabang, dan periode asal. Menu global kini empat tujuan dengan tambahan Kehadiran, tetap tanpa sidebar.

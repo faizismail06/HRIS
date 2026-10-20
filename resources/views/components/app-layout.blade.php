@@ -23,6 +23,7 @@
     </header>
     <div class="workspace">
         <main id="main" tabindex="-1">
+            <nav class="workspace-tools" aria-label="Alat ruang kerja"><a href="{{ route('prototype.search') }}" @if($active === 'search') aria-current="page" @endif><x-icon name="search" size="16"/>Pencarian</a><a href="{{ route('prototype.notifications') }}" aria-label="Notifikasi, {{ \App\Support\PrototypeWorkspace::unread() }} belum dibaca dalam contoh" @if($active === 'notifications') aria-current="page" @endif>Notifikasi <span class="nav-count" aria-hidden="true">{{ \App\Support\PrototypeWorkspace::unread() }}</span></a></nav>
             <div class="preview-notice"><x-icon name="info" size="17"/><p><strong>Prototipe UI</strong><span class="notice-divider">·</span>Data sintetis. Pratinjau ini tidak mengubah catatan HR.</p><a href="#tentang">Pelajari batasnya <x-icon name="arrow" size="15"/></a></div>
             @if($errors->any())
                 <div class="form-errors" role="alert"><strong>Filter belum dapat diterapkan.</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>

@@ -9,6 +9,7 @@ use App\Http\Controllers\PrototypeLifecycleController;
 use App\Http\Controllers\PrototypePeopleController;
 use App\Http\Controllers\PrototypeReportsController;
 use App\Http\Controllers\PrototypeRequestsController;
+use App\Http\Controllers\PrototypeWorkspaceController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,9 @@ if (app()->environment(['local', 'testing'])) {
         Route::get('/audit', [PrototypeAdministrationController::class, 'audit'])->name('audit');
         Route::get('/imports', [PrototypeAdministrationController::class, 'imports'])->name('imports');
         Route::get('/imports/{batch}', [PrototypeAdministrationController::class, 'import'])->name('imports.show');
+        Route::get('/notifications', [PrototypeWorkspaceController::class, 'notifications'])->name('notifications');
+        Route::get('/notifications/{notification}', [PrototypeWorkspaceController::class, 'notification'])->name('notifications.show');
+        Route::get('/search', [PrototypeWorkspaceController::class, 'search'])->name('search');
         foreach (['contracts', 'letters', 'career-changes'] as $kind) {
             Route::get('/'.$kind, [PrototypeEmploymentController::class, 'index'])->defaults('kind', $kind)->name($kind);
             Route::get('/'.$kind.'/{record}', [PrototypeEmploymentController::class, 'show'])->defaults('kind', $kind)->name($kind.'.show');

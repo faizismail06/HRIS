@@ -217,3 +217,7 @@ LeaveGrantSchedulesTest3 tests /32 assertions dan MigrationFreshTest lulus (gabu
 ## Payroll corrections dan variation gate
 
 Payroll/expense/migration8 tests /275 assertions lulus, tambahan next-period/variation1 test /47 assertions lulus. Koreksi source-linked pending→Finance approval, target next-period/off-cycle, source/version/checksum guards, private review API, reset draft beralasan dan mandatory variation acknowledgement tersedia. Off-cycle tidak membayar salary/claim lama lagi. Signed money formatting diperbaiki. Kebijakan pajak/net correction tetap memerlukan manusia berwenang; tidak ada parameter produksi yang disahkan agent. Migrasi300000 diterapkan dev/test tanpa reset.
+
+## Demo boundary dan scenario operations
+
+DemoIsolationTest +MigrationFreshTest3 tests /48 assertions lulus; regression attendance/document/workflow/payroll/migration27/534 lulus sebelum tambahan storage guard/banner assertions. Per-instance UUID/database identity, private storage/session/queue/cache, durable marker restore guard, token-controlled personas/time/GPS, SIMULATED attendance, watermarked docs/slips/reports dan exact-target reset tersedia. Seed hanya data sintetis dan payroll draft. Runtime produksi tidak mendaftarkan route demo. DEMO_BACKEND.md mencatat provisioning, token/CSRF, satu instalasi per skenario, clock hanya attendance/documents dan sisa hosting/UI kalender virtual. Migrasi310000/320000 diterapkan tanpa reset dev/test; reset regression hanya database demo acak disposable.

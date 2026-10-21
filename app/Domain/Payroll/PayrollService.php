@@ -3,6 +3,7 @@
 namespace App\Domain\Payroll;
 
 use App\Domain\CoreHR\CoreWrite;
+use App\Domain\Demo\DemoBoundary;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
 use App\Domain\Operations\Mutation;
@@ -132,7 +133,7 @@ class PayrollService
 
     private function pdf(array $snapshot, string $number): string
     {
-        $watermark = app()->environment('demo') ? '<h2>DEMO — DATA SINTETIS</h2>' : '';
+        $watermark = DemoBoundary::enabled() ? '<h2>DEMO — DATA SINTETIS / '.e(config('hris.demo_scenario_id')).'</h2>' : '';
         $html = '<html><meta charset="utf-8"><body style="font-family:DejaVu Sans;font-size:10pt">'.$watermark.'<h1>Slip gaji</h1><p>'.e($number).'</p><p>'.e($snapshot['employee_name']).' / '.e($snapshot['employee_number']).'</p><p>'.e(implode(' — ', $snapshot['period'])).' (akhir eksklusif)</p><table>';
         foreach ($snapshot['lines'] as $line) {
             $html .= '<tr><td>'.e($line['code']).'</td><td>'.e($line['kind']).'</td><td>IDR '.e(IntegerMoney::format($line['amount_minor'])).'</td></tr>';

@@ -4,6 +4,7 @@ namespace App\Domain\Documents;
 
 use App\Domain\CoreHR\CoreWrite;
 use App\Domain\CoreHR\EmployeeVisibility;
+use App\Domain\Demo\DemoBoundary;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
 use App\Domain\Operations\Clock;
@@ -71,7 +72,7 @@ class DocumentService
         DB::table('document_sequences')->where('id', $sequence->id)->increment('next_value');
         $values = $extra + ['number' => $number, 'issued_on' => $date, 'employee_name' => $employee->name, 'employee_number' => $employee->employee_number, 'period_start' => $period->starts_on->toDateString(), 'period_end' => $period->ends_on?->toDateString() ?? '', 'branch_name' => $assignment ? DB::table('branches')->where('id', $assignment->branch_id)->value('name') : '', 'department_name' => $assignment ? DB::table('departments')->where('id', $assignment->department_id)->value('name') : '', 'job_name' => $assignment ? DB::table('job_positions')->where('id', $assignment->job_id)->value('name') : ''];
         $body = preg_replace_callback('/\{\{\s*([^{}]+?)\s*\}\}/', fn ($m) => (string) ($values[trim($m[1])] ?? ''), $template->body);
-        $demo = app()->environment('demo') ? 'DEMO — DATA SINTETIS' : '';
+        $demo = DemoBoundary::enabled() ? 'DEMO — DATA SINTETIS / '.config('hris.demo_scenario_id') : '';
         $html = '<!doctype html><html><meta charset="utf-8"><body style="font-family:DejaVu Sans;font-size:11pt"><p>'.e($demo).'</p><h1>'.e($template->title).'</h1><p>'.e($number).'</p><div style="white-space:pre-wrap">'.nl2br(e($body)).'</div></body></html>';
         $options = new Options(['isRemoteEnabled' => false, 'isPhpEnabled' => false, 'isJavascriptEnabled' => false, 'defaultFont' => 'DejaVu Sans']);
         $pdf = new Dompdf($options);

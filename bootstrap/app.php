@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountIsActive;
+use App\Http\Middleware\EnsureInstallationBoundary;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [EnsureAccountIsActive::class]);
+        $middleware->web(prepend: [EnsureInstallationBoundary::class], append: [EnsureAccountIsActive::class]);
         $middleware->redirectUsersTo('/app');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

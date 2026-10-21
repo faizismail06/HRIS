@@ -2,6 +2,7 @@
 
 namespace App\Domain\Attendance;
 
+use App\Domain\Demo\DemoBoundary;
 use App\Domain\Identity\Audit;
 use App\Domain\Operations\Clock;
 use App\Domain\Operations\Mutation;
@@ -77,8 +78,12 @@ class AttendanceService
             $provenance = match ($mode) {
                 'remote' => 'REMOTE_SELF_REPORTED', 'field' => 'FIELD_DEVICE_REPORTED', default => 'DEVICE_REPORTED'
             };
+            if (DemoBoundary::enabled()) {
+                DemoBoundary::database();
+                $provenance = 'SIMULATED';
+            }
             $coordinates = $mode === 'remote' ? [] : ['latitude' => (float) $data['latitude'], 'longitude' => (float) $data['longitude'], 'accuracy_m' => (float) $data['accuracy_m'], 'distance_m' => round($distance, 2)];
-            $id = DB::table('attendance_events')->insertGetId(['roster_shift_id' => $shift->id, 'employee_id' => $u->employee_id, 'actor_id' => $u->id, 'direction' => $direction, 'occurred_at' => $now->toIso8601String(), 'received_at' => $now->toIso8601String(), 'coordinates' => encrypt(json_encode($coordinates, JSON_THROW_ON_ERROR)), 'private_attachment_id' => $photo?->id, 'provenance' => $provenance, 'created_at' => $now->toIso8601String()]);
+            $id = DB::table('attendance_events')->insertGetId(['roster_shift_id' => $shift->id, 'employee_id' => $u->employee_id, 'actor_id' => $u->id, 'direction' => $direction, 'occurred_at' => $now->toIso8601String(), 'received_at' => now()->toIso8601String(), 'coordinates' => encrypt(json_encode($coordinates, JSON_THROW_ON_ERROR)), 'private_attachment_id' => $photo?->id, 'provenance' => $provenance, 'scenario_id' => DemoBoundary::enabled() ? config('hris.demo_scenario_id') : null, 'created_at' => now()->toIso8601String()]);
             $result = $this->recalculate($shift);
             Audit::record($u->id, 'attendance.clock_'.$direction, 'attendance_event', $id, ['roster_shift_id' => $shift->id, 'provenance' => $provenance]);
 

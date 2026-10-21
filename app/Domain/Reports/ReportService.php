@@ -4,6 +4,7 @@ namespace App\Domain\Reports;
 
 use App\Domain\Attendance\AttendanceService;
 use App\Domain\CoreHR\EmployeeVisibility;
+use App\Domain\Demo\DemoBoundary;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
 use App\Domain\Leave\LotAccounting;
@@ -167,6 +168,6 @@ class ReportService
         $totals = $kind === 'attendance' ? ['shifts' => count($rows), 'present' => count(array_filter($rows, fn ($r) => $r['present'])), 'late' => count(array_filter($rows, fn ($r) => $r['late'])), 'early' => count(array_filter($rows, fn ($r) => $r['early'])), 'incomplete' => count(array_filter($rows, fn ($r) => $r['status'] === 'INCOMPLETE')), 'absent' => count(array_filter($rows, fn ($r) => $r['status'] === 'ABSENT'))] : ['rows' => count($rows)];
         Audit::record($u->id, 'report.read', 'report', null, ['kind' => $kind, 'starts_on' => $f['starts_on'], 'ends_on' => $f['ends_on'], 'rows' => count($rows)]);
 
-        return ['kind' => $kind, 'filters' => $f, 'definitions' => ['period' => '[starts_on,ends_on)', 'presence' => 'Shift with effective_in from validated clock or approved correction; incomplete/conflict remain flagged independently. Late and early are subsets.', 'closed' => 'Closed attendance and overtime use the frozen revision; open data may change', 'currency' => 'IDR minor units = sen'], 'watermark' => app()->environment('demo') ? 'DEMO — DATA SINTETIS' : null, 'totals' => $totals, 'data' => $rows];
+        return ['kind' => $kind, 'filters' => $f, 'definitions' => ['period' => '[starts_on,ends_on)', 'presence' => 'Shift with effective_in from validated clock or approved correction; incomplete/conflict remain flagged independently. Late and early are subsets.', 'closed' => 'Closed attendance and overtime use the frozen revision; open data may change', 'currency' => 'IDR minor units = sen'], 'watermark' => DemoBoundary::enabled() ? 'DEMO — DATA SINTETIS / '.config('hris.demo_scenario_id') : null, 'totals' => $totals, 'data' => $rows];
     }
 }

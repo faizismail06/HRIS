@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Demo\DemoBoundary;
+use App\Http\Controllers\DemoController;
 use App\Http\Controllers\PrototypeAdministrationController;
 use App\Http\Controllers\PrototypeAttendanceController;
 use App\Http\Controllers\PrototypeDashboardController;
@@ -14,6 +16,15 @@ use App\Http\Controllers\PrototypeScreensController;
 use App\Http\Controllers\PrototypeWorkspaceController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
 use Illuminate\Support\Facades\Route;
+
+if (DemoBoundary::enabled()) {
+    Route::prefix('demo')->middleware('throttle:30,1')->group(function () {
+        Route::get('/personas', [DemoController::class, 'personas']);
+        Route::post('/persona', [DemoController::class, 'login']);
+        Route::post('/time', [DemoController::class, 'time']);
+        Route::post('/clock', [DemoController::class, 'clock']);
+    });
+}
 
 require __DIR__.'/workspace.php';
 

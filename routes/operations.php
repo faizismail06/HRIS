@@ -42,6 +42,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::get('/report-exports/{id}', [ReportController::class, 'status'])->whereNumber('id');
     Route::get('/report-exports/{id}/download', [ReportController::class, 'download'])->whereNumber('id');
     Route::post('/imports', [ImportController::class, 'upload']);
+    Route::get('/import-templates/{kind}', [ImportController::class, 'template'])->where('kind', '[a-z_]+');
     Route::get('/imports/{id}', [ImportController::class, 'show'])->whereNumber('id');
     foreach (['map', 'preview', 'commit'] as $action) {
         Route::post('/imports/{id}/'.$action, [ImportController::class, $action])->whereNumber('id');
@@ -51,6 +52,8 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('/expense-claims/{id}/allocate', [ExpenseController::class, 'allocate'])->whereNumber('id');
     Route::post('/expense-allocations/{id}/settle', [ExpenseController::class, 'settle'])->whereNumber('id');
     Route::post('/payroll-policies', [PayrollController::class, 'policy']);
+    Route::get('/employees/{id}/payroll-history', [PayrollController::class, 'history'])->whereNumber('id');
+    Route::get('/requests/{id}/proposed-opening-payroll', [PayrollController::class, 'openingDetail'])->whereNumber('id');
     Route::post('/payroll-adjustments', [PayrollController::class, 'adjustment']);
     Route::get('/payroll-adjustments/{id}', [PayrollController::class, 'adjustmentDetail'])->whereNumber('id');
     Route::post('/payroll-adjustments/{id}/decide', [PayrollController::class, 'decideAdjustment'])->whereNumber('id');

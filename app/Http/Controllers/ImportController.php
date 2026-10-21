@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class ImportController extends Controller
 {
+    public function template(Request $r, string $kind, ImportService $s)
+    {
+        return response($s->template($r->user(), $kind))->header('Content-Type', 'text/csv; charset=UTF-8')->header('Content-Disposition', 'attachment; filename="template-'.$kind.'.csv"')->header('Cache-Control', 'no-store, private');
+    }
+
     public function upload(OperationalRequest $r, ImportService $s)
     {
         $r->validate(['kind' => ['required', 'string'], 'file' => ['required', 'file', 'max:10240']]);

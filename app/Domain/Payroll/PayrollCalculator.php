@@ -26,6 +26,9 @@ class PayrollCalculator
         if ($policy->valid_from > $period->starts_on || $policy->valid_until < $period->ends_on) {
             $blockers[] = ['code' => 'policy_dates_do_not_cover_period'];
         }
+        if (substr($period->starts_on, 0, 4) !== CarbonImmutable::parse($period->ends_on)->subDay()->format('Y') && collect($rules['components'])->contains(fn ($c) => in_array($c['basis'], ['prior_gross', 'prior_tax_paid', 'annual_gross']) || ! empty($c['subtract_prior_tax']))) {
+            $blockers[] = ['code' => 'split_tax_year_required'];
+        }
         if (($batch->kind ?? 'regular') === 'off_cycle') {
             return app(PayrollAdjustments::class)->offCycle($batch, $period, $policy, $blockers);
         }
@@ -99,9 +102,18 @@ class PayrollCalculator
                 }
             }
             $context['gross'] = $context['base'];
+            $history = app(PayrollHistory::class)->context($employee->id, (int) substr($period->starts_on, 0, 4), $period->starts_on);
+            $blockers = array_merge($blockers, $history['blockers']);
+            $context['prior_gross'] = $history['prior_gross'];
+            $context['prior_tax_paid'] = $history['prior_tax_paid'];
+            $context['annual_gross'] = IntegerMoney::sum($context['gross'], $context['prior_gross']);
+            $context['tax_paid_minor'] = 0;
             $lines = [['code' => 'BASE', 'kind' => 'earning', 'amount_minor' => $context['base'], 'method' => 'calendar_days', 'source' => $daily, 'rounding' => $rules['rounding']]];
             $deductions = 0;
             foreach ($rules['components'] as $component) {
+                if ((! empty($component['subtract_prior_tax']) || $component['basis'] === 'prior_tax_paid') && ! $history['tax_classification_complete']) {
+                    $blockers[] = ['code' => 'historical_tax_classification_missing', 'employee_id' => $employee->id];
+                }
                 if (! empty($component['tax_statuses']) && ! in_array($tax?->data['tax_status'] ?? null, $component['tax_statuses'], true)) {
                     continue;
                 }
@@ -126,14 +138,21 @@ class PayrollCalculator
                     }
                 }
                 $amount = IntegerMoney::rounded($value, $rules['rounding']);
+                if (! empty($component['subtract_prior_tax'])) {
+                    $amount = max(0, $amount - $history['prior_tax_paid']);
+                }
                 if (isset($component['cap_minor'])) {
                     $amount = min($amount, $component['cap_minor']);
                 }
                 $lines[] = ['code' => $component['code'], 'label' => $component['label'], 'kind' => $component['kind'], 'amount_minor' => $amount, 'basis_value' => $basis, 'rule' => $component, 'rounding' => $rules['rounding']];
                 if ($component['kind'] === 'earning') {
                     $context['gross'] = IntegerMoney::sum($context['gross'], $amount);
+                    $context['annual_gross'] = IntegerMoney::sum($context['gross'], $context['prior_gross']);
                 } else {
                     $deductions = IntegerMoney::sum($deductions, $amount);
+                    if (! empty($component['tax_component'])) {
+                        $context['tax_paid_minor'] = IntegerMoney::sum($context['tax_paid_minor'], $amount);
+                    }
                 }
             }
             $net = $context['gross'] - $deductions;
@@ -162,7 +181,7 @@ class PayrollCalculator
                     $warnings[] = ['code' => 'material_net_variation', 'employee_id' => $employee->id, 'previous_row_id' => $previous->id, 'threshold_percent' => $rules['variation_warning_percent']];
                 }
             }
-            $sourceEmployees[] = ['id' => $employee->id, 'version' => $employee->version, 'compensation' => $compensations->all(), 'employment' => $employment->toArray(), 'assignments' => $assignments->toArray(), 'bank_version' => $bank?->version, 'tax_version' => $tax?->version, 'reimbursements' => $reimbursements];
+            $sourceEmployees[] = ['id' => $employee->id, 'version' => $employee->version, 'compensation' => $compensations->all(), 'employment' => $employment->toArray(), 'assignments' => $assignments->toArray(), 'bank_version' => $bank?->version, 'tax_version' => $tax?->version, 'reimbursements' => $reimbursements, 'history' => $history];
         }
         if (! $rows) {
             $blockers[] = ['code' => 'no_employees'];

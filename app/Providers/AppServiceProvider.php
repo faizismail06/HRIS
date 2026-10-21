@@ -21,6 +21,7 @@ use App\Domain\Lifecycle\OnboardingHandler;
 use App\Domain\Operations\Clock;
 use App\Domain\Operations\SystemClock;
 use App\Domain\Payroll\CompensationHandler;
+use App\Domain\Payroll\OpeningPayrollHandler;
 use App\Domain\Workflow\WorkflowRegistry;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Event;
@@ -69,6 +70,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->make(WorkflowRegistry::class)->register('onboarding', OnboardingHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('offboarding', OffboardingHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('compensation', CompensationHandler::class);
+        $this->app->make(WorkflowRegistry::class)->register('opening_payroll', OpeningPayrollHandler::class);
         $this->app->make(WorkflowRegistry::class)->register('expense', ExpenseHandler::class);
         foreach (['profile_change' => 'general', 'identity_change' => 'identity', 'bank_change' => 'bank', 'tax_change' => 'tax'] as $kind => $category) {
             $this->app->make(WorkflowRegistry::class)->register($kind, 'workflow.profile.'.$category);

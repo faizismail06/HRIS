@@ -24,7 +24,13 @@ Finance merekam payroll-rows/{id}/payment-outcomes dengan external_event_id unik
 
 ## Belum acceptance penuh
 
-Pemetaan aturan tahunan pajak/gross-up, prorata basis lain, opening payroll imports, bank-specific quoting/layout/return formats, payment reversal/dispute, alumni distribution dan worker batch besar masih perlu dilengkapi. API belum menghubungkan seluruh layar preview. Tidak ada kebijakan produksi nyata yang disahkan atau transaksi bank nyata yang dilakukan oleh agent.
+Pengesahan pemetaan aturan tahunan pajak/gross-up perusahaan, prorata basis lain, bank-specific quoting/layout/return formats, payment reversal/dispute, alumni distribution dan worker batch besar masih perlu dilengkapi. API belum menghubungkan seluruh layar preview. Tidak ada kebijakan produksi nyata yang disahkan atau transaksi bank nyata yang dilakukan oleh agent.
+
+## Opening dan konteks kumulatif
+
+Opening payroll (termasuk import CSV/XLSX) masuk workflow draft→Finance review dengan evidence wajib. Satu employee/year, cutoff through_on inklusif, source_key unik; nominal/reason terenkripsi. Approved immutable, overlap dengan payroll final ditolak. GET employees/{id}/payroll-history?tax_year=YYYY&before_on=YYYY-MM-DD hanya Payroll/Finance company, no-store/audit, merangkum opening approved serta regular final sebelum cutoff beserta hashes sumber. Pending atau overlap menjadi blocker saat kalkulasi; tidak dihitung sebagai angka yang sudah benar.
+
+Mesin constrained formulas mendukung prior_gross, prior_tax_paid dan annual_gross (prior + gross saat komponen itu dihitung). Komponen deduction dapat ditandai tax_component; snapshot menyimpan tax_paid_minor terpisah dari deduction lain. subtract_prior_tax=true mengurangi pajak kumulatif dengan pajak sebelumnya, floor0, maksimal satu komponen rekonsiliasi. Rule/rounding/cap tetap eksplisit dan wajib expert approval. Snapshot legacy tanpa klasifikasi pajak memblokir formula yang membutuhkan prior tax, bukan menebak bahwa semua deduction adalah pajak. Periode yang melintasi tahun diblokir untuk formula kumulatif; pisahkan tahun pajak. Context/sources ikut checksum, sehingga opening yang baru disahkan membatalkan kalkulasi lama. Ini dukungan aritmetika, bukan pengesahan formula hukum atau gross-up otomatis tanpa aturan perusahaan.
 
 ## Koreksi hasil final dan variasi
 

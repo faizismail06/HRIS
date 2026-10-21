@@ -13,6 +13,7 @@ use App\Domain\Identity\Audit;
 use App\Domain\Leave\LeaveService;
 use App\Domain\Operations\Mutation;
 use App\Domain\Payroll\CompensationHandler;
+use App\Domain\Payroll\OpeningPayrollHandler;
 use App\Domain\Workflow\WorkflowService;
 use App\Jobs\CommitImport;
 use App\Models\User;
@@ -32,13 +33,14 @@ class ImportService
         'rosters' => ['employee_number', 'work_date', 'shift_code', 'is_day_off'],
         'leave_credits' => ['employee_number', 'type_code', 'entitlement_year', 'valid_from', 'valid_until', 'minutes', 'source_key', 'reason'],
         'compensation' => ['employee_number', 'valid_from', 'monthly_base_minor', 'reason'],
+        'opening_payroll' => ['employee_number', 'tax_year', 'through_on', 'source_key', 'gross_minor', 'tax_paid_minor', 'reason'],
     ];
 
     private function authorize(User $actor, string $kind): void
     {
         abort_unless(isset(self::FIELDS[$kind]), 422);
         $permission = match ($kind) {
-            'employees' => 'employees.manage', 'branches', 'departments', 'jobs' => 'organization.manage', 'rosters' => 'schedules.manage', 'leave_credits' => 'leave.manage', 'compensation' => 'payroll.prepare'
+            'employees' => 'employees.manage', 'branches', 'departments', 'jobs' => 'organization.manage', 'rosters' => 'schedules.manage', 'leave_credits' => 'leave.manage', 'compensation', 'opening_payroll' => 'payroll.prepare'
         };
         abort_unless(Access::companyPermission($actor, $permission), 403);
     }
@@ -119,7 +121,7 @@ class ImportService
             try {
                 $d = $this->normalize($actor, $batch->kind, $row);
                 $keys = match ($batch->kind) {
-                    'employees' => ['employee_number' => $d['employee_number'], 'work_email' => strtolower($d['work_email'] ?? ''), 'national_id' => isset($d['national_id']) ? SensitiveProfiles::nationalHash($d['national_id']) : ''], 'rosters' => ['work_date' => $d['employee_id'].'|'.$d['work_date']], 'leave_credits' => ['source_key' => $d['source_key']], 'compensation' => ['valid_from' => $d['employee_id'].'|'.$d['valid_from']], default => ['code' => $d['code']]
+                    'employees' => ['employee_number' => $d['employee_number'], 'work_email' => strtolower($d['work_email'] ?? ''), 'national_id' => isset($d['national_id']) ? SensitiveProfiles::nationalHash($d['national_id']) : ''], 'rosters' => ['work_date' => $d['employee_id'].'|'.$d['work_date']], 'leave_credits' => ['source_key' => $d['source_key']], 'opening_payroll' => ['source_key' => $d['source_key'], 'tax_year' => $d['employee_id'].'|'.$d['tax_year']], 'compensation' => ['valid_from' => $d['employee_id'].'|'.$d['valid_from']], default => ['code' => $d['code']]
                 };
                 foreach ($keys as $field => $value) {
                     if ($value === '') {
@@ -180,6 +182,11 @@ class ImportService
 
     private function normalize(User $actor, string $kind, array $row): array
     {
+        if ($kind === 'opening_payroll') {
+            $row['employee_id'] = $this->reference('employees', 'employee_number', $row['employee_number'] ?? '', false);
+
+            return app(OpeningPayrollHandler::class)->prepare($actor, $row)['payload'];
+        }
         if (in_array($kind, ['branches', 'departments', 'jobs'])) {
             $rules = ['code' => ['required', 'regex:/^[A-Z0-9][A-Z0-9_-]{0,39}$/', 'unique:'.($kind === 'jobs' ? 'job_positions' : $kind).',code'], 'name' => ['required', 'string', 'max:160']];
             if ($kind === 'branches') {
@@ -272,7 +279,7 @@ class ImportService
                     } elseif ($b->kind === 'leave_credits') {
                         $record = app(LeaveService::class)->grant($u, $rowKey, $d);
                     } else {
-                        $record = app(WorkflowService::class)->draft($u, $rowKey, 'compensation', $d);
+                        $record = app(WorkflowService::class)->draft($u, $rowKey, $b->kind === 'opening_payroll' ? 'opening_payroll' : 'compensation', $d);
                     }
                     $result[] = ['row' => $row['row']] + $record;
                 }
@@ -289,6 +296,18 @@ class ImportService
         $b = $this->owned($actor, $id);
 
         return ['id' => $id, 'kind' => $b->kind, 'headers' => json_decode($b->headers, true), 'available_fields' => self::FIELDS[$b->kind], 'mapping' => json_decode($b->mapping ?? '{}', true), 'row_count' => $b->row_count, 'status' => $b->status, 'version' => $b->version, 'errors' => json_decode($b->errors, true), 'error_count' => $b->error_count, 'result' => json_decode($b->result ?? '[]', true)];
+    }
+
+    public function template(User $actor, string $kind): string
+    {
+        $this->authorize($actor, $kind);
+        $stream = fopen('php://temp', 'w+');
+        fputcsv($stream, self::FIELDS[$kind], ',', '"', '');
+        rewind($stream);
+        $result = stream_get_contents($stream);
+        fclose($stream);
+
+        return $result;
     }
 
     public function queue(User $actor, int $id, int $version, string $key, string $checksum): array

@@ -221,3 +221,7 @@ Payroll/expense/migration8 tests /275 assertions lulus, tambahan next-period/var
 ## Demo boundary dan scenario operations
 
 DemoIsolationTest +MigrationFreshTest3 tests /48 assertions lulus; regression attendance/document/workflow/payroll/migration27/534 lulus sebelum tambahan storage guard/banner assertions. Per-instance UUID/database identity, private storage/session/queue/cache, durable marker restore guard, token-controlled personas/time/GPS, SIMULATED attendance, watermarked docs/slips/reports dan exact-target reset tersedia. Seed hanya data sintetis dan payroll draft. Runtime produksi tidak mendaftarkan route demo. DEMO_BACKEND.md mencatat provisioning, token/CSRF, satu instalasi per skenario, clock hanya attendance/documents dan sisa hosting/UI kalender virtual. Migrasi310000/320000 diterapkan tanpa reset dev/test; reset regression hanya database demo acak disposable.
+
+## Opening payroll dan sumber YTD
+
+14 tests /430 assertions opening/payroll/import/migration lulus. Template CSV per kind dapat diunduh berizin. Opening import menghasilkan draft, bukan histori final palsu; approval Finance dengan evidence, unique employee/year/source dan overlap guard. Konteks YTD mengambil opening approved + final regular dengan hash/version, klasifikasi tax_component dan optional bounded subtract_prior_tax, tanpa mengarang tarif. Formula kumulatif lintas tahun/legacy tanpa klasifikasi diblokir. Pembacaan nominal opening/history privat bagi Payroll/Finance. Migrasi330000 diterapkan dev/test tanpa reset. Detail IMPORTS_BACKEND.md/PAYROLL_BACKEND.md.

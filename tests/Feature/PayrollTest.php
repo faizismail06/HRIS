@@ -32,7 +32,7 @@ class PayrollTest extends AttendanceScenarioCase
         $this->login($owner);
         $id = $this->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => $kind, 'payload' => $payload])->assertCreated()->json('id');
         $this->postJson('/app/api/requests/'.$id.'/submit', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1])->assertOk();
-        $this->login($this->finance)->postJson('/app/api/requests/'.$id.'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'decision' => 'approve'])->assertOk();
+        $this->login($this->finance)->postJson('/app/api/requests/'.$id.'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'decision' => 'approve', 'reason' => 'Synthetic independent verification'])->assertOk();
 
         return $id;
     }
@@ -47,7 +47,7 @@ class PayrollTest extends AttendanceScenarioCase
         $this->approveRequest($this->payroll, 'compensation', ['employee_id' => $this->worker->employee_id, 'valid_from' => $date, 'monthly_base_minor' => $amount, 'base_compensation_id' => $base, 'reason' => 'Synthetic compensation test']);
     }
 
-    private function readyBatch(bool $approvePolicy = true): int
+    private function readyBatch(bool $approvePolicy = true, array $ruleOverrides = []): int
     {
         $this->roster('2026-10-17', true);
         $this->roster('2026-10-18', true);
@@ -60,7 +60,7 @@ class PayrollTest extends AttendanceScenarioCase
         $this->compensation('2026-10-18', 10003, DB::table('employee_compensations')->sole()->id);
         $this->bank();
         $this->login($this->payroll);
-        $policy = $this->postJson('/app/api/payroll-policies', ['idempotency_key' => (string) Str::uuid(), 'code' => 'SYNTHETIC_ONLY', 'valid_from' => '2026-01-01', 'valid_until' => '2027-01-01', 'official_sources' => ['https://www.pajak.go.id/'], 'rules' => ['rounding' => 'half_up', 'proration_basis' => 'calendar_days', 'requires_tax_profile' => false, 'applicability_statement' => 'SYNTHETIC arithmetic fixture only. These are not Indonesian statutory rates.', 'variation_warning_percent' => 25, 'components' => [['code' => 'SYNTHETIC_EARNING', 'label' => 'Synthetic earning', 'kind' => 'earning', 'method' => 'fixed', 'basis' => 'base', 'amount_minor' => 100], ['code' => 'SYNTHETIC_DEDUCTION', 'label' => 'Synthetic deduction', 'kind' => 'deduction', 'method' => 'ratio', 'basis' => 'base', 'numerator' => 1, 'denominator' => 3]]]])->assertCreated()->json('id');
+        $policy = $this->postJson('/app/api/payroll-policies', ['idempotency_key' => (string) Str::uuid(), 'code' => 'SYNTHETIC_ONLY', 'valid_from' => '2026-01-01', 'valid_until' => '2027-01-01', 'official_sources' => ['https://www.pajak.go.id/'], 'rules' => array_replace(['rounding' => 'half_up', 'proration_basis' => 'calendar_days', 'requires_tax_profile' => false, 'applicability_statement' => 'SYNTHETIC arithmetic fixture only. These are not Indonesian statutory rates.', 'variation_warning_percent' => 25, 'components' => [['code' => 'SYNTHETIC_EARNING', 'label' => 'Synthetic earning', 'kind' => 'earning', 'method' => 'fixed', 'basis' => 'base', 'amount_minor' => 100], ['code' => 'SYNTHETIC_DEDUCTION', 'label' => 'Synthetic deduction', 'kind' => 'deduction', 'method' => 'ratio', 'basis' => 'base', 'numerator' => 1, 'denominator' => 3]]], $ruleOverrides)])->assertCreated()->json('id');
         if ($approvePolicy) {
             $this->login($this->finance)->postJson('/app/api/payroll-policies/'.$policy.'/approve', ['idempotency_key' => (string) Str::uuid(), 'evidence' => 'Synthetic testing fixture, no real regulatory approval or payment.'])->assertOk();
         }
@@ -232,5 +232,21 @@ class PayrollTest extends AttendanceScenarioCase
         $snapshot = decrypt(DB::table('payroll_rows')->where('payroll_batch_id', $second)->sole()->snapshot);
         $this->assertSame(19975, $snapshot['net_minor']);
         $this->assertSame(6768, decrypt(DB::table('payroll_final_snapshots')->where('payroll_row_id', $source)->sole()->snapshot)['net_minor']);
+    }
+
+    public function test_cumulative_arithmetic_uses_only_verified_opening_and_subtracts_prior_tax_once(): void
+    {
+        $batch = $this->readyBatch(true, ['components' => [['code' => 'SYNTHETIC_TAX', 'label' => 'Synthetic cumulative tax arithmetic', 'kind' => 'deduction', 'method' => 'ratio', 'basis' => 'annual_gross', 'numerator' => 1, 'denominator' => 10, 'tax_component' => true, 'subtract_prior_tax' => true]]]);
+        $this->login($this->hr)->postJson('/app/api/workflow-definitions', ['idempotency_key' => (string) Str::uuid(), 'name' => 'Opening review', 'kind' => 'opening_payroll', 'min_amount_minor' => 0, 'priority' => 10, 'steps' => [['role' => 'finance_approver']]])->assertOk();
+        $this->approveRequest($this->payroll, 'opening_payroll', ['employee_id' => $this->worker->employee_id, 'tax_year' => 2026, 'through_on' => '2026-09-30', 'source_key' => 'SYNTHETIC-CUMULATIVE', 'gross_minor' => 100000, 'tax_paid_minor' => 9000, 'reason' => 'Synthetic arithmetic fixture only']);
+        $this->login($this->payroll);
+        $this->transition($batch, 'calculate', 1)->assertOk()->assertJsonPath('blockers', []);
+        $snapshot = decrypt(DB::table('payroll_rows')->where('payroll_batch_id', $batch)->sole()->snapshot);
+        $this->assertSame(100000, $snapshot['context']['prior_gross']);
+        $this->assertSame(9000, $snapshot['context']['prior_tax_paid']);
+        $this->assertSame(2000, $snapshot['deduction_minor']);
+        $this->assertSame(8002, $snapshot['net_minor']);
+        $this->assertSame(2000, $snapshot['context']['tax_paid_minor']);
+        $this->login($this->hr)->getJson('/app/api/employees/'.$this->worker->employee_id.'/payroll-history?tax_year=2026&before_on=2026-10-17')->assertForbidden();
     }
 }

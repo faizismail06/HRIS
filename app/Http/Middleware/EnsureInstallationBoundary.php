@@ -10,6 +10,9 @@ class EnsureInstallationBoundary
 {
     public function handle(Request $request, Closure $next)
     {
+        if (! DemoBoundary::enabled() && app()->environment(['local', 'testing']) && config('hris.ui_preview_enabled') && ($request->is('prototype/*') || $request->is('/'))) {
+            return $next($request); // Explicitly gated static fixtures contain no operational database data.
+        }
         DemoBoundary::database();
         $response = $next($request);
         if (DemoBoundary::enabled()) {

@@ -64,6 +64,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('/payroll-policies', [PayrollController::class, 'policy']);
     Route::get('/employees/{id}/payroll-history', [PayrollController::class, 'history'])->whereNumber('id');
     Route::get('/requests/{id}/proposed-opening-payroll', [PayrollController::class, 'openingDetail'])->whereNumber('id');
+    Route::get('/requests/{id}/document-preview', [DocumentController::class, 'preview'])->whereNumber('id');
     Route::post('/payroll-adjustments', [PayrollController::class, 'adjustment']);
     Route::get('/payroll-adjustments/{id}', [PayrollController::class, 'adjustmentDetail'])->whereNumber('id');
     Route::post('/payroll-adjustments/{id}/decide', [PayrollController::class, 'decideAdjustment'])->whereNumber('id');

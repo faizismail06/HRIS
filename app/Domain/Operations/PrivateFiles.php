@@ -41,7 +41,7 @@ class PrivateFiles
                 abort_unless(in_array($request->status, ['draft', 'in_review', 'blocked']), 409);
             }, function ($u) use ($requestId, $file, $mime, $hash, &$stored) {
                 $request = WorkflowRequest::findOrFail($requestId);
-                $classification = in_array($request->kind, ['leave', 'leave_cancel']) ? 'medical' : (in_array($request->kind, ['payroll', 'reimbursement']) ? 'payroll' : 'general');
+                $classification = in_array($request->kind, ['leave', 'leave_exception', 'leave_cancel']) ? 'medical' : (in_array($request->kind, ['payroll', 'reimbursement']) ? 'payroll' : 'general');
                 $stored ??= 'evidence/'.Str::uuid().($mime === 'application/pdf' ? '.pdf' : ($mime === 'image/png' ? '.png' : '.jpg'));
                 abort_unless(Storage::disk('local')->put($stored, file_get_contents($file->getRealPath())), 503, 'Penyimpanan berkas belum tersedia.');
                 $id = DB::table('private_attachments')->insertGetId(['uploaded_by' => $u->id, 'subject_type' => 'workflow_request', 'subject_id' => $requestId, 'classification' => $classification, 'path' => $stored, 'mime' => $mime, 'size' => $file->getSize(), 'sha256' => $hash, 'created_at' => now()]);
@@ -87,7 +87,7 @@ class PrivateFiles
             return true;
         }
 
-        return in_array($request->kind, ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'onboarding', 'offboarding']) && $request->employee_id && $actor->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($actor, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
+        return in_array($request->kind, ['leave', 'leave_exception', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'career_retrospective', 'onboarding', 'offboarding']) && $request->employee_id && $actor->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($actor, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
     }
 
     public function shiftPhoto(User $actor, int $shiftId, UploadedFile $file, string $key): array

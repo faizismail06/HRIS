@@ -11,6 +11,19 @@ use Tests\Support\AttendanceScenarioCase;
 
 class DocumentsTest extends AttendanceScenarioCase
 {
+    public function test_draft_preview_is_private_text_and_does_not_allocate_a_number_or_issue_a_pdf(): void
+    {
+        $template = $this->template('employment_certificate');
+        $this->definition('letter');
+        $this->login($this->worker);
+        $request = $this->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'letter', 'payload' => $this->base($template) + ['letter_kind' => 'employment_certificate']])->assertCreated()->json('id');
+        $this->getJson('/app/api/requests/'.$request.'/document-preview')->assertOk()->assertJsonPath('draft', true)->assertJsonPath('number', null)->assertSee('Synthetic Worker');
+        $this->assertDatabaseCount('document_sequences', 0);
+        $this->assertDatabaseCount('issued_documents', 0);
+        $outsider = $this->user('employee');
+        $this->login($outsider)->getJson('/app/api/requests/'.$request.'/document-preview')->assertNotFound();
+    }
+
     private function template(string $kind): int
     {
         $this->login($this->hr);

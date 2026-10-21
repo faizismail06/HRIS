@@ -23,11 +23,11 @@ class ExitReconciliation
             abort_if(app(AttendanceService::class)->closed($shift), 409, 'Roster setelah exit sudah tertutup; selesaikan penyesuaian periode sebelum keputusan exit.');
         }
         $cancelled = [];
-        foreach (WorkflowRequest::whereIn('status', ['draft', 'blocked', 'in_review'])->whereIn('kind', ['leave', 'overtime', 'swap', 'correction', 'career'])->where(fn ($q) => $q->where('employee_id', $exit->employee_id)->orWhere('summary->colleague_employee_id', $exit->employee_id))->orderBy('id')->get() as $request) {
+        foreach (WorkflowRequest::whereIn('status', ['draft', 'blocked', 'in_review'])->whereIn('kind', ['leave', 'leave_exception', 'overtime', 'swap', 'correction', 'career', 'career_retrospective'])->where(fn ($q) => $q->where('employee_id', $exit->employee_id)->orWhere('summary->colleague_employee_id', $exit->employee_id))->orderBy('id')->get() as $request) {
             $p = $request->payload;
             $affected = match ($request->kind) {
-                'leave' => $p['ends_on'] >= $end && (! $oldEnd || $p['starts_on'] < $oldEnd),
-                'career' => $p['effective_on'] >= $end && (! $oldEnd || $p['effective_on'] < $oldEnd),
+                'leave', 'leave_exception' => $p['ends_on'] >= $end && (! $oldEnd || $p['starts_on'] < $oldEnd),
+                'career', 'career_retrospective' => $p['effective_on'] >= $end && (! $oldEnd || $p['effective_on'] < $oldEnd),
                 'swap' => in_array($p['source_shift_id'], $ids) || in_array($p['target_shift_id'], $ids),
                 default => in_array($p['roster_shift_id'], $ids),
             };
@@ -35,7 +35,7 @@ class ExitReconciliation
                 continue;
             }
             if ($request->status !== 'draft') {
-                if ($request->kind === 'leave') {
+                if (in_array($request->kind, ['leave', 'leave_exception'])) {
                     app(LeaveHandler::class)->released($request, $exit->effectActorId());
                 } else {
                     app(WorkflowRegistry::class)->handler($request->kind)->released($request);

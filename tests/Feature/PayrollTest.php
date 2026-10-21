@@ -249,4 +249,30 @@ class PayrollTest extends AttendanceScenarioCase
         $this->assertSame(2000, $snapshot['context']['tax_paid_minor']);
         $this->login($this->hr)->getJson('/app/api/employees/'.$this->worker->employee_id.'/payroll-history?tax_year=2026&before_on=2026-10-17')->assertForbidden();
     }
+
+    public function test_joiner_leaver_and_mid_period_change_prorate_exactly_and_remain_in_historical_department_report(): void
+    {
+        $this->worker->employee->assignments()->update(['valid_from' => '2026-10-18', 'valid_to' => '2026-10-20']);
+        $this->worker->employee->periods()->update(['starts_on' => '2026-10-18', 'ends_on' => '2026-10-20']);
+        $this->compensation('2026-10-18', 30000);
+        $this->compensation('2026-10-19', 60000, DB::table('employee_compensations')->sole()->id);
+        $this->bank();
+        $this->roster('2026-10-18', true);
+        $this->roster('2026-10-19', true);
+        $this->travel(3)->days();
+        $placement = $this->worker->employee->assignments()->sole();
+        $this->login($this->hr);
+        $period = $this->postJson('/app/api/attendance-periods', ['idempotency_key' => (string) Str::uuid(), 'branch_id' => $placement->branch_id, 'starts_on' => '2026-10-17', 'ends_on' => '2026-10-20'])->assertCreated()->json('id');
+        $review = $this->postJson('/app/api/attendance-periods/'.$period.'/review', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1])->assertOk()->json();
+        $this->postJson('/app/api/attendance-periods/'.$period.'/close', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'checksum' => $review['checksum']])->assertOk();
+        $policy = $this->login($this->payroll)->postJson('/app/api/payroll-policies', ['idempotency_key' => (string) Str::uuid(), 'code' => 'SYNTHETIC_JOIN_EXIT', 'valid_from' => '2026-01-01', 'valid_until' => '2027-01-01', 'official_sources' => ['https://example.invalid/synthetic-policy'], 'rules' => ['rounding' => 'half_up', 'proration_basis' => 'calendar_days', 'requires_tax_profile' => false, 'applicability_statement' => 'Synthetic arithmetic only, no real payroll policy.', 'variation_warning_percent' => 25, 'components' => []]])->assertCreated()->json('id');
+        $this->login($this->finance)->postJson('/app/api/payroll-policies/'.$policy.'/approve', ['idempotency_key' => (string) Str::uuid(), 'evidence' => 'Synthetic independent arithmetic fixture review'])->assertOk();
+        $batch = $this->login($this->payroll)->postJson('/app/api/payroll-batches', ['idempotency_key' => (string) Str::uuid(), 'attendance_period_id' => $period, 'payroll_policy_id' => $policy])->assertCreated()->json('id');
+        $row = $this->finalize($batch);
+        $snapshot = decrypt(DB::table('payroll_final_snapshots')->where('payroll_row_id', $row)->sole()->snapshot);
+        // Three period days, only two employed days: 30000/3 + 60000/3 = 30000 sen.
+        $this->assertSame(30000, $snapshot['net_minor']);
+        $this->assertCount(2, $snapshot['placements']);
+        $this->getJson('/app/api/reports/payroll?starts_on=2026-10-17&ends_on=2026-10-20&department_id='.$placement->department_id.'&employment_status=ACTIVE')->assertOk()->assertJsonPath('data.0.work_date', '2026-10-18')->assertJsonPath('data.0.net_minor', 30000);
+    }
 }

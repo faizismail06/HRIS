@@ -114,6 +114,8 @@ class LifecycleAssetsTest extends AttendanceScenarioCase
         $settlement = DB::table('asset_settlement_cases')->sole();
         $resolution = ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1, 'resolution' => 'no_charge', 'evidence' => 'Synthetic Finance incident assessment'];
         $this->postJson('/app/api/asset-settlements/'.$settlement->id.'/resolve', $resolution)->assertForbidden();
+        $this->worker->grants()->create(['role' => 'finance_approver', 'scope' => 'company']);
+        $this->login($this->worker)->postJson('/app/api/asset-settlements/'.$settlement->id.'/resolve', $resolution)->assertForbidden();
         $finance = $this->user('finance_approver');
         $this->login($finance)->postJson('/app/api/asset-settlements/'.$settlement->id.'/resolve', $resolution)->assertOk();
         $this->assertDatabaseHas('asset_settlement_cases', ['id' => $settlement->id, 'status' => 'resolved', 'resolution' => 'no_charge', 'resolved_by' => $finance->id]);

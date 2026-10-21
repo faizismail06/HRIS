@@ -54,14 +54,17 @@ class PayrollCalculator
             $base = BigRational::of(0);
             $daily = [];
             $activeDays = 0;
+            $placements = [];
             for ($day = $start; $day < $end; $day = $day->addDay()) {
                 $date = $day->toDateString();
-                $placed = $assignments->contains(fn ($a) => $a->branch_id === $period->branch_id && $a->valid_from->toDateString() <= $date && (! $a->valid_to || $a->valid_to->toDateString() > $date));
+                $placement = $assignments->first(fn ($a) => $a->branch_id === $period->branch_id && $a->valid_from->toDateString() <= $date && (! $a->valid_to || $a->valid_to->toDateString() > $date));
+                $placed = $placement !== null;
                 $employed = $employment->contains(fn ($e) => $e->activation_state === 'active' && $e->starts_on->toDateString() <= $date && (! $e->ends_on || $e->ends_on->toDateString() > $date));
                 if (! $placed || ! $employed) {
                     continue;
                 }
                 $activeDays++;
+                $placements[] = ['work_date' => $date, 'branch_id' => $placement->branch_id, 'department_id' => $placement->department_id, 'job_id' => $placement->job_id, 'employment_status' => $employee->statusAt($date)];
                 $comp = $compensations->first(fn ($c) => $c->valid_from <= $date && (! $c->valid_until || $c->valid_until > $date));
                 if (! $comp) {
                     $blockers[] = ['code' => 'compensation_gap', 'employee_id' => $employee->id, 'work_date' => $date];
@@ -174,6 +177,7 @@ class PayrollCalculator
             }
             $rows[] = ['employee_id' => $employee->id, 'employee_number' => $employee->employee_number, 'employee_name' => $employee->name, 'currency' => 'IDR', 'minor_unit' => 'sen', 'period' => [$period->starts_on, $period->ends_on], 'policy_id' => $policy->id, 'policy_version' => $policy->version, 'attendance_revision' => $period->revision, 'attendance_hashes' => $attendance->filter(fn ($a) => json_decode($a->snapshot, true)['employee_id'] === $employee->id)->pluck('sha256')->all(), 'bank' => $bank?->data, 'bank_version' => $bank?->version, 'tax_version' => $tax?->version, 'lines' => $lines, 'context' => $context, 'gross_minor' => $context['gross'], 'deduction_minor' => $deductions, 'net_minor' => $net];
             $rows[array_key_last($rows)]['reimbursements'] = $reimbursements;
+            $rows[array_key_last($rows)]['placements'] = $placements;
             $previous = DB::table('payroll_final_snapshots')->join('payroll_rows', 'payroll_rows.id', '=', 'payroll_final_snapshots.payroll_row_id')->join('payroll_batches', 'payroll_batches.id', '=', 'payroll_rows.payroll_batch_id')->join('attendance_periods', 'attendance_periods.id', '=', 'payroll_batches.attendance_period_id')->where('payroll_rows.employee_id', $employee->id)->where('payroll_batches.kind', 'regular')->where('attendance_periods.ends_on', '<=', $period->starts_on)->orderByDesc('attendance_periods.ends_on')->orderByDesc('payroll_final_snapshots.id')->first(['payroll_final_snapshots.snapshot', 'payroll_final_snapshots.sha256', 'payroll_rows.id']);
             if ($previous) {
                 $oldNet = decrypt($previous->snapshot)['net_minor'];

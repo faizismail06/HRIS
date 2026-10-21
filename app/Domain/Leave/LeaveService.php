@@ -29,14 +29,15 @@ class LeaveService
 
     public function grant(User $actor, string $key, array $input): array
     {
-        $data = Validator::make($input, ['employee_id' => ['required', 'integer', 'exists:employees,id'], 'type_code' => ['required', 'string', Rule::exists('leave_types', 'code')->where('is_active', true)], 'entitlement_year' => ['required', 'integer', 'between:2000,2200'], 'valid_from' => ['required', 'date_format:Y-m-d'], 'valid_until' => ['required', 'date_format:Y-m-d', 'after:valid_from'], 'minutes' => ['required', 'integer', 'between:1,1000000'], 'source_key' => ['required', 'string', 'max:100'], 'source_type' => ['required', Rule::in(['grant', 'accrual', 'carry_over', 'adjustment'])], 'reason' => ['required', 'string', 'max:1000']])->validate();
+        $data = Validator::make($input, ['employee_id' => ['required', 'integer', 'exists:employees,id'], 'type_code' => ['required', 'string', Rule::exists('leave_types', 'code')->where('is_active', true)], 'entitlement_year' => ['required', 'integer', 'between:2000,2200'], 'valid_from' => ['required', 'date_format:Y-m-d'], 'valid_until' => ['required', 'date_format:Y-m-d', 'after:valid_from'], 'minutes' => ['required', 'integer', 'between:1,1000000'], 'source_key' => ['required', 'string', 'max:100'], 'source_type' => ['required', Rule::in(['grant', 'accrual', 'adjustment'])], 'reason' => ['required', 'string', 'max:1000']])->validate();
 
         return Mutation::run($actor, 'leave.grant', $key, $data, fn ($u) => abort_unless(Access::companyPermission($u, 'leave.manage'), 403), function ($u) use ($data) {
+            abort_if($u->employee_id && $u->employee_id === (int) $data['employee_id'], 403, 'Hak cuti sendiri harus disahkan HR lain.');
             $existing = DB::table('leave_credit_lots')->where('source_key', $data['source_key'])->first();
             abort_if($existing, 409, 'Sumber kredit sudah diproses. Gunakan kunci retry yang sama.');
             $id = DB::table('leave_credit_lots')->insertGetId(array_diff_key($data, ['reason' => true]) + ['granted_by' => $u->id, 'created_at' => now()->toIso8601String()]);
             DB::table('leave_ledger')->insert(['employee_id' => $data['employee_id'], 'leave_credit_lot_id' => $id, 'kind' => $data['source_type'], 'minutes' => $data['minutes'], 'business_key' => 'credit:'.$id, 'actor_id' => $u->id, 'created_at' => now()->toIso8601String()]);
-            Audit::record($u->id, 'leave.credit_granted', 'leave_credit_lot', $id, ['employee_id' => $data['employee_id'], 'minutes' => $data['minutes'], 'reason_provided' => true]);
+            Audit::record($u->id, 'leave.credit_granted', 'leave_credit_lot', $id, ['employee_id' => $data['employee_id'], 'minutes' => $data['minutes'], 'reason_provided' => true, 'reason_encrypted' => encrypt($data['reason'])]);
 
             return ['id' => $id, 'minutes' => $data['minutes']];
         });

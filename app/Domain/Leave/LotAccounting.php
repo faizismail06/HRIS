@@ -28,6 +28,7 @@ class LotAccounting
 
         return Mutation::run($actor, 'leave.lot.change', $key, compact('id', 'd'), fn ($u) => abort_unless(Access::companyPermission($u, 'leave.manage'), 403), function ($u) use ($id, $d) {
             $lot = DB::table('leave_credit_lots')->where('id', $id)->lockForUpdate()->firstOrFail();
+            abort_if($u->employee_id && $u->employee_id === $lot->employee_id, 403, 'Adjustment hak sendiri harus dicatat HR lain.');
             abort_if($d['minutes'] > self::remaining($lot), 422, 'Kredit bebas tidak cukup; reservasi dan penggunaan tidak boleh diambil.');
             $target = null;
             if ($d['kind'] === 'carry_out') {

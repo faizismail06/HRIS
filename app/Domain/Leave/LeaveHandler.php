@@ -24,12 +24,18 @@ class LeaveHandler implements WorkflowHandler
     public function prepare(User $actor, array $input): array
     {
         abort_unless($actor->employee_id, 403);
+
+        return $this->prepareEmployee($actor->employee_id, $input);
+    }
+
+    protected function prepareEmployee(int $employeeId, array $input, bool $noticeException = false): array
+    {
         $data = Validator::make($input, ['leave_type_id' => ['required', 'integer', 'exists:leave_types,id'], 'starts_on' => ['required', 'date_format:Y-m-d'], 'ends_on' => ['required', 'date_format:Y-m-d', 'after_or_equal:starts_on'], 'segment' => ['required', Rule::in(['full', 'first_half', 'second_half'])], 'reason' => ['required', 'string', 'max:1000']])->validate();
         $type = LeaveType::where('is_active', true)->findOrFail($data['leave_type_id']);
-        $person = Employee::findOrFail($actor->employee_id);
+        $person = Employee::findOrFail($employeeId);
         abort_unless(CarbonImmutable::parse($data['starts_on'])->diffInDays(CarbonImmutable::parse($data['ends_on'])) <= 90, 422);
-        abort_unless($data['starts_on'] >= today()->addDays($type->notice_days)->toDateString(), 422, 'Tanggal cuti tidak memenuhi batas pemberitahuan.');
-        $period = $person->periods()->where('starts_on', '<=', $data['starts_on'])->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>', $data['ends_on']))->first();
+        abort_unless($data['starts_on'] >= ($noticeException ? today()->subDays(7) : today()->addDays($type->notice_days))->toDateString(), 422, 'Tanggal cuti tidak memenuhi batas pemberitahuan atau jendela pengecualian HR.');
+        $period = $person->periods()->where('activation_state', 'active')->where('starts_on', '<=', $data['starts_on'])->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>', $data['ends_on']))->first();
         abort_unless($period && CarbonImmutable::parse($period->starts_on)->diffInDays(CarbonImmutable::parse($data['starts_on'])) >= $type->minimum_tenure_days, 422, 'Masa kerja tidak memenuhi kebijakan.');
         abort_unless($data['segment'] === 'full' || ($type->allows_half_day && $data['starts_on'] === $data['ends_on']), 422);
         $segments = $this->segments($person->id, $data, $type);
@@ -74,7 +80,7 @@ class LeaveHandler implements WorkflowHandler
     public function approved(WorkflowRequest $r): void
     {
         $person = Employee::findOrFail($r->employee_id);
-        abort_unless($person->periods()->where('starts_on', '<=', $r->payload['starts_on'])->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>', $r->payload['ends_on']))->exists(), 422, 'Periode kerja berubah dan tidak lagi mencakup cuti.');
+        abort_unless($person->periods()->where('activation_state', 'active')->where('starts_on', '<=', $r->payload['starts_on'])->where(fn ($q) => $q->whereNull('ends_on')->orWhere('ends_on', '>', $r->payload['ends_on']))->exists(), 422, 'Periode kerja berubah dan tidak lagi mencakup cuti.');
         $adjustments = [];
         $segments = DB::table('leave_segments')->where('workflow_request_id', $r->id)->where('state', 'reserved')->get();
         abort_unless($segments->isNotEmpty(), 409);

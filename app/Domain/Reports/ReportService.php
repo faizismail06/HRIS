@@ -129,12 +129,17 @@ class ReportService
             if (! empty($f['branch_id'])) {
                 $query->where('attendance_periods.branch_id', $f['branch_id']);
             }
-            foreach ($query->get(['payroll_rows.id', 'payroll_rows.employee_id', 'payroll_rows.snapshot', 'payroll_batches.status', 'attendance_periods.starts_on']) as $r) {
+            foreach ($query->get(['payroll_rows.id', 'payroll_rows.employee_id', 'payroll_rows.snapshot', 'payroll_batches.status', 'payroll_batches.kind', 'attendance_periods.starts_on']) as $r) {
                 if (! empty($f['employee_id']) && $f['employee_id'] !== $r->employee_id) {
                     continue;
                 }
                 $s = decrypt($r->snapshot);
-                $rows[] = ['record_id' => $r->id, 'employee_id' => $r->employee_id, 'work_date' => $r->starts_on, 'employee_number' => $s['employee_number'], 'status' => $r->status, 'gross_minor' => $s['gross_minor'], 'deduction_minor' => $s['deduction_minor'], 'net_minor' => $s['net_minor'], 'paid_minor' => (int) DB::table('payroll_payment_outcomes')->where('payroll_row_id', $r->id)->where('status', 'paid')->sum('amount_minor')];
+                $dates = collect($s['placements'] ?? [])->filter(fn ($p) => $p['work_date'] >= $f['starts_on'] && $p['work_date'] < $f['ends_on'] && (empty($f['department_id']) || $p['department_id'] === $f['department_id']) && (empty($f['employment_status']) || $p['employment_status'] === $f['employment_status']));
+                if (! empty($s['placements']) && $dates->isEmpty()) {
+                    continue;
+                }
+                $date = $dates->first()['work_date'] ?? max($f['starts_on'], $s['reference_work_date'] ?? $s['lines'][0]['source'][0]['work_date'] ?? $r->starts_on);
+                $rows[] = ['record_id' => $r->id, 'employee_id' => $r->employee_id, 'work_date' => $date, 'employee_number' => $s['employee_number'], 'status' => $r->status, 'batch_kind' => $r->kind, 'gross_minor' => $s['gross_minor'], 'deduction_minor' => $s['deduction_minor'], 'net_minor' => $s['net_minor'], 'paid_minor' => (int) DB::table('payroll_payment_outcomes')->where('payroll_row_id', $r->id)->where('status', 'paid')->sum('amount_minor')];
             }
         } else {
             foreach (DB::table('expense_claims')->where('incurred_on', '>=', $f['starts_on'])->where('incurred_on', '<', $f['ends_on'])->orderBy('id')->get() as $c) {

@@ -173,11 +173,16 @@ class WorkflowService
     {
         Validator::make(compact('reason', 'replacement'), ['reason' => ['required', 'string', 'max:1000'], 'replacement' => ['required', 'integer', 'exists:users,id']])->validate();
 
-        return Mutation::run($actor, 'workflow.reassign', $key, compact('id', 'version', 'replacement', 'reason'), fn ($u) => abort_unless(Access::companyPermission($u, 'workflow.manage'), 403), function ($u) use ($id, $version, $replacement) {
+        return Mutation::run($actor, 'workflow.reassign', $key, compact('id', 'version', 'replacement', 'reason'), function ($u) use ($id) {
+            $request = WorkflowRequest::findOrFail($id);
+            $step = $request->steps()->whereIn('status', ['pending', 'blocked'])->first() ?? $request->steps()->orderByDesc('position')->firstOrFail();
+            abort_unless(Access::companyPermission($u, $step->role === 'finance_approver' ? 'payroll.approve' : 'workflow.manage'), 403);
+            abort_if($step->role !== 'finance_approver' && in_array($request->kind, ['compensation', 'opening_payroll', 'bank_change', 'tax_change', 'expense']), 403);
+        }, function ($u) use ($id, $version, $replacement) {
             $r = WorkflowRequest::query()->lockForUpdate()->findOrFail($id);
             CoreWrite::version($r->version, $version);
             abort_unless(in_array($r->status, ['in_review', 'blocked']), 409);
-            abort_unless(in_array($r->kind, ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'onboarding', 'offboarding']), 403);
+            abort_unless(in_array($r->kind, ['leave', 'leave_exception', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'career_retrospective', 'onboarding', 'offboarding', 'compensation', 'opening_payroll', 'bank_change', 'tax_change', 'expense']), 403);
             $target = User::findOrFail($replacement);
             abort_if($target->id === $r->submitted_by || ($target->employee_id && $target->employee_id === $r->employee_id), 403);
             $step = $r->steps()->whereIn('status', ['pending', 'blocked'])->lockForUpdate()->firstOrFail();
@@ -185,7 +190,7 @@ class WorkflowService
                 abort_unless(WorkflowAccess::stepEligible($target, $r, $step), 403);
                 $role = 'counterparty';
             } else {
-                $role = WorkflowAccess::eligibleForRequest($target, $r, $step->role) ? $step->role : 'hr_admin';
+                $role = $step->role === 'finance_approver' || WorkflowAccess::eligibleForRequest($target, $r, $step->role) ? $step->role : 'hr_admin';
                 abort_unless(WorkflowAccess::eligibleForRequest($target, $r, $role), 403);
             }
             $step->update(['role' => $role, 'base_approver_ids' => [$target->id], 'approver_ids' => [$target->id], 'delegation_snapshot' => [], 'version' => $step->version + 1]);
@@ -217,7 +222,7 @@ class WorkflowService
 
     private function activate(WorkflowRequest $r, WorkflowStep $step): void
     {
-        $blocked = empty($step->approver_ids);
+        $blocked = ! User::whereIn('id', $step->approver_ids)->get()->contains(fn ($u) => $u->id !== $r->submitted_by && (! $u->employee_id || $u->employee_id !== $r->employee_id) && WorkflowAccess::stepEligible($u, $r, $step));
         $calendar = WorkflowDefinition::findOrFail($r->workflow_definition_id)->deadline_calendar;
         $due = $calendar ? app(BusinessDeadline::class)->add($this->clock->now(), $calendar['due_minutes'], $calendar) : null;
         $escalate = $calendar ? app(BusinessDeadline::class)->add($this->clock->now(), $calendar['escalate_minutes'], $calendar) : null;

@@ -3,6 +3,7 @@
 namespace App\Domain\Leave;
 
 use App\Domain\Attendance\AttendanceService;
+use App\Domain\Identity\Access;
 use App\Domain\Workflow\WorkflowHandler;
 use App\Models\RosterShift;
 use App\Models\User;
@@ -19,12 +20,18 @@ class LeaveCancellationHandler implements WorkflowHandler
 
     public function prepare(User $actor, array $input): array
     {
-        abort_unless($actor->employee_id, 403);
+        $target = Validator::make($input, ['employee_id' => ['sometimes', 'integer', 'exists:employees,id']])->validate();
+        $employeeId = $actor->employee_id;
+        if (isset($target['employee_id']) && (int) $target['employee_id'] !== $employeeId) {
+            abort_unless(Access::companyPermission($actor, 'employees.manage'), 403);
+            $employeeId = (int) $target['employee_id'];
+        }
+        abort_unless($employeeId, 403);
         $data = Validator::make($input, ['original_request_id' => ['required', 'integer', 'exists:workflow_requests,id'], 'reason' => ['required', 'string', 'max:1000']])->validate();
-        $original = WorkflowRequest::where('employee_id', $actor->employee_id)->where('kind', 'leave')->where('status', 'approved')->findOrFail($data['original_request_id']);
+        $original = WorkflowRequest::where('employee_id', $employeeId)->whereIn('kind', ['leave', 'leave_exception'])->where('status', 'approved')->findOrFail($data['original_request_id']);
         abort_unless(DB::table('leave_segments')->where('workflow_request_id', $original->id)->where('state', 'approved')->exists(), 409);
 
-        return ['employee_id' => $actor->employee_id, 'payload' => $data, 'summary' => ['original_request_id' => $original->id, 'starts_on' => $original->summary['starts_on'], 'ends_on' => $original->summary['ends_on']]];
+        return ['employee_id' => $employeeId, 'payload' => $data + ['employee_id' => $employeeId], 'summary' => ['original_request_id' => $original->id, 'starts_on' => $original->summary['starts_on'], 'ends_on' => $original->summary['ends_on']]];
     }
 
     public function submitted(WorkflowRequest $r): void

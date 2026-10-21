@@ -10,6 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
+    public function preview(Request $r, int $id, DocumentService $s)
+    {
+        return response()->json($s->preview($r->user(), $id))->header('Cache-Control', 'no-store, private');
+    }
+
     public function recommend(OperationalRequest $r, int $id, ContractReviews $s)
     {
         return response()->json($s->recommend($r->user(), $id, $r->version(), $r->key(), $r->all()));

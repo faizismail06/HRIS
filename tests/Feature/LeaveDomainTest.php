@@ -172,6 +172,32 @@ class LeaveDomainTest extends TestCase
         $this->getJson('/app/api/my-leave-balances')->assertJsonPath('0.available_minutes', 0);
     }
 
+    public function test_notice_exception_requires_hr_submission_and_independent_approval_without_balance_bypass(): void
+    {
+        $this->shift('2026-10-20');
+        $this->credit(480);
+        $this->login($this->hr);
+        $type = $this->postJson('/app/api/leave-types', ['idempotency_key' => (string) Str::uuid(), 'code' => 'ANNUAL', 'name' => 'Synthetic notice policy', 'is_paid' => true, 'deducts_balance' => true, 'allows_half_day' => true, 'requires_evidence' => false, 'notice_days' => 5, 'minimum_tenure_days' => 0])->assertCreated()->json('id');
+        $this->postJson('/app/api/workflow-definitions', ['idempotency_key' => (string) Str::uuid(), 'name' => 'HR notice exception', 'kind' => 'leave_exception', 'min_amount_minor' => 0, 'priority' => 10, 'steps' => [['role' => 'hr_admin']]])->assertOk();
+        $payload = ['employee_id' => $this->worker->employee_id, 'leave_type_id' => $type, 'starts_on' => '2026-10-20', 'ends_on' => '2026-10-20', 'segment' => 'full', 'reason' => 'Synthetic emergency', 'exception_reason' => 'Synthetic HR emergency notice review'];
+        $this->login($this->worker)->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'leave', 'payload' => $payload])->assertUnprocessable();
+        $this->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'leave_exception', 'payload' => $payload])->assertForbidden();
+        $officer = $this->user('hr_officer');
+        $id = $this->login($officer)->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'leave_exception', 'payload' => $payload])->assertCreated()->json('id');
+        $this->action($id, 'submit', 1)->assertOk();
+        $this->login($this->hr);
+        $this->action($id, 'decide', 2, ['decision' => 'approve'])->assertOk();
+        $this->assertSame(480, (int) DB::table('leave_allocations')->where('state', 'used')->sum('minutes'));
+        $this->assertSame(1, DB::table('workflow_decisions')->count());
+        $cancelPayload = ['employee_id' => $this->worker->employee_id, 'original_request_id' => $id, 'reason' => 'Synthetic HR cancellation evidence'];
+        $this->login($officer)->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'leave_cancel', 'payload' => array_replace($cancelPayload, ['employee_id' => []])])->assertUnprocessable();
+        $cancel = $this->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'leave_cancel', 'payload' => $cancelPayload])->assertCreated()->json('id');
+        $this->action($cancel, 'submit', 1)->assertOk();
+        $this->login($this->hr);
+        $this->action($cancel, 'decide', 2, ['decision' => 'approve'])->assertOk();
+        $this->assertSame(0, (int) DB::table('leave_allocations')->where('state', 'used')->sum('minutes'));
+    }
+
     public function test_reject_releases_and_cancel_approved_leave_requires_another_approval(): void
     {
         $this->shift('2026-10-20');

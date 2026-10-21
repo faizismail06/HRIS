@@ -22,10 +22,16 @@ Endpoint lifecycle-cases/{id} membatasi HR scope, subjek atau task miliknya. HR 
 
 Finance company menyelesaikan asset-settlements/{id}/resolve dengan no_charge atau separate_agreement dan evidence terenkripsi. Keputusan tidak membuat potongan gaji otomatis. Custody lost menyimpan closure_kind=lost; returned_at pada kasus ini menutup custody administratif, bukan bukti pengembalian fisik. Pemilik dapat melihat closure_kind pada API asetnya.
 
+Finance tidak dapat menyelesaikan settlement custody miliknya sendiri; Finance lain wajib menilai bukti dan mencatat keputusan.
+
 Workflow career memerlukan bukti privat, base_version dan penempatan valid bertanggal masa depan. HR Admin company independen menyetujui; sebelum tanggal efektif penempatan lama tetap berlaku. Pengajuan ditautkan ke employee_change_requests dan tidak dapat diputuskan lewat endpoint review lama untuk melewati workflow. Gaji memakai workflow compensation terpisah.
+
+career_retrospective menambahkan retrospective_on historis dan effective_on untuk aplikasi prospektif. Bukti wajib; HR Admin company lalu Finance company berbeda wajib memberi alasan review. Riwayat/closed snapshots tidak ditulis ulang: annotation encrypted append-only menyimpan before/after, periode tertutup dan reviewer; placement koreksi berlaku pada effective_on mendatang. Dampak uang memakai payroll_adjustments dengan nominal/review terpisah. Akun multi-role tidak boleh menjadi kedua reviewer. Ini jalur review koreksi historis, bukan edit masa lalu tanpa jejak.
+
+GET requests/{id}/document-preview memberikan title/body_text/versi/watermark DRAFT bagi pemilik/HR berizin. Tidak mengalokasikan nomor, menerbitkan PDF atau menjalankan template sebagai kode/HTML; UI merender body_text sebagai teks. Dokumen resmi hanya pada final approval. Alumni v1 menerima penyerahan terkontrol oleh HR melalui download privat yang diaudit; tidak membuka akun alumni/link publik.
 
 Final approval offboarding merekonsiliasi sumber setelah effective_end_on dalam periode kerja lama: pending leave/overtime/swap/correction/career yang terdampak ditarik dengan referensi keputusan exit dan notifikasi; reservation dilepas dengan actor HR pengesah. Segmen approved leave masa depan dibatalkan/reversal tanpa mengubah segmen sebelum exit, overtime masa depan dibatalkan, dan roster masa depan disupersede dengan riwayat. Approved request tetap menyimpan keputusan asal dan metadata exit_reconciliation agar efek pembatalan dapat dibaca. Rekonsiliasi memiliki snapshot append-only dan unik per keputusan, tidak menyentuh periode rehire berikutnya. Sumber tertutup memerlukan penyelesaian adjustment sebelum exit, bukan penghapusan snapshot.
 
 GET catalogs/{kind} menyediakan konfigurasi berizin (workflow/lifecycle/document templates, locations/shifts, expense/payroll policies, bank templates), pagination dan kolom whitelist. Catalog lokasi/shift menerapkan scope HR/manager; template letter non-contract dapat dibaca employee. eligible-reviewers hanya HR Admin company atau Finance untuk role Finance, tanpa membagikan profil/salary. Izin mutasi tetap diperiksa ulang saat aksi.
 
-API belum menggantikan seluruh form preview. Distribusi alumni dan pembatalan exit setelah approval masih memerlukan alur khusus sebelum acceptance penuh R2.
+API belum menggantikan seluruh form preview. Membatalkan exit final memerlukan keputusan employment baru/rehire dan proses HR; tidak ada tombol yang diam-diam membuka periode/kewajiban lama. Acceptance R2 tetap memerlukan UAT.

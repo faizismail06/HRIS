@@ -9,6 +9,7 @@ use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
 use App\Domain\Operations\Clock;
 use App\Domain\Operations\Mutation;
+use App\Domain\Workflow\WorkflowAccess;
 use App\Models\Employee;
 use App\Models\User;
 use App\Models\WorkflowRequest;
@@ -45,6 +46,26 @@ class DocumentService
     public static function visible(User $actor, int $employee): bool
     {
         return ($actor->employee_id === $employee && $actor->grants()->where('role', 'employee')->where('scope', 'self')->exists()) || EmployeeVisibility::query($actor, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($employee)->exists();
+    }
+
+    public function preview(User $actor, int $requestId): array
+    {
+        $r = WorkflowRequest::whereIn('kind', ['letter', 'contract'])->findOrFail($requestId);
+        abort_unless(WorkflowAccess::visible($actor, $r) && self::visible($actor, $r->employee_id), 404);
+        $p = $r->payload;
+        $employee = Employee::findOrFail($r->employee_id);
+        CoreWrite::version($employee->version, $p['employee_version']);
+        $period = $employee->periods()->findOrFail($p['employment_period_id']);
+        $kind = $r->kind === 'contract' ? 'contract' : $p['letter_kind'];
+        $template = DB::table('document_templates')->where('id', $p['document_template_id'])->where('kind', $kind)->firstOrFail();
+        $date = app(Clock::class)->now()->toDateString();
+        $reference = $kind === 'service_letter' && $period->ends_on ? $period->ends_on->subDay()->toDateString() : ($p['starts_on'] ?? $date);
+        $assignment = $employee->assignments()->where('employment_period_id', $period->id)->at($reference)->first();
+        $values = ['number' => 'DRAFT', 'issued_on' => $date, 'employee_name' => $employee->name, 'employee_number' => $employee->employee_number, 'period_start' => $period->starts_on->toDateString(), 'period_end' => $period->ends_on?->toDateString() ?? '', 'branch_name' => $assignment ? DB::table('branches')->where('id', $assignment->branch_id)->value('name') : '', 'department_name' => $assignment ? DB::table('departments')->where('id', $assignment->department_id)->value('name') : '', 'job_name' => $assignment ? DB::table('job_positions')->where('id', $assignment->job_id)->value('name') : '', 'contract_type' => $p['contract_type'] ?? '', 'contract_start' => $p['starts_on'] ?? '', 'contract_end' => $p['ends_on'] ?? '', 'terms' => $p['terms'] ?? ''];
+        $body = preg_replace_callback('/\{\{\s*([^{}]+?)\s*\}\}/', fn ($m) => (string) ($values[trim($m[1])] ?? ''), $template->body);
+        Audit::record($actor->id, 'document.draft_previewed', 'workflow_request', $r->id, ['template_version' => $template->version]);
+
+        return ['draft' => true, 'number' => null, 'title' => $template->title, 'body_text' => $body, 'template_version' => $template->version, 'employee_version' => $employee->version, 'watermark' => 'DRAFT — BELUM DITERBITKAN'.(DemoBoundary::enabled() ? ' / DEMO — DATA SINTETIS' : '')];
     }
 
     public function issue(WorkflowRequest $r, string $kind, array $extra = []): int

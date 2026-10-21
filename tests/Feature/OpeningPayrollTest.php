@@ -28,8 +28,13 @@ class OpeningPayrollTest extends AttendanceScenarioCase
         $this->login($this->hr)->getJson('/app/api/requests/'.$request->id.'/proposed-opening-payroll')->assertNotFound();
         $this->login($payroll)->postJson('/app/api/requests/'.$request->id.'/submit', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1])->assertOk();
         $this->assertDatabaseHas('payroll_openings', ['employee_id' => $this->worker->employee_id, 'status' => 'pending']);
+        $replacement = $this->user('finance_approver');
+        $reassign = ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'replacement_id' => $replacement->id, 'reason' => 'Synthetic Finance duty handover'];
+        $this->login($this->hr)->postJson('/app/api/requests/'.$request->id.'/reassign', $reassign)->assertForbidden();
+        $this->login($finance)->postJson('/app/api/requests/'.$request->id.'/reassign', $reassign)->assertOk();
+        $finance = $replacement;
         $this->login($finance)->getJson('/app/api/requests/'.$request->id.'/proposed-opening-payroll')->assertOk()->assertJsonPath('gross_minor', 500000);
-        $this->postJson('/app/api/requests/'.$request->id.'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'decision' => 'approve', 'reason' => 'Synthetic evidence verified'])->assertOk();
+        $this->postJson('/app/api/requests/'.$request->id.'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 3, 'decision' => 'approve', 'reason' => 'Synthetic evidence verified'])->assertOk();
         $this->assertDatabaseHas('payroll_openings', ['employee_id' => $this->worker->employee_id, 'status' => 'approved', 'approved_by' => $finance->id]);
         $this->login($payroll)->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'opening_payroll', 'payload' => ['employee_id' => $this->worker->employee_id, 'tax_year' => 2026, 'through_on' => '2026-09-30', 'source_key' => 'DUPLICATE', 'gross_minor' => 1, 'tax_paid_minor' => 0, 'reason' => 'Duplicate attempt']])->assertUnprocessable();
     }

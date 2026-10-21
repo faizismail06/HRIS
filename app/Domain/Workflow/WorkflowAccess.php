@@ -62,7 +62,7 @@ class WorkflowAccess
         if (in_array($request->kind, ['compensation', 'opening_payroll', 'bank_change', 'tax_change', 'expense'], true) && self::eligible($user, 'finance_approver', $request->employee_id)) {
             return true;
         }
-        $hrKinds = ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'onboarding', 'offboarding'];
+        $hrKinds = ['leave', 'leave_exception', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'career_retrospective', 'onboarding', 'offboarding'];
 
         return in_array($request->kind, $hrKinds, true) && $request->employee_id && $user->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($user, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
     }

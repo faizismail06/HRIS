@@ -64,11 +64,14 @@ class PayrollAdjustments
                 $blockers[] = ['code' => 'bank_unverified', 'employee_id' => $employeeId];
             }
             $lines = $adjustments->map(fn ($a) => self::line($a))->all();
+            $source = decrypt(DB::table('payroll_rows')->where('id', $adjustments->first()->source_payroll_row_id)->value('snapshot'));
             $net = IntegerMoney::sum(0, ...array_column($lines, 'amount_minor'));
             if ($net < 0) {
                 $blockers[] = ['code' => 'negative_net', 'employee_id' => $employeeId];
             }
             $rows[] = ['employee_id' => $person->id, 'employee_number' => $person->employee_number, 'employee_name' => $person->name, 'currency' => 'IDR', 'minor_unit' => 'sen', 'period' => [$period->starts_on, $period->ends_on], 'policy_id' => $policy->id, 'policy_version' => $policy->version, 'attendance_revision' => $period->revision, 'bank' => $bank?->data, 'bank_version' => $bank?->version, 'lines' => $lines, 'context' => ['base' => 0], 'gross_minor' => 0, 'deduction_minor' => 0, 'net_minor' => $net, 'reimbursements' => [], 'kind' => 'off_cycle'];
+            $rows[array_key_last($rows)]['placements'] = $source['placements'] ?? [];
+            $rows[array_key_last($rows)]['reference_work_date'] = $source['reference_work_date'] ?? $source['lines'][0]['source'][0]['work_date'] ?? $period->starts_on;
         }
         if (! $rows) {
             $blockers[] = ['code' => 'no_approved_adjustments'];

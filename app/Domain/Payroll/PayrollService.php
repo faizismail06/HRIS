@@ -27,9 +27,10 @@ class PayrollService
     public function create(User $actor, string $key, array $input): array
     {
         self::authorize($actor);
-        $d = Validator::make($input, ['attendance_period_id' => ['required', 'integer', 'exists:attendance_periods,id'], 'payroll_policy_id' => ['required', 'integer', 'exists:payroll_policies,id']])->validate();
+        $d = Validator::make($input, ['attendance_period_id' => ['required', 'integer', 'exists:attendance_periods,id'], 'payroll_policy_id' => ['required', 'integer', 'exists:payroll_policies,id'], 'kind' => ['sometimes', 'in:regular,off_cycle']])->validate();
 
         return CoreWrite::run(fn () => Mutation::run($actor, 'payroll.batch.create', $key, $d, fn ($u) => self::authorize($u), function ($u) use ($d) {
+            abort_if(($d['kind'] ?? 'regular') === 'off_cycle' && ! DB::table('attendance_periods')->where('id', $d['attendance_period_id'])->where('payroll_finalized', true)->exists(), 422, 'Off-cycle harus merujuk periode payroll yang sudah final.');
             $id = DB::table('payroll_batches')->insertGetId($d + ['public_id' => (string) Str::uuid(), 'prepared_by' => $u->id, 'created_at' => now(), 'updated_at' => now()]);
             Audit::record($u->id, 'payroll.batch_created', 'payroll_batch', $id);
 
@@ -50,13 +51,25 @@ class PayrollService
             DB::table('payroll_batches')->where('id', $id)->update(['status' => 'calculated', 'version' => $version + 1, 'source_checksum' => $result['checksum'], 'totals' => encrypt(['net_minor' => $result['total_minor']]), 'blockers' => json_encode($result['blockers']), 'prepared_by' => $u->id, 'reviewed_by' => null, 'approved_by' => null, 'updated_at' => now()]);
             Audit::record($u->id, 'payroll.calculated', 'payroll_batch', $id, ['rows' => count($result['rows']), 'source_checksum' => $result['checksum'], 'blocker_count' => count($result['blockers'])]);
 
-            return ['id' => $id, 'status' => 'calculated', 'version' => $version + 1, 'blockers' => $result['blockers']];
+            return ['id' => $id, 'status' => 'calculated', 'version' => $version + 1, 'blockers' => $result['blockers'], 'warnings' => $result['warnings']];
         });
     }
 
     public function transition(User $actor, int $id, int $version, string $key, string $action, array $input): array
     {
-        abort_unless(in_array($action, ['review', 'approve', 'finalize']), 404);
+        abort_unless(in_array($action, ['review', 'approve', 'finalize', 'reset']), 404);
+        if ($action === 'reset') {
+            Validator::make($input, ['reason' => ['required', 'string', 'max:2000']])->validate();
+
+            return Mutation::run($actor, 'payroll.reset', $key, compact('id', 'version', 'input'), fn ($u) => self::authorize($u), function ($u) use ($id, $version, $input) {
+                $b = $this->batch($id, $version);
+                abort_unless(in_array($b->status, ['calculated', 'reviewed', 'approved']), 409);
+                DB::table('payroll_batches')->where('id', $id)->update(['status' => 'draft', 'version' => $version + 1, 'reviewed_by' => null, 'approved_by' => null, 'source_checksum' => null, 'updated_at' => now()]);
+                Audit::record($u->id, 'payroll.reset_to_draft', 'payroll_batch', $id, ['reason' => encrypt($input['reason'])]);
+
+                return ['id' => $id, 'version' => $version + 1, 'status' => 'draft'];
+            });
+        }
         if ($action === 'finalize') {
             Validator::make($input, ['release_at' => ['required', 'date_format:Y-m-d\TH:i:sP']])->validate();
         }
@@ -76,6 +89,10 @@ class PayrollService
                 return ['id' => $id, 'version' => $version + 1, 'status' => 'draft', 'http_status' => 409, 'code' => 'source_changed_recalculate'];
             }
             abort_unless(empty($result['blockers']), 422, 'Payroll memiliki penghambat; lihat detail hasil perhitungan.');
+            if ($action === 'review' && $result['warnings']) {
+                Validator::make($input, ['acknowledge_warnings' => ['required', 'accepted'], 'reason' => ['required', 'string', 'max:2000']])->validate();
+                Audit::record($u->id, 'payroll.variation_acknowledged', 'payroll_batch', $id, ['warnings' => $result['warnings'], 'reason' => encrypt($input['reason'])]);
+            }
             $status = ['review' => 'reviewed', 'approve' => 'approved', 'finalize' => 'finalized'][$action];
             $changes = ['status' => $status, 'version' => $version + 1, 'updated_at' => now()];
             if ($action === 'review') {
@@ -136,7 +153,7 @@ class PayrollService
         $current = $b->status === 'finalized' ? null : $this->calculator->collect($b);
         Audit::record($actor->id, 'payroll.batch_read', 'payroll_batch', $id);
 
-        return ['id' => $id, 'public_id' => $b->public_id, 'version' => $b->version, 'status' => $b->status, 'source_stale' => $current && $b->source_checksum ? ! hash_equals($current['checksum'], $b->source_checksum) : false, 'blockers' => $current['blockers'] ?? json_decode($b->blockers, true), 'totals' => $b->totals ? decrypt($b->totals) : null, 'rows' => DB::table('payroll_rows')->where('payroll_batch_id', $id)->orderBy('id')->get()->map(fn ($r) => ['id' => $r->id, 'employee_id' => $r->employee_id, 'snapshot' => decrypt($r->snapshot)])];
+        return ['id' => $id, 'public_id' => $b->public_id, 'kind' => $b->kind, 'version' => $b->version, 'status' => $b->status, 'source_stale' => $current && $b->source_checksum ? ! hash_equals($current['checksum'], $b->source_checksum) : false, 'blockers' => $current['blockers'] ?? json_decode($b->blockers, true), 'warnings' => $current['warnings'] ?? [], 'totals' => $b->totals ? decrypt($b->totals) : null, 'rows' => DB::table('payroll_rows')->where('payroll_batch_id', $id)->orderBy('id')->get()->map(fn ($r) => ['id' => $r->id, 'employee_id' => $r->employee_id, 'snapshot' => decrypt($r->snapshot)])];
     }
 
     public function payslip(User $actor, int $id)

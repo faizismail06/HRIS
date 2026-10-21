@@ -41,6 +41,7 @@ class ExpenseService
             if ($d['channel'] === 'payroll') {
                 $batch = DB::table('payroll_batches')->where('id', $d['payroll_batch_id'])->firstOrFail();
                 abort_unless($batch->status === 'draft', 409, 'Tambahkan claim sebelum kalkulasi atau setelah batch dikembalikan ke draft.');
+                abort_unless($batch->kind === 'regular', 422, 'Batch off-cycle hanya memuat koreksi yang disahkan.');
                 $period = DB::table('attendance_periods')->where('id', $batch->attendance_period_id)->firstOrFail();
                 abort_unless(Employee::findOrFail($claim->employee_id)->assignments()->where('branch_id', $period->branch_id)->where('valid_from', '<', $period->ends_on)->whereNull('superseded_at')->where(fn ($q) => $q->whereNull('valid_to')->orWhere('valid_to', '>', $period->starts_on))->exists(), 422, 'Claim di luar scope payroll batch.');
             } else {

@@ -213,3 +213,7 @@ LeaveGrantSchedulesTest3 tests /32 assertions dan MigrationFreshTest lulus (gabu
 ## Rekonsiliasi expiry dan transfer hak cuti
 
 20 tests /260 assertions cuti/report/migration lulus, Pint/diff-check lulus. Debit adjustment tidak mengambil reserved/used credit; source-linked carry-over satu transfer per lot menulis debit sumber dan kredit tahun berikutnya atomik. Scheduler append-only expiry/reversal menyesuaikan release/cancellation setelah expired sambil menjaga reservation tanggal kerja lama. Balances, reservation allocator dan report as-of memakai kapasitas setelah adjustment. Migrasi290000 diterapkan dev/test tanpa reset.
+
+## Payroll corrections dan variation gate
+
+Payroll/expense/migration8 tests /275 assertions lulus, tambahan next-period/variation1 test /47 assertions lulus. Koreksi source-linked pending→Finance approval, target next-period/off-cycle, source/version/checksum guards, private review API, reset draft beralasan dan mandatory variation acknowledgement tersedia. Off-cycle tidak membayar salary/claim lama lagi. Signed money formatting diperbaiki. Kebijakan pajak/net correction tetap memerlukan manusia berwenang; tidak ada parameter produksi yang disahkan agent. Migrasi300000 diterapkan dev/test tanpa reset.

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
 use App\Domain\Payroll\PaymentService;
+use App\Domain\Payroll\PayrollAdjustments;
 use App\Domain\Payroll\PayrollPolicyService;
 use App\Domain\Payroll\PayrollService;
 use App\Domain\Workflow\WorkflowAccess;
@@ -15,6 +16,28 @@ use Illuminate\Support\Facades\DB;
 
 class PayrollController extends Controller
 {
+    public function adjustmentDetail(Request $r, int $id)
+    {
+        abort_unless(Access::companyPermission($r->user(), 'payroll.prepare') || Access::companyPermission($r->user(), 'payroll.approve'), 403);
+        $a = DB::table('payroll_adjustments')->where('id', $id)->firstOrFail();
+        $a->amount_minor = decrypt($a->amount_minor);
+        $a->reason = decrypt($a->reason);
+        $a->review_evidence = $a->review_evidence ? decrypt($a->review_evidence) : null;
+        Audit::record($r->user()->id, 'payroll.adjustment_read', 'payroll_adjustment', $id);
+
+        return response()->json($a)->header('Cache-Control', 'no-store, private');
+    }
+
+    public function adjustment(OperationalRequest $r, PayrollAdjustments $s)
+    {
+        return response()->json($s->create($r->user(), $r->key(), $r->all()), 201);
+    }
+
+    public function decideAdjustment(OperationalRequest $r, int $id, PayrollAdjustments $s)
+    {
+        return response()->json($s->decide($r->user(), $id, $r->version(), $r->key(), $r->all()));
+    }
+
     public function policyDetail(Request $r, int $id)
     {
         abort_unless(Access::companyPermission($r->user(), 'payroll.prepare') || Access::companyPermission($r->user(), 'payroll.approve'), 403);

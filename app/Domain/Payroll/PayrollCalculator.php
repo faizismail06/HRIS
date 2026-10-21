@@ -26,6 +26,14 @@ class PayrollCalculator
         if ($policy->valid_from > $period->starts_on || $policy->valid_until < $period->ends_on) {
             $blockers[] = ['code' => 'policy_dates_do_not_cover_period'];
         }
+        if (($batch->kind ?? 'regular') === 'off_cycle') {
+            return app(PayrollAdjustments::class)->offCycle($batch, $period, $policy, $blockers);
+        }
+        $warnings = [];
+        $adjustments = DB::table('payroll_adjustments')->where('payroll_batch_id', $batch->id)->orderBy('id')->get();
+        if ($adjustments->contains(fn ($a) => $a->status === 'pending')) {
+            $blockers[] = ['code' => 'adjustment_pending'];
+        }
         $attendance = DB::table('attendance_snapshots')->where('attendance_period_id', $period->id)->where('revision', $period->revision)->orderBy('id')->get();
         $employees = Employee::whereHas('assignments', fn ($q) => $q->whereNull('superseded_at')->where('branch_id', $period->branch_id)->where('valid_from', '<', $period->ends_on)->where(fn ($q) => $q->whereNull('valid_to')->orWhere('valid_to', '>', $period->starts_on)))->orderBy('id')->get();
         abort_if($employees->count() > 500, 422, 'Batch sinkron dibatasi500karyawan; gunakan periode/cabang lebih kecil atau worker khusus.');
@@ -129,6 +137,11 @@ class PayrollCalculator
                 }
             }
             $net = $context['gross'] - $deductions;
+            foreach ($adjustments->where('employee_id', $employee->id)->where('status', 'approved') as $adjustment) {
+                $line = PayrollAdjustments::line($adjustment);
+                $lines[] = $line;
+                $net = IntegerMoney::sum($net, $line['amount_minor']);
+            }
             if ($net < 0) {
                 $blockers[] = ['code' => 'negative_net', 'employee_id' => $employee->id];
             }
@@ -142,6 +155,13 @@ class PayrollCalculator
             }
             $rows[] = ['employee_id' => $employee->id, 'employee_number' => $employee->employee_number, 'employee_name' => $employee->name, 'currency' => 'IDR', 'minor_unit' => 'sen', 'period' => [$period->starts_on, $period->ends_on], 'policy_id' => $policy->id, 'policy_version' => $policy->version, 'attendance_revision' => $period->revision, 'attendance_hashes' => $attendance->filter(fn ($a) => json_decode($a->snapshot, true)['employee_id'] === $employee->id)->pluck('sha256')->all(), 'bank' => $bank?->data, 'bank_version' => $bank?->version, 'tax_version' => $tax?->version, 'lines' => $lines, 'context' => $context, 'gross_minor' => $context['gross'], 'deduction_minor' => $deductions, 'net_minor' => $net];
             $rows[array_key_last($rows)]['reimbursements'] = $reimbursements;
+            $previous = DB::table('payroll_final_snapshots')->join('payroll_rows', 'payroll_rows.id', '=', 'payroll_final_snapshots.payroll_row_id')->join('payroll_batches', 'payroll_batches.id', '=', 'payroll_rows.payroll_batch_id')->join('attendance_periods', 'attendance_periods.id', '=', 'payroll_batches.attendance_period_id')->where('payroll_rows.employee_id', $employee->id)->where('payroll_batches.kind', 'regular')->where('attendance_periods.ends_on', '<=', $period->starts_on)->orderByDesc('attendance_periods.ends_on')->orderByDesc('payroll_final_snapshots.id')->first(['payroll_final_snapshots.snapshot', 'payroll_final_snapshots.sha256', 'payroll_rows.id']);
+            if ($previous) {
+                $oldNet = decrypt($previous->snapshot)['net_minor'];
+                if (($oldNet === 0 && $net !== 0) || ($oldNet > 0 && abs($net - $oldNet) * 100 > $oldNet * $rules['variation_warning_percent'])) {
+                    $warnings[] = ['code' => 'material_net_variation', 'employee_id' => $employee->id, 'previous_row_id' => $previous->id, 'threshold_percent' => $rules['variation_warning_percent']];
+                }
+            }
             $sourceEmployees[] = ['id' => $employee->id, 'version' => $employee->version, 'compensation' => $compensations->all(), 'employment' => $employment->toArray(), 'assignments' => $assignments->toArray(), 'bank_version' => $bank?->version, 'tax_version' => $tax?->version, 'reimbursements' => $reimbursements];
         }
         if (! $rows) {
@@ -151,8 +171,13 @@ class PayrollCalculator
         foreach (DB::table('expense_allocations')->where('payroll_batch_id', $batch->id)->whereNotIn('id', $included)->pluck('expense_claim_id') as $claimId) {
             $blockers[] = ['code' => 'claim_employee_missing_from_payroll', 'claim_id' => $claimId];
         }
-        $checksum = hash('sha256', json_encode(['period' => $period, 'policy' => $policy, 'attendance' => $attendance->pluck('sha256')->all(), 'employees' => $sourceEmployees], JSON_THROW_ON_ERROR));
+        foreach ($adjustments->where('status', 'approved') as $a) {
+            if (! in_array($a->employee_id, array_column($rows, 'employee_id'), true)) {
+                $blockers[] = ['code' => 'adjustment_employee_missing', 'adjustment_id' => $a->id];
+            }
+        }
+        $checksum = hash('sha256', json_encode(['period' => $period, 'policy' => $policy, 'attendance' => $attendance->pluck('sha256')->all(), 'employees' => $sourceEmployees, 'adjustments' => $adjustments->all(), 'warnings' => $warnings], JSON_THROW_ON_ERROR));
 
-        return ['rows' => $rows, 'blockers' => $blockers, 'checksum' => $checksum, 'total_minor' => IntegerMoney::sum(0, ...array_column($rows, 'net_minor'))];
+        return ['rows' => $rows, 'blockers' => $blockers, 'warnings' => $warnings, 'checksum' => $checksum, 'total_minor' => IntegerMoney::sum(0, ...array_column($rows, 'net_minor'))];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Domain\Payroll\IntegerMoney;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -174,5 +175,62 @@ class PayrollTest extends AttendanceScenarioCase
         }
         $this->assertDatabaseCount('expense_settlements', 2);
         $this->assertSame(1000, (int) DB::table('expense_settlements')->sum('amount_minor'));
+    }
+
+    public function test_off_cycle_correction_needs_independent_finance_approval_and_leaves_original_final_unchanged(): void
+    {
+        $batch = $this->readyBatch();
+        $source = $this->finalize($batch);
+        $original = DB::table('payroll_final_snapshots')->where('payroll_row_id', $source)->sole();
+        $b = DB::table('payroll_batches')->find($batch);
+        $offCycle = $this->login($this->payroll)->postJson('/app/api/payroll-batches', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'off_cycle', 'attendance_period_id' => $b->attendance_period_id, 'payroll_policy_id' => $b->payroll_policy_id])->assertCreated()->json('id');
+        $proposal = ['idempotency_key' => (string) Str::uuid(), 'source_key' => 'SYNTHETIC-CORRECTION-1', 'source_payroll_row_id' => $source, 'payroll_batch_id' => $offCycle, 'amount_minor' => 125, 'reason' => 'Synthetic independently reviewed net/tax correction'];
+        $id = $this->postJson('/app/api/payroll-adjustments', $proposal)->assertCreated()->json('id');
+        $this->transition($offCycle, 'calculate', 1)->assertOk()->assertJsonPath('blockers.0.code', 'no_approved_adjustments');
+        $this->transition($offCycle, 'review', 2)->assertUnprocessable();
+        $this->transition($offCycle, 'reset', 2, ['reason' => 'Wait for independent correction review'])->assertOk();
+        $decision = ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1, 'decision' => 'approve', 'evidence' => 'Synthetic Finance verifies source, net and tax effects'];
+        $this->postJson('/app/api/payroll-adjustments/'.$id.'/decide', $decision)->assertForbidden();
+        $this->login($this->worker)->getJson('/app/api/payroll-adjustments/'.$id)->assertForbidden();
+        $this->login($this->finance)->getJson('/app/api/payroll-adjustments/'.$id)->assertOk()->assertJsonPath('amount_minor', 125);
+        $this->postJson('/app/api/payroll-adjustments/'.$id.'/decide', $decision)->assertOk();
+        $this->login($this->payroll);
+        $this->transition($offCycle, 'calculate', 3)->assertOk()->assertJsonPath('blockers', []);
+        $this->transition($offCycle, 'review', 4)->assertOk();
+        $this->login($this->finance);
+        $this->transition($offCycle, 'approve', 5)->assertOk();
+        $this->transition($offCycle, 'finalize', 6, ['release_at' => now()->toIso8601String()])->assertOk();
+        $newRow = DB::table('payroll_rows')->where('payroll_batch_id', $offCycle)->sole();
+        $this->assertSame(125, decrypt($newRow->snapshot)['net_minor']);
+        $this->assertSame($original->sha256, DB::table('payroll_final_snapshots')->where('payroll_row_id', $source)->sole()->sha256);
+        $this->assertSame('-1.25', IntegerMoney::format(-125));
+        $proposal['idempotency_key'] = (string) Str::uuid();
+        $this->login($this->payroll)->postJson('/app/api/payroll-adjustments', $proposal)->assertNotFound();
+    }
+
+    public function test_next_period_correction_and_material_variation_require_review_acknowledgement(): void
+    {
+        $first = $this->readyBatch();
+        $source = $this->finalize($first);
+        $this->compensation('2026-10-19', 30000, DB::table('employee_compensations')->orderByDesc('valid_from')->first()->id);
+        $this->roster('2026-10-19', true);
+        $this->roster('2026-10-20', true);
+        $this->travel(3)->days();
+        $branch = $this->worker->employee->assignments()->sole()->branch_id;
+        $this->login($this->hr);
+        $period = $this->postJson('/app/api/attendance-periods', ['idempotency_key' => (string) Str::uuid(), 'branch_id' => $branch, 'starts_on' => '2026-10-19', 'ends_on' => '2026-10-21'])->assertCreated()->json('id');
+        $review = $this->postJson('/app/api/attendance-periods/'.$period.'/review', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1])->assertOk()->json();
+        $this->postJson('/app/api/attendance-periods/'.$period.'/close', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'checksum' => $review['checksum']])->assertOk();
+        $policy = DB::table('payroll_batches')->find($first)->payroll_policy_id;
+        $second = $this->login($this->payroll)->postJson('/app/api/payroll-batches', ['idempotency_key' => (string) Str::uuid(), 'attendance_period_id' => $period, 'payroll_policy_id' => $policy])->assertCreated()->json('id');
+        $adjustment = $this->postJson('/app/api/payroll-adjustments', ['idempotency_key' => (string) Str::uuid(), 'source_key' => 'SYNTHETIC-NEXT-PERIOD', 'source_payroll_row_id' => $source, 'payroll_batch_id' => $second, 'amount_minor' => -125, 'reason' => 'Synthetic net deduction correction'])->assertCreated()->json('id');
+        $this->login($this->finance)->postJson('/app/api/payroll-adjustments/'.$adjustment.'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1, 'decision' => 'approve', 'evidence' => 'Synthetic source/tax review'])->assertOk();
+        $this->login($this->payroll);
+        $this->transition($second, 'calculate', 1)->assertOk()->assertJsonPath('warnings.0.code', 'material_net_variation');
+        $this->transition($second, 'review', 2)->assertUnprocessable();
+        $this->transition($second, 'review', 2, ['acknowledge_warnings' => true, 'reason' => 'Synthetic pay increase and correction verified'])->assertOk();
+        $snapshot = decrypt(DB::table('payroll_rows')->where('payroll_batch_id', $second)->sole()->snapshot);
+        $this->assertSame(19975, $snapshot['net_minor']);
+        $this->assertSame(6768, decrypt(DB::table('payroll_final_snapshots')->where('payroll_row_id', $source)->sole()->snapshot)['net_minor']);
     }
 }

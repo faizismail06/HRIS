@@ -31,6 +31,8 @@ class IntegerMoney
 
     public static function format(int $minor): string
     {
-        return BigInteger::of($minor)->quotient(100).'.'.str_pad((string) BigInteger::of($minor)->remainder(100), 2, '0', STR_PAD_LEFT);
+        $absolute = BigInteger::of($minor)->abs();
+
+        return ($minor < 0 ? '-' : '').$absolute->quotient(100).'.'.str_pad((string) $absolute->remainder(100), 2, '0', STR_PAD_LEFT);
     }
 }

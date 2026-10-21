@@ -51,13 +51,16 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('/expense-claims/{id}/allocate', [ExpenseController::class, 'allocate'])->whereNumber('id');
     Route::post('/expense-allocations/{id}/settle', [ExpenseController::class, 'settle'])->whereNumber('id');
     Route::post('/payroll-policies', [PayrollController::class, 'policy']);
+    Route::post('/payroll-adjustments', [PayrollController::class, 'adjustment']);
+    Route::get('/payroll-adjustments/{id}', [PayrollController::class, 'adjustmentDetail'])->whereNumber('id');
+    Route::post('/payroll-adjustments/{id}/decide', [PayrollController::class, 'decideAdjustment'])->whereNumber('id');
     Route::get('/payroll-policies/{id}', [PayrollController::class, 'policyDetail'])->whereNumber('id');
     Route::get('/requests/{id}/proposed-compensation', [PayrollController::class, 'proposedCompensation'])->whereNumber('id');
     Route::post('/payroll-policies/{id}/approve', [PayrollController::class, 'approvePolicy'])->whereNumber('id');
     Route::post('/payroll-batches', [PayrollController::class, 'create']);
     Route::get('/payroll-batches/{id}', [PayrollController::class, 'show'])->whereNumber('id');
     Route::post('/payroll-batches/{id}/calculate', [PayrollController::class, 'calculate'])->whereNumber('id');
-    Route::post('/payroll-batches/{id}/{action}', [PayrollController::class, 'transition'])->whereNumber('id')->where('action', 'review|approve|finalize');
+    Route::post('/payroll-batches/{id}/{action}', [PayrollController::class, 'transition'])->whereNumber('id')->where('action', 'review|approve|finalize|reset');
     Route::get('/payslips/{id}/download', [PayrollController::class, 'payslip'])->whereNumber('id');
     Route::post('/bank-export-templates', [PayrollController::class, 'bankTemplate']);
     Route::post('/bank-export-templates/{id}/confirm', [PayrollController::class, 'confirmTemplate'])->whereNumber('id');

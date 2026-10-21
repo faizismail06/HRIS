@@ -16,6 +16,7 @@ use App\Http\Controllers\OperationsHealthController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PrivateFileController;
 use App\Http\Controllers\PrivateProfileController;
+use App\Http\Controllers\ReimbursementBatchController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WorkflowController;
 use App\Http\Controllers\WorkflowOperationsController;
@@ -48,6 +49,12 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
         Route::post('/imports/{id}/'.$action, [ImportController::class, $action])->whereNumber('id');
     }
     Route::post('/expense-policies', [ExpenseController::class, 'policy']);
+    Route::post('/reimbursement-batches', [ReimbursementBatchController::class, 'store']);
+    Route::get('/reimbursement-batches/{id}', [ReimbursementBatchController::class, 'show'])->whereNumber('id');
+    Route::post('/reimbursement-batches/{id}/decide', [ReimbursementBatchController::class, 'decide'])->whereNumber('id');
+    Route::post('/reimbursement-batches/{id}/bank-export', [ReimbursementBatchController::class, 'export'])->whereNumber('id');
+    Route::post('/reimbursement-instructions/{id}/download', [ReimbursementBatchController::class, 'download'])->whereNumber('id');
+    Route::post('/reimbursement-instruction-items/{id}/outcomes', [ReimbursementBatchController::class, 'outcome'])->whereNumber('id');
     Route::get('/expense-claims/{id}', [ExpenseController::class, 'detail'])->whereNumber('id');
     Route::post('/expense-claims/{id}/allocate', [ExpenseController::class, 'allocate'])->whereNumber('id');
     Route::post('/expense-allocations/{id}/settle', [ExpenseController::class, 'settle'])->whereNumber('id');

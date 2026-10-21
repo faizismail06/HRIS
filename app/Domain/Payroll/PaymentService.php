@@ -17,7 +17,7 @@ class PaymentService
     public function template(User $actor, string $key, array $input): array
     {
         PayrollService::authorize($actor);
-        $d = Validator::make($input, ['code' => ['required', 'regex:/^[A-Z0-9_-]{2,30}$/'], 'columns' => ['required', 'array', 'min:3', 'max:12'], 'columns.*' => ['array:label,field'], 'columns.*.label' => ['required', 'string', 'max:80'], 'columns.*.field' => ['required', 'distinct', Rule::in(['batch_id', 'employee_number', 'bank_code', 'account_number', 'account_name', 'amount_idr'])]])->validate();
+        $d = Validator::make($input, ['code' => ['required', 'regex:/^[A-Z0-9_-]{2,30}$/'], 'columns' => ['required', 'array', 'min:3', 'max:12'], 'columns.*' => ['array:label,field'], 'columns.*.label' => ['required', 'string', 'max:80'], 'columns.*.field' => ['required', 'distinct', Rule::in(['batch_id', 'payment_id', 'employee_number', 'bank_code', 'account_number', 'account_name', 'amount_idr'])]])->validate();
         abort_if(array_diff(['batch_id', 'account_number', 'amount_idr'], array_column($d['columns'], 'field')), 422, 'Template wajib memuat batch_id, account_number dan amount_idr.');
 
         return Mutation::run($actor, 'bank.template', $key, $d, fn ($u) => PayrollService::authorize($u), function ($u) use ($d) {
@@ -69,7 +69,7 @@ class PaymentService
                     continue;
                 }
                 $bank = $snapshot['bank'];
-                $values = ['batch_id' => $batch->public_id, 'employee_number' => $snapshot['employee_number'], 'bank_code' => $bank['bank_code'], 'account_number' => $bank['account_number'], 'account_name' => $bank['account_name'], 'amount_idr' => IntegerMoney::format($snapshot['net_minor'])];
+                $values = ['batch_id' => $batch->public_id, 'payment_id' => $batch->public_id.':'.$row->id, 'employee_number' => $snapshot['employee_number'], 'bank_code' => $bank['bank_code'], 'account_number' => $bank['account_number'], 'account_name' => $bank['account_name'], 'amount_idr' => IntegerMoney::format($snapshot['net_minor'])];
                 fputcsv($stream, array_map(fn ($c) => self::safeCell($values[$c['field']]), $columns), ',', '"', '');
                 $total += $snapshot['net_minor'];
                 $count++;

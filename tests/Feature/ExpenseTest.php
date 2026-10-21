@@ -82,4 +82,48 @@ class ExpenseTest extends AttendanceScenarioCase
         $this->assertDatabaseHas('expense_claims', ['id' => $claim, 'status' => 'paid', 'amount_minor' => 12345]);
         $this->assertDatabaseCount('expense_settlements', 2);
     }
+
+    public function test_reimbursement_retry_exports_only_failed_unpaid_items_and_prevents_free_settlement_bypass(): void
+    {
+        $requests = [$this->submitClaim(), $this->submitClaim()];
+        $allocations = [];
+        foreach ($requests as $request) {
+            $this->decision($this->manager, $request, 2)->assertOk();
+            $this->decision($this->finance, $request, 3, 'Synthetic receipt verified')->assertOk();
+            $claim = DB::table('expense_claims')->where('workflow_request_id', $request)->sole()->id;
+            $allocations[] = $this->postJson('/app/api/expense-claims/'.$claim.'/allocate', ['idempotency_key' => (string) Str::uuid(), 'channel' => 'reimbursement'])->assertCreated()->json('id');
+        }
+        $this->login($this->hr)->postJson('/app/api/workflow-definitions', ['idempotency_key' => (string) Str::uuid(), 'name' => 'Bank verification', 'kind' => 'bank_change', 'min_amount_minor' => 0, 'priority' => 10, 'steps' => [['role' => 'finance_approver']]])->assertOk();
+        $bank = $this->login($this->worker)->postJson('/app/api/requests', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'bank_change', 'payload' => ['employee_id' => $this->worker->employee_id, 'category' => 'bank', 'base_version' => 0, 'reason' => 'Synthetic bank evidence', 'data' => ['bank_code' => 'TEST', 'account_number' => '00001111', 'account_name' => 'Synthetic Worker']]])->assertCreated()->json('id');
+        $this->postJson('/app/api/requests/'.$bank.'/submit', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1])->assertOk();
+        $this->decision($this->finance, $bank, 2, 'Synthetic bank verified')->assertOk();
+        $payroll = $this->user('payroll_officer');
+        $template = $this->login($payroll)->postJson('/app/api/bank-export-templates', ['idempotency_key' => (string) Str::uuid(), 'code' => 'SYNTHETIC_REIMBURSEMENT', 'columns' => [['label' => 'Batch', 'field' => 'batch_id'], ['label' => 'Payment', 'field' => 'payment_id'], ['label' => 'Account', 'field' => 'account_number'], ['label' => 'Amount', 'field' => 'amount_idr']]])->assertCreated()->json('id');
+        $this->login($this->finance)->postJson('/app/api/bank-export-templates/'.$template.'/confirm', ['idempotency_key' => (string) Str::uuid()])->assertOk();
+        $batch = $this->postJson('/app/api/reimbursement-batches', ['idempotency_key' => (string) Str::uuid(), 'allocation_ids' => $allocations, 'reason' => 'Synthetic reimbursement run'])->assertCreated()->json('id');
+        $review = ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1, 'action' => 'approve', 'evidence' => 'Synthetic independent payment review'];
+        $this->postJson('/app/api/reimbursement-batches/'.$batch.'/decide', $review)->assertForbidden();
+        $other = $this->user('finance_approver');
+        $this->login($other)->postJson('/app/api/reimbursement-batches/'.$batch.'/decide', $review)->assertOk();
+        $exportInput = ['idempotency_key' => (string) Str::uuid(), 'template_id' => $template, 'reason' => 'Synthetic instruction'];
+        $instruction = $this->postJson('/app/api/reimbursement-batches/'.$batch.'/bank-export', $exportInput)->assertCreated()->assertJsonPath('item_count', 2)->json('id');
+        $this->postJson('/app/api/reimbursement-batches/'.$batch.'/bank-export', $exportInput)->assertCreated()->assertJsonPath('id', $instruction);
+        $pendingRetry = array_replace($exportInput, ['idempotency_key' => (string) Str::uuid()]);
+        $this->postJson('/app/api/reimbursement-batches/'.$batch.'/bank-export', $pendingRetry)->assertConflict();
+        $this->postJson('/app/api/expense-allocations/'.$allocations[0].'/settle', ['idempotency_key' => (string) Str::uuid(), 'external_event_id' => 'BYPASS', 'amount_minor' => 1, 'reference' => 'BYPASS', 'paid_on' => '2026-10-19'])->assertConflict();
+        $items = DB::table('expense_instruction_items')->where('expense_bank_instruction_id', $instruction)->orderBy('id')->get();
+        foreach ($items as $i => $item) {
+            $outcome = ['idempotency_key' => (string) Str::uuid(), 'external_event_id' => 'SYNTHETIC_RESULT_'.$i, 'status' => $i === 0 ? 'paid' : 'failed', 'amount_minor' => $i === 0 ? 12345 : 0, 'reference' => 'SYNTHETIC_REF_'.$i, 'paid_on' => '2026-10-19'];
+            $this->postJson('/app/api/reimbursement-instruction-items/'.$item->id.'/outcomes', $outcome)->assertOk();
+            $outcome['idempotency_key'] = (string) Str::uuid();
+            $this->postJson('/app/api/reimbursement-instruction-items/'.$item->id.'/outcomes', $outcome)->assertOk();
+        }
+        $exportInput['idempotency_key'] = (string) Str::uuid();
+        $retry = $this->postJson('/app/api/reimbursement-batches/'.$batch.'/bank-export', $exportInput)->assertCreated()->assertJsonPath('item_count', 1)->json('id');
+        $csv = $this->post('/app/api/reimbursement-instructions/'.$retry.'/download', ['reason' => 'Synthetic retry verification'])->assertOk()->getContent();
+        $this->assertCount(2, explode("\n", trim($csv)));
+        $this->assertSame(12345, (int) DB::table('expense_settlements')->sum('amount_minor'));
+        $this->assertDatabaseCount('expense_instruction_outcomes', 2);
+        $this->login($this->hr)->getJson('/app/api/reimbursement-batches/'.$batch)->assertForbidden();
+    }
 }

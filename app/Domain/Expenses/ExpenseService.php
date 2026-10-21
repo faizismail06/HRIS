@@ -54,14 +54,17 @@ class ExpenseService
         }));
     }
 
-    public function settle(User $actor, int $allocationId, string $key, array $input): array
+    public function settle(User $actor, int $allocationId, string $key, array $input, ?int $instructionId = null): array
     {
         PayrollService::authorize($actor, true);
         $d = Validator::make($input, ['external_event_id' => ['required', 'string', 'max:120'], 'amount_minor' => ['required', 'integer', 'between:1,1000000000000000'], 'reference' => ['required', 'string', 'max:120'], 'paid_on' => ['required', 'date_format:Y-m-d', 'before_or_equal:today']])->validate();
 
-        return CoreWrite::run(fn () => Mutation::run($actor, 'expense.settle', $key, compact('allocationId', 'd'), fn ($u) => PayrollService::authorize($u, true), function ($u) use ($allocationId, $d) {
+        return CoreWrite::run(fn () => Mutation::run($actor, 'expense.settle', $key, compact('allocationId', 'd', 'instructionId'), fn ($u) => PayrollService::authorize($u, true), function ($u) use ($allocationId, $d, $instructionId) {
             $allocation = DB::table('expense_allocations')->where('id', $allocationId)->firstOrFail();
             abort_unless($allocation->channel === 'reimbursement', 409, 'Claim payroll diselesaikan lewat outcome payroll, bukan kanal terpisah.');
+            if (DB::table('expense_batch_items')->where('expense_allocation_id', $allocationId)->where('active', true)->exists()) {
+                abort_unless($instructionId && DB::table('expense_instruction_items')->join('expense_batch_items', 'expense_batch_items.id', '=', 'expense_instruction_items.expense_batch_item_id')->where('expense_instruction_items.id', $instructionId)->where('expense_allocation_id', $allocationId)->where('active', true)->whereNotIn('expense_instruction_items.id', DB::table('expense_instruction_outcomes')->select('expense_instruction_item_id'))->exists(), 409, 'Claim dalam batch harus direkonsiliasi melalui outcome instruksi, bukan settlement bebas.');
+            }
             $existing = DB::table('expense_settlements')->where('external_event_id', $d['external_event_id'])->first();
             if ($existing) {
                 abort_unless($existing->expense_allocation_id === $allocationId, 409);

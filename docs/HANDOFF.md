@@ -225,3 +225,7 @@ DemoIsolationTest +MigrationFreshTest3 tests /48 assertions lulus; regression at
 ## Opening payroll dan sumber YTD
 
 14 tests /430 assertions opening/payroll/import/migration lulus. Template CSV per kind dapat diunduh berizin. Opening import menghasilkan draft, bukan histori final palsu; approval Finance dengan evidence, unique employee/year/source dan overlap guard. Konteks YTD mengambil opening approved + final regular dengan hash/version, klasifikasi tax_component dan optional bounded subtract_prior_tax, tanpa mengarang tarif. Formula kumulatif lintas tahun/legacy tanpa klasifikasi diblokir. Pembacaan nominal opening/history privat bagi Payroll/Finance. Migrasi330000 diterapkan dev/test tanpa reset. Detail IMPORTS_BACKEND.md/PAYROLL_BACKEND.md.
+
+## Batch reimbursement dan instruksi retry
+
+12 tests /422 assertions expense/payroll/migration lulus; Pint/diff-check lulus. Finance menyiapkan batch, Finance independen mengesahkan, template confirmed dengan payment_id wajib per item, encrypted CSV/checksum/control total, append-only paid/failed outcomes dan pending-instruction lock tersedia. Retry setelah rekonsiliasi hanya memuat sisa belum lunas; settlement bebas diblokir pada batch aktif. Cancel/rebatch beralasan tidak menghapus pembayaran. Test dua klaim paid/failed membuktikan retry berisi satu item. Migrasi340000 diterapkan dev/test tanpa reset. Detail EXPENSE_BACKEND.md; tidak ada instruksi bank nyata dikirim.

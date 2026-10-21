@@ -27,7 +27,7 @@
         @else
             <x-core-field name="roster_shift_id" label="Shift terkait" type="select" help="Waktu isian mengikuti zona shift yang dipilih. Shift yang ditampilkan: delapan hari terakhir hingga 90 hari ke depan." required>
                 <option value="">Pilih shift</option>
-                @foreach ($shifts as $shift)<option value="{{ $shift->id }}" @selected((string) old('roster_shift_id') === (string) $shift->id)>{{ $shift->work_date }} · {{ $shift->is_day_off ? 'Hari libur' : $shift->starts_at?->setTimezone($shift->timezone)->format('H:i').'–'.$shift->ends_at?->setTimezone($shift->timezone)->format('H:i') }} · {{ $shift->timezone }}</option>@endforeach
+                @foreach ($shifts as $shift)<option value="{{ $shift->id }}" @selected((string) old('roster_shift_id', request('roster_shift_id')) === (string) $shift->id)>{{ $shift->work_date }} · {{ $shift->is_day_off ? 'Hari libur' : $shift->starts_at?->setTimezone($shift->timezone)->format('H:i').'–'.$shift->ends_at?->setTimezone($shift->timezone)->format('H:i') }} · {{ $shift->timezone }}</option>@endforeach
             </x-core-field>
             @if ($shifts->isEmpty())<p class="identity-notice">Belum ada shift terpublikasi pada rentang ini. Hubungi HR untuk memeriksa jadwal.</p>@endif
             @if ($kind === 'overtime')

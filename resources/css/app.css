@@ -36,6 +36,9 @@
 .workspace-actions [aria-current="page"] { font-weight: 700; text-decoration-thickness: 2px; }
 .workflow-steps { list-style: decimal; padding-left: 24px; }
 .workflow-steps li { padding: 12px 0; }
+.identity-form .roster-checkbox { display: flex; gap: 12px; align-items: center; padding: 10px 0; font-weight: 400; }
+.identity-form .roster-checkbox input { width: 20px; min-height: 20px; height: 20px; flex: 0 0 20px; accent-color: var(--accent); }
+.identity-form fieldset legend { font-weight: 600; margin-bottom: 8px; }
 @media (max-width: 480px) { .hris-app main.identity-shell { padding: 24px 20px 48px; } .identity-codes { grid-template-columns: 1fr; } .identity-form button { width: 100%; } }
 
 .hris-app {

@@ -16,6 +16,7 @@
             <nav class="identity-nav" aria-label="Navigasi akun">
                 <a class="inline-link" href="{{ route('workspace.home') }}">Beranda</a>
                 <a class="inline-link" href="{{ route('workspace.requests') }}">Pengajuan</a>
+                <a class="inline-link" href="{{ route('workspace.attendance') }}">Kehadiran</a>
                 <a class="inline-link" href="{{ route('workspace.notifications') }}">Notifikasi</a>
                 <a class="inline-link" href="{{ route('workspace.search') }}">Cari</a>
                 @can('viewAny', App\Models\Employee::class)

@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AttendanceWorkspaceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\ScheduleWorkspaceController;
 use App\Http\Controllers\WorkflowWorkspaceController;
 use App\Http\Controllers\WorkspaceActivityController;
 use App\Http\Controllers\WorkspaceController;
@@ -14,6 +16,15 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
+        Route::get('/schedules', [ScheduleWorkspaceController::class, 'index'])->name('schedules');
+        Route::get('/schedules/create', [ScheduleWorkspaceController::class, 'create'])->name('schedules.create');
+        Route::post('/schedules', [ScheduleWorkspaceController::class, 'store'])->middleware('throttle:30,1')->name('schedules.store');
+        Route::get('/schedules/{id}', [ScheduleWorkspaceController::class, 'show'])->whereNumber('id')->name('schedules.show');
+        Route::post('/schedules/{id}/publish', [ScheduleWorkspaceController::class, 'publish'])->whereNumber('id')->middleware('throttle:30,1')->name('schedules.publish');
+        Route::get('/attendance', [AttendanceWorkspaceController::class, 'index'])->name('attendance');
+        Route::get('/attendance/{id}', [AttendanceWorkspaceController::class, 'show'])->whereNumber('id')->name('attendance.show');
+        Route::post('/attendance/{id}/clock-{direction}', [AttendanceWorkspaceController::class, 'clock'])->whereNumber('id')->where('direction', 'in|out')->middleware('throttle:30,1')->name('attendance.clock');
+        Route::post('/attendance/{id}/photo', [AttendanceWorkspaceController::class, 'photo'])->whereNumber('id')->middleware('throttle:15,1')->name('attendance.photo');
         Route::get('/notifications', [WorkspaceActivityController::class, 'notifications'])->name('notifications');
         Route::post('/notifications/{id}', [WorkspaceActivityController::class, 'updateNotification'])->whereNumber('id')->middleware('throttle:60,1')->name('notifications.update');
         Route::get('/search', [WorkspaceActivityController::class, 'search'])->middleware('throttle:60,1')->name('search');

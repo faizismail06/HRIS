@@ -259,3 +259,11 @@ WorkflowWorkspaceTest +WorkflowOperationsTest +LeaveDomainTest:22tests/279assert
 WorkflowWorkspaceTest kini6test termasuk pengajuan, medical privacy, notifikasi/search lintas pengguna, zona shift dan form validation. UI attendance/GPS/roster, domain administration/finance/import/report masih perlu integrasi; QA browser tetap belum dapat dilakukan karena inventory browser kosong.
 
 Verifikasi penutup integrasi:53tests/619assertions lulus (WorkflowWorkspaceTest, WorkflowOperationsTest, LeaveDomainTest, IdentityFoundationTest dan filter ReportsTest termasuk preview reports); npm build, Pint, Blade cache dan diff-check lulus. Layar tersedia dari navigasi /app setelah login/MFA. Tidak mengubah konfigurasi .env atau menerapkan kebijakan perusahaan.
+
+## Integrasi kehadiran dan roster
+
+/app/attendance menampilkan jadwal/detail/proyeksi sesuai scope pada work_date, actual/provenance tanpa koordinat privat, private photo upload, clock-in/out melalui waktu server dan kebijakan lokasi persisted. Geolocation hanya setelah tindakan pengguna; remote tidak meminta lokasi. Network uncertainty mempertahankan payload/key percobaan yang sama; domain rejection membuat key baru. Izin GPS/HTTPS, session expiry, accuracy/geofence, photo dan empty-window ditangani tanpa koordinat manual/simulasi produksi. Tautan koreksi membawa pilihan shift sendiri.
+
+/app/schedules untuk company HR/team manager: pola employee/date/working days/template→draft→review/publish; service mengecek ulang scope/version/checksum/placement/coverage. Tidak mempublikasikan batch campuran scope secara parsial. Peringatan staffing memerlukan acknowledgement; semua hari libur memerlukan konfirmasi eksplisit. Pilihan karyawan dibatasi50 dengan pencarian; template memakai pagination katalog; rows detail50. Replacement/import/period close/actual OT belum terhubung lewat layar ini.
+
+AttendanceWorkspaceTest +AttendanceDomainTest +AttendancePolicyTest +WorkflowWorkspaceTest lulus22tests/388assertions; tiga tes node:test membuktikan retry identical-key/coordinates setelah uncertain network, GPS denial tanpa request dan fresh-key rejection/remote tanpa GPS. Pengujian JavaScript memakai harness DOM/network, belum QA browser/perangkat nyata. Tidak ada konfigurasi perusahaan atau .env yang diubah.

@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\AttendancePeriodWorkspaceController;
 use App\Http\Controllers\AttendanceWorkspaceController;
+use App\Http\Controllers\AuditWorkspaceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LeaveWorkspaceController;
+use App\Http\Controllers\OperationWorkspaceController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\OvertimeWorkspaceController;
 use App\Http\Controllers\ScheduleSettingsController;
@@ -20,6 +22,12 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::get('/account/security', [WorkspaceController::class, 'security'])->middleware('password.confirm')->name('account.security');
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
+        Route::get('/audit', [AuditWorkspaceController::class, 'index'])->name('audit');
+        Route::get('/modules', [OperationWorkspaceController::class, 'index'])->name('modules');
+        Route::get('/options/{source}', [OperationWorkspaceController::class, 'options'])->middleware('throttle:120,1')->name('options');
+        Route::get('/profile-version', [OperationWorkspaceController::class, 'profileVersion'])->middleware('throttle:60,1')->name('profile-version');
+        Route::get('/work/{operation}', [OperationWorkspaceController::class, 'form'])->name('work');
+        Route::post('/work/{operation}', [OperationWorkspaceController::class, 'store'])->middleware('throttle:60,1')->name('work.store');
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
         Route::get('/leave-balances', [LeaveWorkspaceController::class, 'balances'])->name('leave-balances');
         Route::get('/leave-management', [LeaveWorkspaceController::class, 'index'])->name('leave');

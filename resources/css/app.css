@@ -518,6 +518,25 @@
 @media (max-width: 760px) { .header-inner { gap: 0; } .workspace-nav { flex-wrap: wrap; gap: 0 18px; } .balance-equation { padding: 21px 20px; gap: 10px 12px; font-size: 12px; } .balance-equation strong { flex-basis: 100%; padding-top: 4px; } .calendar-privacy { padding-inline: 20px; font-size: 11px; } }
 @media (max-width: 400px) { .workspace-nav { gap: 0 8px; } }
 
+.operation-directory { list-style: none; padding: 0; columns: 2 280px; column-gap: 32px; }
+.operation-directory li { padding: 11px 0; break-inside: avoid; border-bottom: 1px solid var(--line); }
+.operation-directory a { display: inline-block; line-height: 1.6; }
+.operation-search { display: grid; gap: 10px; margin-top: 28px; max-width: 540px; }
+.operation-search input, .operation-field input, .operation-field select, .operation-field textarea { width: 100%; min-width: 0; }
+.operation-field { display: grid; gap: 8px; margin-block: 18px; }
+.operation-field textarea { min-height: 110px; }
+.operation-field input:read-only { background: var(--surface-soft, #f4f0f5); }
+.operation-group { border: 0; padding: 18px 0 0; margin: 26px 0; min-width: 0; border-top: 1px solid var(--line); }
+.operation-group > legend { font-size: 18px; font-weight: 600; padding: 0 14px 0 0; }
+.operation-row { border: 1px solid var(--line); padding: 16px; margin: 16px 0; min-width: 0; border-radius: 12px; }
+.operation-row legend { padding-inline: 6px; font-weight: 600; }
+.operation-results { padding-left: 22px; }
+.operation-results > li { margin-block: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.operation-facts { overflow-wrap: anywhere; white-space: pre-line; }
+.operation-facts .operation-facts { margin: 0; }
+.operation-facts dd { min-width: 0; }
+.operation-form [hidden], [data-operation-section][hidden], [data-operation-item][hidden] { display: none; }
+
 /* Static screen catalog: disabled controls show designs without accepting data. */
 .preview-catalog-link { margin-right: auto; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--accent); font-size: 12px; }
 .screen-link-list { list-style: none; margin: 12px 0 0; padding: 0; }

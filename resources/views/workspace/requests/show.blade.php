@@ -14,6 +14,9 @@
             @if ($value !== null && is_scalar($value))<div><dt>{{ $label }}</dt><dd>{{ $field === 'segment' ? (['full' => 'Sehari penuh', 'first_half' => 'Paruh pertama', 'second_half' => 'Paruh kedua'][$value] ?? $value) : $value }}</dd></div>@endif
         @endforeach
     </dl>
+    @if ($supported && !array_key_exists($record->kind, App\Http\Controllers\WorkflowWorkspaceController::CREATE_KINDS))
+        <section class="identity-section"><h2>Rincian pengajuan</h2>@include('workspace.operations.result', ['value' => $details, 'depth' => 0])</section>
+    @endif
     @if ($steps->isNotEmpty())
         <section class="identity-section"><h2>Alur persetujuan</h2>
             <ol class="workflow-steps">@foreach ($steps as $step)<li><strong>{{ ['manager' => 'Atasan', 'hr_admin' => 'HR Admin', 'hr_officer' => 'HR Officer', 'finance_approver' => 'Finance', 'counterparty' => 'Rekan penukar'][$step->role] ?? str_replace('_', ' ', $step->role) }}</strong> · {{ ['waiting' => 'Menunggu tahap sebelumnya', 'pending' => 'Menunggu keputusan', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'blocked' => 'Peninjau belum tersedia', 'cancelled' => 'Dibatalkan'][$step->status] ?? $step->status }}@if ($step->due_at)<p class="history-note">Batas peninjauan {{ $step->due_at->setTimezone(config('app.timezone'))->format('d M Y H:i T') }}</p>@endif</li>@endforeach</ol>

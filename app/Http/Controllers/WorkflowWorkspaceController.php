@@ -18,7 +18,9 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class WorkflowWorkspaceController extends Controller
 {
-    public const KINDS = ['leave' => 'Cuti', 'leave_cancel' => 'Pembatalan cuti', 'overtime' => 'Lembur', 'correction' => 'Koreksi kehadiran'];
+    public const CREATE_KINDS = ['leave' => 'Cuti', 'leave_cancel' => 'Pembatalan cuti', 'overtime' => 'Lembur', 'correction' => 'Koreksi kehadiran'];
+
+    public const KINDS = self::CREATE_KINDS + ['leave_exception' => 'Pengecualian cuti', 'swap' => 'Tukar shift', 'letter' => 'Surat', 'contract' => 'Kontrak', 'contract_cancel' => 'Pembatalan kontrak', 'career' => 'Perubahan karier', 'career_retrospective' => 'Karier retrospektif', 'onboarding' => 'Aktivasi onboarding', 'offboarding' => 'Offboarding', 'compensation' => 'Kompensasi', 'opening_payroll' => 'Opening payroll', 'expense' => 'Klaim penggantian biaya', 'profile_change' => 'Perubahan profil', 'identity_change' => 'Verifikasi identitas', 'bank_change' => 'Verifikasi rekening', 'tax_change' => 'Verifikasi pajak/BPJS'];
 
     public const STATUSES = ['draft' => 'Draf', 'in_review' => 'Dalam peninjauan', 'blocked' => 'Menunggu penetapan peninjau', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'withdrawn' => 'Ditarik'];
 
@@ -32,17 +34,17 @@ class WorkflowWorkspaceController extends Controller
     public function create(Request $r)
     {
         abort_unless($r->user()->employee_id, 403);
-        $data = $r->validate(['kind' => ['nullable', 'in:'.implode(',', array_keys(self::KINDS))]]);
+        $data = $r->validate(['kind' => ['nullable', 'in:'.implode(',', array_keys(self::CREATE_KINDS))]]);
         $kind = $data['kind'] ?? 'leave';
         $shifts = RosterShift::where('employee_id', $r->user()->employee_id)->where('status', 'published')->whereBetween('work_date', [today()->subDays(8)->toDateString(), today()->addDays(90)->toDateString()])->orderBy('work_date')->limit(200)->get();
 
-        return view('workspace.requests.create', ['kind' => $kind, 'kinds' => self::KINDS, 'types' => LeaveType::where('is_active', true)->orderBy('name')->get(), 'shifts' => $shifts, 'originals' => WorkflowRequest::where('employee_id', $r->user()->employee_id)->whereIn('kind', ['leave', 'leave_exception'])->where('status', 'approved')->orderByDesc('id')->limit(100)->get()]);
+        return view('workspace.requests.create', ['kind' => $kind, 'kinds' => self::CREATE_KINDS, 'types' => LeaveType::where('is_active', true)->orderBy('name')->get(), 'shifts' => $shifts, 'originals' => WorkflowRequest::where('employee_id', $r->user()->employee_id)->whereIn('kind', ['leave', 'leave_exception'])->where('status', 'approved')->orderByDesc('id')->limit(100)->get()]);
     }
 
     public function store(OperationalRequest $r, WorkflowService $service)
     {
         abort_unless($r->user()->employee_id, 403);
-        $data = $r->validate(['kind' => ['required', 'in:'.implode(',', array_keys(self::KINDS))]]);
+        $data = $r->validate(['kind' => ['required', 'in:'.implode(',', array_keys(self::CREATE_KINDS))]]);
         $kind = $data['kind'];
         $payload = $r->only(match ($kind) {
             'leave' => ['leave_type_id', 'starts_on', 'ends_on', 'segment', 'reason'],
@@ -74,11 +76,19 @@ class WorkflowWorkspaceController extends Controller
         abort_unless(WorkflowAccess::visible($r->user(), $record), 404);
         $steps = $record->steps()->orderBy('position')->get();
         $supported = array_key_exists($record->kind, self::KINDS);
-        $medical = in_array($record->kind, ['leave', 'leave_cancel']);
+        $medical = in_array($record->kind, ['leave', 'leave_exception', 'leave_cancel']);
         $canReadMedical = $medical && app(PrivateFiles::class)->canReadMedical($r->user(), $record);
         $details = $supported ? $record->payload : [];
+        // Visibility of an approval summary does not grant access to its private proposal.
+        if (in_array($record->kind, ['profile_change', 'identity_change', 'bank_change', 'tax_change'])) {
+            $details = app(PrivateProfileController::class)->proposed($r, (int) $id)->getData(true);
+        } elseif ($record->kind === 'compensation') {
+            $details = app(PayrollController::class)->proposedCompensation($r, (int) $id)->getData(true);
+        } elseif ($record->kind === 'opening_payroll') {
+            $details = app(PayrollController::class)->openingDetail($r, (int) $id)->getData(true);
+        }
         if ($medical && ! $canReadMedical) {
-            unset($details['reason']);
+            unset($details['reason'], $details['exception_reason']);
         }
         $person = $record->employee_id ? Employee::find($record->employee_id) : null;
         $employeeLabel = $person ? $person->name.' · '.$person->employee_number : null;

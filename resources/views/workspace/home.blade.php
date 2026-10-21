@@ -14,5 +14,5 @@
         <p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.requests') }}">Buka pengajuan</a></p>
     </section>
     <section class="identity-section"><h2>Kehadiran dan jadwal</h2><p>Periksa shift, catat masuk/pulang dan susun roster sesuai kewenangan Anda.</p><p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.attendance') }}">Buka kehadiran</a></p></section>
-    <p class="history-note">Direktori, organisasi, perubahan karyawan, pengajuan dan kehadiran terhubung ke data aplikasi. Layar prototipe modul lain tetap memakai data sintetis.</p>
+    <section class="identity-section"><h2>Pekerjaan lintas modul</h2><p>Kelola dokumen, checklist, aset, profil privat, payroll, klaim, impor dan laporan sesuai akses Anda.</p><p><a class="primary-button" href="{{ route('workspace.modules') }}">Buka ruang kerja</a></p></section>
 </x-identity-layout>

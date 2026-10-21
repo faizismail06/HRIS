@@ -52,7 +52,7 @@ OTP diverifikasi provider Fortify, kode pemulihan diganti setelah dipakai, dan r
 
 Satu perusahaan memiliki ID 1. Struktur departemen menolak siklus. Jabatan disimpan di `job_positions`, terpisah dari tabel antrean Laravel `jobs`. Penempatan harus memakai jabatan pada departemen yang sama dan berada dalam periode kerja karyawan tersebut. Periode kerja dan penempatan menggunakan rentang **[mulai, akhir)**: tanggal akhir eksklusif, sehingga rentang berurutan dapat bersinggungan di batas tanpa overlap. Periode yang tumpang tindih, self-manager dan siklus atasan pada rentang tanggal yang bertemu ditolak database. Pemendekan periode tidak boleh meninggalkan penempatan di luarnya.
 
-Tanggal `as_of` dibatasi sampai hari ini dan scope mengikuti penempatan pada tanggal itu. Kalender aplikasi default `Asia/Jakarta`, dapat diatur dengan `APP_TIMEZONE`. Cabang memiliki kolom timezone; perhitungan lintas zona untuk attendance belum diimplementasikan. Audit append-only menolak UPDATE, DELETE dan TRUNCATE melalui trigger. Ini bukan jaminan anti-tamper terhadap superuser/pemilik database; pemisahan akun runtime/migrasi dan pengarsipan audit masih kebutuhan deployment.
+Tanggal `as_of` dibatasi sampai hari ini dan scope mengikuti penempatan pada tanggal itu. Kalender aplikasi default `Asia/Jakarta`, dapat diatur dengan `APP_TIMEZONE`; attendance/close memakai IANA timezone lokasi/cabang dan work date shift lokal. Audit append-only menolak UPDATE, DELETE dan TRUNCATE. Ini bukan jaminan anti-tamper terhadap superuser/pemilik database; pemisahan role runtime/migrasi dan pengarsipan audit tetap kebutuhan deployment. Status modul di BACKEND_DELIVERY.md.
 
 ## Pengujian dan batas pengesahan
 

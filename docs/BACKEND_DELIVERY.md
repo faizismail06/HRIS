@@ -1,6 +1,6 @@
 # Pelaksanaan backend penuh
 
-Permintaan 21 Oktober 2026 mencakup seluruh backend PRD, bukan hanya CRUD. Commit/push berlangsung di dev per modul teruji. Tabel ini mencatat sisa pekerjaan dan tidak merupakan klaim acceptance.
+Permintaan21Oktober2026 mencakup seluruh backend PRD, bukan hanya CRUD. Modul domain/API utama telah dibangun dan di-push bertahap ke dev. Tabel memisahkan implementasi backend dari konfigurasi/pengesahan produksi; bukan klaim setiap acceptance PRD atau integrasi UI sudah diterima.
 
 | Urutan | Cakupan | Status |
 | --- | --- | --- |
@@ -12,6 +12,12 @@ Permintaan 21 Oktober 2026 mencakup seluruh backend PRD, bukan hanya CRUD. Commi
 | 6 | Kompensasi/payroll, reimbursement, export/payment, slip privat | Mesin draft, approval kebijakan, snapshot/slip, corrections next-period/off-cycle, variation/YTD dan batch reimbursement/retry terpisah tersedia. Kebijakan produksi, layout bank nyata dan UAT Finance belum disahkan; lihat PAYROLL_BACKEND.md dan EXPENSE_BACKEND.md |
 | 7 | CSV/XLSX staging/import/export, laporan, pencarian berizin | API staging/validasi/commit termasuk opening payroll dengan verifikasi, template CSV, laporan/ekspor privat dan pencarian tersedia; lihat IMPORTS_BACKEND.md dan REPORTS_SEARCH_BACKEND.md; pengujian beban/UAT belum |
 | 8 | Instalasi demo terisolasi, clock skenario, seed/persona/reset | Guard per instalasi/database/storage/queue, seed, operator-token personas, clock/GPS simulation, watermark/mail sink dan scoped reset tersedia; lihat DEMO_BACKEND.md. Hosting demo dan UI kalender virtual penuh belum |
-| 9 | Pengujian lintas domain/konkurensi, operasi, backup/restore/UAT | Belum disahkan |
+| 9 | Pengujian lintas domain/konkurensi, operasi, backup/restore/UAT | Suite domain/API, dua proses reservasi, native dump/restore sintetis dan hris:check tersedia. OPERATIONS.md memuat deploy/worker/backup. SMTP nyata, RPO/RTO host produksi, load/UAT dan deployment belum disahkan |
 
 Kredensial SMTP/infrastruktur, template bank, parameter pajak/BPJS, kebijakan hak cuti/lembur/prorata serta acceptance HR/Finance tidak akan dikarang. Mesin konfigurasi dan pengujian sintetis dapat dibangun tanpa menerapkan nilai produksi; finalisasi operasional harus menolak konfigurasi belum disahkan. `.env` tidak dilacak. Preview statis tetap terpisah sampai terhubung ke layanan nyata dan diuji.
+
+Tambahan akhir: HR notice-exception cuti/cancellation atas target berizin, career retrospective HR→Finance tanpa overwrite history, document preview tanpa nomor, snapshot placement per hari untuk laporan finansial dan Finance-only reassignment tahap Finance. Batas engine terdokumentasi (contohnya batch sinkron500employee, import5000rows/10MB, calendar-year grant schedule, kalender simulasi attendance/documents); aturan di luar dukungan harus dimodelkan/diuji sebelum diaktifkan.
+
+Tahap berikut adalah integrasi form/dashboard ke API dan UAT/deployment dengan konfigurasi perusahaan. Prototype disabled belum otomatis operasional. Payroll draft, email sink dan demo isolation tidak dianggap pengesahan/transaksi produksi.
+
+Pemetaan bukti otomatis terhadap AT-01–22 beserta batas pengesahannya ada di [BACKEND_ACCEPTANCE.md](BACKEND_ACCEPTANCE.md).

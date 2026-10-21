@@ -1,53 +1,29 @@
 # Status proyek
 
-Pembaruan backend 21 Oktober 2026: API identitas/profil privat, workflow/delegasi/notifikasi, roster/kehadiran/cuti/lembur/close, dokumen/karier/lifecycle/aset, payroll draft/reimbursement/payment, impor/laporan/pencarian telah ditambahkan. Rincian terkini dan sisa pekerjaan ada di [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md). Kebijakan payroll produksi belum tersedia sesuai keputusan pengguna; konfigurasi disiapkan sebagai draft. Layar preview belum otomatis tersambung. Seluruh backend belum selesai dan acceptance R0–R3 belum disahkan. Tabel di bawah adalah catatan tahap visual historis, bukan inventaris API terkini.
+Pembaruan 21 Oktober 2026: modul backend domain/API utama tersedia dan diuji di PostgreSQL, dikembangkan pada dev dan di-push bertahap. Frontend **Ruang Tim** tanpa sidebar mempunyai cakupan visual statis inti; form prototype belum otomatis terhubung ke API.
 
-Status setelah penyelesaian cakupan visual statis. Dokumen ini membedakan implementasi layar, pengesahan visual browser dan implementasi domain; jumlah commit atau jumlah layar bukan ukuran kesiapan produksi.
+## Cakupan sekarang
 
-## Tahap saat ini
-
-Urutan pengerjaan proyek ini:
-
-1. Fondasi proyek dan GitHub: tersedia. Laravel/Blade/Vite, dependency lockfiles, preview gate dan workflow branch `dev` sudah dipakai.
-2. Visual statis: **cakupan layar inti telah dilengkapi; QA browser masih tertunda**. Daftar/detail modul, tujuh beranda peran, 48 formulir (awal/validasi gagal), 12 state dan panduan lintas modul tersedia. Ini bukan aplikasi HRIS operasional atau pengesahan kualitas render.
-3. Implementasi backend/domain: **identitas dan mutasi awal CoreHR tersedia**. Login/MFA/reset, grants, pencabutan sesi, direktori berizin, master organisasi, tambah karyawan dan pengajuan/perubahan identitas kerja serta penempatan bertanggal efektif sudah diimplementasikan dengan audit. Workflow domain lain belum tersedia; ini belum acceptance R0.
-4. Integrasi, pengujian end-to-end, UAT dan deployment: **belum selesai/belum dimulai untuk domain**. Build dan tes preview tidak menggantikan tahap ini.
-
-Tahap pengerjaan di atas bukan penamaan release R0–R3 pada PRD. R0–R3 adalah kelompok kebutuhan produk yang belum boleh dianggap diterima hanya karena preview UI-nya tersedia.
-
-## Peta cakupan
-
-| Area PRD | Kondisi UI | Kondisi operasional |
+| Area | Backend | UI/infrastruktur |
 | --- | --- | --- |
-| Dashboard dan navigasi | Dashboard HR dan tujuh beranda peran dengan navigasi contoh tanpa sidebar | Persona bukan akun; belum dashboard berdasarkan izin/login |
-| Karyawan dan organisasi | Preview tetap sintetis; form operasional terpisah tersedia | Master organisasi, tambah identitas kerja dan perubahan melalui approval tersedia; profil sensitif dan impor belum |
-| Jadwal dan kehadiran | Roster, rekap dan detail event sintetis | Belum publikasi jadwal, clocking, GPS/foto atau koreksi tersimpan |
-| Cuti dan pengajuan | Daftar, progres tahap, saldo dan kalender | Belum submit/approve, engine workflow, transaksi saldo atau notifikasi |
-| Kontrak, surat dan karier | Versi, snapshot HTML, tanggal efektif dan perbandingan | Belum penomoran, penyimpanan privat, PDF atau perubahan efektif otomatis |
-| Onboarding/offboarding dan aset | Checklist, pemilik tugas, custody dan kasus contoh | Belum aktivasi/pencabutan akun, serah terima atau settlement |
-| Payroll dan reimbursement | Snapshot, penghambat, komponen, slip HTML dan pembayaran contoh | Belum kalkulasi regulasi, finalisasi, pembayaran, bank export atau akses slip privat |
-| Laporan dan penutupan | Agregasi mingguan, sumber shift dan arsip contoh | Belum close/reopen, snapshot transaksi, lock, ekspor atau rekonsiliasi nyata |
-| Pengaturan, audit dan impor | Matriks target, peristiwa sintetis dan validasi batch contoh | Audit identitas append-only tersedia di backend; pengaturan dan impor belum operasional |
-| Notifikasi dan pencarian lintas modul | Kotak masuk/status pengiriman contoh dan pencarian ringkasan sepuluh jenis catatan | Belum inbox/outbox tersimpan, pengiriman/retry, preferensi aktif atau indeks berizin |
-| Pengalaman Employee/Manager dan formulir mutasi | Beranda peran, profil/shift/saldo/tugas, 48 form awal/invalid dan 12 state statis | Seluruh field/aksi mutasi dinonaktifkan; belum alur submit sampai hasil akhir |
-| Demo terisolasi | Form persona/lokasi/waktu skenario dan konfirmasi seed/reset statis | Belum instalasi demo, skenario terisolasi, persona auth atau reset berizin |
+| Akun/organisasi/karyawan | Login/MFA/scope, suspension/revoke, effective assignments, private profiles/custom fields dan import | Form CoreHR awal operasional; seluruh preview belum |
+| Approval/notifikasi | Typed workflows, independent decisions, idempotency/locks, delegasi, business deadlines, outbox/retry/digest/preferences/health | Task/inbox belum seluruhnya terhubung; SMTP nyata belum |
+| Attendance/cuti/lembur | Roster/staffing/GPS/photo/remote/field, corrections/swaps, ledger/grants/expiry/carry-over, HR exceptions, actual OT dan close/revisions | Kamera/GPS/browser dan UAT perusahaan belum disahkan |
+| Administrasi | PDF/templates/numbering/snapshots/preview, kontrak, karier/retrospective, onboarding/rehire/exit/tasks/assets | Pengesahan lintas peran dan seluruh form binding belum |
+| Finance | Draft policy expert gate, exact arithmetic/YTD/openings, regular/off-cycle adjustments, slips, payment outcomes dan reimbursement batch/unpaid-only retry | Kebijakan/layout bank belum disahkan; tidak ada transfer bank nyata |
+| Reports/import/search | Atomic CSV/XLSX staging/templates, private expiring exports, historical snapshots/filtering dan scoped search | Load/query plans dan integrasi UI perlu UAT |
+| Demo/operasi | Isolated installation/database/storage/queues, personas/time/GPS, watermark/mail sink/reset guards, deployment check, concurrency/native restore tests | Hosting, supervisor/SMTP/off-host backup, production RPO/RTO dan UAT belum |
 
-## Batas penyelesaian visual statis
+Rincian API/batas engine: [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md). Deployment, worker, restore dan penerimaan operator: [OPERATIONS.md](OPERATIONS.md). Kebijakan payroll disiapkan draft sesuai keputusan pengguna; agent tidak mengesahkan tarif/regulasi atau kebijakan produksi.
 
-Pintu masuk [Panduan layar statis](http://127.0.0.1:8000/prototype/screens) menautkan seluruh kelompok visual inti. [Inventaris layar](STATIC_SCREENS.md) mencatat 48 form dalam dua kondisi, tujuh beranda dan 12 state beserta pemetaan PRD. Field form, login, file dan aksi transaksi dinonaktifkan; yang berfungsi adalah navigasi/filter preview. Tiga rute peninjauan lintas modul bukan satu transaksi end-to-end tersambung.
+## Tahap berikut
 
-Review browser desktop/ponsel, keyboard, zoom, kontras dan screen reader **belum disahkan**. Browser IAB dicoba langsung tetapi tidak tersedia; verdict visual tetap `recapture`. CSS responsif dan source semantics sudah diimplementasikan, tetapi tes HTTP/build bukan bukti hasil render. Aksi mutasi, otorisasi, realtime states dan semua interaksi operasional menunggu backend/integrasi. Penyelesaian statis bukan acceptance R0–R3.
+Hubungkan dashboard/form ke API memakai session/CSRF/MFA, role/scope, optimistic version dan idempotency key. Uji perjalanan lintas peran sampai hasil final serta loading/validation/conflict/retry, lalu QA browser/mobile/accessibility, UAT HR/Finance dan deployment terkontrol. Modul API tersedia tidak berarti form statis disabled sudah berfungsi.
 
-## Backend identitas dan CoreHR
+Inventaris visual mencakup tujuh beranda peran, 48 form awal/invalid dan 12 state di [STATIC_SCREENS.md](STATIC_SCREENS.md). QA render tetap **recapture** karena browser sebelumnya tidak tersedia; build/HTTP tests tidak menggantikan hasil render/keyboard/zoom/kontras/screen reader.
 
-Rute `/login`, `/account/security`, `/app` dan direktori `/app/employees` memakai akun serta database nyata, terpisah dari fixture preview. MFA wajib sebelum akses data. Belum ada akun nyata yang dibuat otomatis; operator melakukan bootstrap lewat terminal tepercaya. Panduan, matriks scope dan batas implementasi ada di [IDENTITY_FOUNDATION.md](IDENTITY_FOUNDATION.md). Entri tabel di atas tetap menjelaskan cakupan preview; fondasi baru tidak mengaktifkan aksi pada formulir statis.
+## Batas pengesahan
 
-Rute `/app/organization`, tambah karyawan dan `/app/employee-changes` kini menerima mutasi dengan validasi, audit, versi dan pemeriksaan peran. Approval tidak boleh oleh pengaju/subjek; penempatan mendatang mengikuti interval efektif. Cakupan hanya master dan identitas kerja/penempatan dasar, bukan profil sensitif atau seluruh engine workflow. Lihat [COREHR_WORKFLOW.md](COREHR_WORKFLOW.md).
+Tidak ada klaim acceptance penuh R0–R3/kesiapan produksi. Pengujian sintetis bukan golden payroll yang disahkan pemilik payroll perusahaan. Engine hanya menerima konfigurasi yang didukung; aturan baru memerlukan implementasi/tes/pengesahan sebelum diaktifkan. Demo satu instalasi per skenario; ScenarioClock tidak mengubah waktu global dan saat ini dipakai attendance/documents. RPO/RTO produksi, SMTP nyata dan beban host perlu dibuktikan operator.
 
-## Sebelum dipakai operasional
-
-Lanjutkan operasi create/update, transaksi workflow, aturan saldo/close/payroll dan pembatasan dokumen privat di atas fondasi identitas/CoreHR. Lalu uji alur end-to-end, konkurensi, kegagalan/retry, backup/restore dan keputusan kebijakan domain. Konfigurasi produksi, pengiriman email nyata dan QA browser belum disahkan. Belum ada klaim acceptance R0–R3 atau kesiapan produksi.
-
-## Git dan verifikasi
-
-Pengembangan berlangsung di `dev`. Modul yang selesai diperiksa dibuatkan commit fitur dan dokumentasi, lalu di-push sesuai instruksi pengguna. Tidak ada perubahan `main` atau force-push. Detail pemeriksaan terbaru dan batas fixture ada di [HANDOFF.md](HANDOFF.md). `.env` tidak dilacak dan tidak dibaca untuk membuat UI pengaturan.
+Riwayat milestone/checks di [HANDOFF.md](HANDOFF.md). .env tidak dilacak. Tidak ada perubahan main atau force-push.

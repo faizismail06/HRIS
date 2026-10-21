@@ -1,10 +1,10 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Tersedia prototipe visual modul HRIS dengan navigasi **Ruang Tim** dan data sintetis. Backend mencakup login/MFA/reset, akses peran/scope, master organisasi, tambah karyawan, pengajuan/persetujuan identitas kerja dan penempatan bertanggal efektif serta audit. Modul domain lain, demo terisolasi dan acceptance R0–R3 belum selesai.
+HRIS berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Backend domain/API mencakup identitas/MFA/scope, profil privat, organisasi/karier, workflow/delegasi, roster/attendance/cuti/lembur/close, dokumen/kontrak/lifecycle/aset, payroll/reimbursement, impor/ekspor/laporan/notifikasi/pencarian serta demo terisolasi. [Peta backend](docs/BACKEND_DELIVERY.md) mencatat implementasi dan batasnya; [panduan operasi](docs/OPERATIONS.md) memuat worker, deployment dan backup/restore. Kebijakan payroll produksi tetap draft sampai disahkan HR/Finance.
 
 **Cakupan visual statis inti telah dilengkapi; QA browser masih tertunda.** Buka [Panduan semua layar](http://127.0.0.1:8000/prototype/screens): tujuh beranda peran, 48 formulir awal/validasi gagal, 12 state serta tautan ke daftar/detail modul. Form preview tetap nonoperasional. Lihat [status proyek](docs/PROJECT_STATUS.md), [inventaris layar](docs/STATIC_SCREENS.md) dan [panduan backend identitas](docs/IDENTITY_FOUNDATION.md).
 
-## Login dan backend pertama
+## Login dan backend operasional
 
 Setelah koneksi PostgreSQL disiapkan, jalankan `php artisan migrate`, lalu `php artisan hris:provision-account platform_admin --bootstrap --company="Nama Perusahaan"` dari terminal interaktif. Perintah meminta nama, email dan password tersembunyi; tidak ada akun/password default. Buka `/login` dan selesaikan pengaturan MFA. Admin platform tidak otomatis memperoleh akses data karyawan. Panduan akun HR, scope, pengujian PostgreSQL dan batas kesiapan produksi ada di [IDENTITY_FOUNDATION.md](docs/IDENTITY_FOUNDATION.md).
 

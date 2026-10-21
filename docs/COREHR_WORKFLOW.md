@@ -1,5 +1,7 @@
 # Organisasi dan perubahan karyawan
 
+Catatan milestone fondasi/form CoreHR awal. Status seluruh domain saat ini ada di [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md); pernyataan modul lain yang belum tersedia di bagian batas historis dokumen ini tidak menggantikan status terbaru.
+
 Modul ini mengaktifkan master organisasi, pembuatan identitas kerja dan workflow perubahan dasar pada database nyata. Navigasi tetap horizontal Ruang Tim. Preview `/prototype/*` tetap terpisah. Ini belum penyelesaian seluruh CORE-01–06/R0.
 
 ## Mulai memakai

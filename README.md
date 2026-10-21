@@ -12,6 +12,10 @@ Setelah koneksi PostgreSQL disiapkan, jalankan `php artisan migrate`, lalu `php 
 
 Buat akun HR dengan `php artisan hris:provision-account hr_admin` atau `hr_officer`, lalu masuk dan selesaikan MFA. HR Admin company mengelola `/app/organization`; HR Officer/Admin company membuat karyawan dan pengajuan dari direktori. Persetujuan memerlukan HR Admin lain yang bukan pengaju/subjek. Panduan alur, izin dan batas cakupan: [COREHR_WORKFLOW.md](docs/COREHR_WORKFLOW.md).
 
+## Pengajuan, notifikasi dan pencarian operasional
+
+Layar operasional setelah login/MFA: `/app/requests` untuk cuti, pembatalan cuti, lembur, koreksi kehadiran dan persetujuan independen; `/app/notifications` untuk inbox/baca/arsip; `/app/search` untuk pencarian berizin. Pengajuan disimpan sebagai draf, bukti diunggah terpisah, lalu dikirim. Konfigurasi jenis cuti, roster, hak cuti serta definisi/reviewer workflow harus tersedia terlebih dahulu. Modul finansial/administrasi lain masih memerlukan integrasi UI; `/prototype/*` tetap fixture sintetis.
+
 ## Pratinjau dashboard tanpa database
 
 Dependensi PHP dan frontend telah dipasang pada mesin pengembangan. Untuk instalasi baru, jalankan `composer install` dan `npm ci`. Salin `.env.example` ke `.env` jika belum ada, lalu atur:

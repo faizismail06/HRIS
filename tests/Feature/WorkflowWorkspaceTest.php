@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Domain\Operations\Outbox;
 use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Department;
@@ -142,5 +143,33 @@ class WorkflowWorkspaceTest extends TestCase
         $attachment = DB::table('private_attachments')->value('id');
         $this->get('/app/api/attachments/'.$attachment.'/download')->assertNotFound();
         $this->login($this->worker)->get('/app/requests/'.$record->id)->assertOk()->assertSee('Private synthetic medical reason')->assertSee('Unduh bukti #');
+    }
+
+    public function test_notification_read_archive_and_search_use_live_visibility(): void
+    {
+        $record = $this->draft();
+        Outbox::notify([$this->worker->id], 'request.submitted', 'workflow_request', $record->id, 'ui-test-'.$record->id);
+        $message = DB::table('inbox_messages')->where('user_id', $this->worker->id)->firstOrFail();
+        $this->get('/app/notifications')->assertOk()->assertSee('Pengajuan telah dikirim')->assertSee('Buka pengajuan #'.$record->id)->assertDontSee('Private synthetic medical reason');
+        $this->post('/app/notifications/'.$message->id, ['action' => 'read'])->assertRedirect('/app/notifications');
+        $this->assertNotNull(DB::table('inbox_messages')->where('id', $message->id)->value('read_at'));
+        $this->get('/app/search')->assertOk()->assertSee('Minimal dua karakter');
+        $this->get('/app/search?q=leave')->assertOk()->assertSee(route('workspace.requests.show', $record->id))->assertDontSee('Private synthetic medical reason');
+        $this->get('/app/search?q=l')->assertSessionHasErrors('q');
+        $this->login($this->hr)->post('/app/notifications/'.$message->id, ['action' => 'archive'])->assertNotFound();
+        $outsider = $this->user('employee');
+        $this->login($outsider)->get('/app/search?q=leave')->assertOk()->assertDontSee(route('workspace.requests.show', $record->id))->assertSee('Belum ditemukan hasil');
+        $this->get('/app/notifications')->assertOk()->assertDontSee('Buka pengajuan #'.$record->id);
+        $this->login($this->worker)->post('/app/notifications/'.$message->id, ['action' => 'archive'])->assertRedirect('/app/notifications');
+        $this->get('/app/notifications')->assertOk()->assertDontSee('Buka pengajuan #'.$record->id);
+    }
+
+    public function test_remaining_forms_and_invalid_status_are_rendered_or_validated(): void
+    {
+        $this->login($this->worker)->get('/app/requests/create?kind=correction')->assertOk()->assertSee('effective_in')->assertSee('effective_out')->assertSee('Asia/Jayapura');
+        $this->get('/app/requests/create?kind=leave_cancel')->assertOk()->assertSee('Belum ada cuti disetujui')->assertSee('original_request_id');
+        $this->get('/app/requests?status=unknown')->assertSessionHasErrors('status');
+        $this->get('/app/search?before_id=bad')->assertOk();
+        $this->get('/app/notifications?before_id=bad')->assertSessionHasErrors('before_id');
     }
 }

@@ -21,3 +21,5 @@ Tambahan akhir: HR notice-exception cuti/cancellation atas target berizin, caree
 Tahap berikut adalah integrasi form/dashboard ke API dan UAT/deployment dengan konfigurasi perusahaan. Prototype disabled belum otomatis operasional. Payroll draft, email sink dan demo isolation tidak dianggap pengesahan/transaksi produksi.
 
 Pemetaan bukti otomatis terhadap AT-01–22 beserta batas pengesahannya ada di [BACKEND_ACCEPTANCE.md](BACKEND_ACCEPTANCE.md).
+
+Integrasi layar dimulai: `/app/requests` menghubungkan draf cuti/pembatalan/lembur/koreksi, bukti privat dan submit/withdraw/independent approval ke layanan domain. `/app/notifications` memakai inbox nyata dengan baca/arsip; `/app/search` memakai pencarian berizin dengan tautan karyawan/pengajuan/download dokumen. Layar modul lain masih mengikuti status terperinci di [PROJECT_STATUS.md](PROJECT_STATUS.md).

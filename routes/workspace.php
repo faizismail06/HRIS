@@ -3,6 +3,7 @@
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\WorkflowWorkspaceController;
+use App\Http\Controllers\WorkspaceActivityController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Middleware\PrivateAuthResponse;
 use App\Http\Middleware\RequireMfa;
@@ -13,6 +14,9 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
+        Route::get('/notifications', [WorkspaceActivityController::class, 'notifications'])->name('notifications');
+        Route::post('/notifications/{id}', [WorkspaceActivityController::class, 'updateNotification'])->whereNumber('id')->middleware('throttle:60,1')->name('notifications.update');
+        Route::get('/search', [WorkspaceActivityController::class, 'search'])->middleware('throttle:60,1')->name('search');
         Route::get('/requests', [WorkflowWorkspaceController::class, 'index'])->name('requests');
         Route::get('/requests/create', [WorkflowWorkspaceController::class, 'create'])->name('requests.create');
         Route::post('/requests', [WorkflowWorkspaceController::class, 'store'])->middleware('throttle:60,1')->name('requests.store');

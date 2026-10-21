@@ -7,11 +7,11 @@ Pembaruan 21 Oktober 2026: modul backend domain/API utama tersedia dan diuji di 
 | Area | Backend | UI/infrastruktur |
 | --- | --- | --- |
 | Akun/organisasi/karyawan | Login/MFA/scope, suspension/revoke, effective assignments, private profiles/custom fields dan import | Form CoreHR awal operasional; seluruh preview belum |
-| Approval/notifikasi | Typed workflows, independent decisions, idempotency/locks, delegasi, business deadlines, outbox/retry/digest/preferences/health | /app/requests: daftar/filter/detail; draf cuti, pembatalan, lembur, koreksi; bukti privat; submit/withdraw/review operasional. Jenis lain baru status; SMTP nyata belum |
+| Approval/notifikasi | Typed workflows, independent decisions, idempotency/locks, delegasi, business deadlines, outbox/retry/digest/preferences/health | /app/requests: daftar/filter/detail; draf cuti, pembatalan, lembur, koreksi; bukti privat; submit/withdraw/review operasional. /app/notifications memakai data inbox, baca/arsip. Jenis lain baru status; SMTP nyata belum |
 | Attendance/cuti/lembur | Roster/staffing/GPS/photo/remote/field, corrections/swaps, ledger/grants/expiry/carry-over, HR exceptions, actual OT dan close/revisions | Kamera/GPS/browser dan UAT perusahaan belum disahkan |
 | Administrasi | PDF/templates/numbering/snapshots/preview, kontrak, karier/retrospective, onboarding/rehire/exit/tasks/assets | Pengesahan lintas peran dan seluruh form binding belum |
 | Finance | Draft policy expert gate, exact arithmetic/YTD/openings, regular/off-cycle adjustments, slips, payment outcomes dan reimbursement batch/unpaid-only retry | Kebijakan/layout bank belum disahkan; tidak ada transfer bank nyata |
-| Reports/import/search | Atomic CSV/XLSX staging/templates, private expiring exports, historical snapshots/filtering dan scoped search | Load/query plans dan integrasi UI perlu UAT |
+| Reports/import/search | Atomic CSV/XLSX staging/templates, private expiring exports, historical snapshots/filtering dan scoped search | /app/search operasional: employee/request links dan private document download; aset baru ringkasan. UI report/import dan load/query plans perlu dilanjutkan |
 | Demo/operasi | Isolated installation/database/storage/queues, personas/time/GPS, watermark/mail sink/reset guards, deployment check, concurrency/native restore tests | Hosting, supervisor/SMTP/off-host backup, production RPO/RTO dan UAT belum |
 
 Rincian API/batas engine: [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md). Deployment, worker, restore dan penerimaan operator: [OPERATIONS.md](OPERATIONS.md). Kebijakan payroll disiapkan draft sesuai keputusan pengguna; agent tidak mengesahkan tarif/regulasi atau kebijakan produksi.

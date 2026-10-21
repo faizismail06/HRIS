@@ -267,3 +267,11 @@ Verifikasi penutup integrasi:53tests/619assertions lulus (WorkflowWorkspaceTest,
 /app/schedules untuk company HR/team manager: pola employee/date/working days/template→draft→review/publish; service mengecek ulang scope/version/checksum/placement/coverage. Tidak mempublikasikan batch campuran scope secara parsial. Peringatan staffing memerlukan acknowledgement; semua hari libur memerlukan konfirmasi eksplisit. Pilihan karyawan dibatasi50 dengan pencarian; template memakai pagination katalog; rows detail50. Replacement/import/period close/actual OT belum terhubung lewat layar ini.
 
 AttendanceWorkspaceTest +AttendanceDomainTest +AttendancePolicyTest +WorkflowWorkspaceTest lulus22tests/388assertions; tiga tes node:test membuktikan retry identical-key/coordinates setelah uncertain network, GPS denial tanpa request dan fresh-key rejection/remote tanpa GPS. Pengujian JavaScript memakai harness DOM/network, belum QA browser/perangkat nyata. Tidak ada konfigurasi perusahaan atau .env yang diubah.
+
+## Konfigurasi lokasi dan template dari UI
+
+HR company dapat mengisi lokasi/cabang/Indonesia timezone/onsite-field-remote/geofence/photo serta versi template shift malam, jendela clocking, toleransi, half-day split dan hingga8rentang istirahat. Tidak ada angka policy yang dipilih/disahkan otomatis; existing typed domain validators dan append-only snapshot roster dipertahankan. Kode template yang sama membuat versi baru, lokasi memakai kode unik. Manager/team HR scope tidak mendapat perubahan master company. Daftar master20baris/pagination; pilihan branch/location masih dropdown aktif company. Entri istirahat memakai menit sejak awal shift, dengan contoh lintas malam; half-pair/overlap/out-of-shift ditolak. Beranda mendapat tautan kehadiran.
+
+QA perangkat nyata tetap tertunda; harness JavaScript kini juga memverifikasi respons HTML419 meminta login ulang. Tahap berikut UI actual overtime/period close/replacement, administrasi, finance serta import/report.
+
+Verifikasi akhir modul:24tests/423assertions PHP (AttendanceWorkspaceTest, AttendanceDomainTest, AttendancePolicyTest, WorkflowWorkspaceTest) dan4tes JavaScript lulus; npm build, Blade cache, Pint dan diff-check lulus. Tidak ada migrasi/reset database dev, email/transaksi nyata atau perubahan .env. Push bertahap ke dev; QA render/perangkat browser belum disahkan.

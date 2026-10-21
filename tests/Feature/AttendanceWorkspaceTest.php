@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Employee;
 use App\Models\RosterShift;
 use App\Models\RosterVersion;
+use App\Models\ShiftTemplate;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -138,5 +139,46 @@ class AttendanceWorkspaceTest extends AttendanceScenarioCase
         $this->get('/app/schedules/'.$draft['id'])->assertNotFound()->assertDontSee('Hidden Outside Employee');
         $this->get('/app/schedules')->assertOk()->assertDontSee('Roster #'.$draft['id']);
         $this->post('/app/schedules/'.$draft['id'].'/publish', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'checksum' => $draft['checksum']])->assertNotFound();
+    }
+
+    public function test_location_and_template_settings_preserve_overnight_breaks_and_versions(): void
+    {
+        $branch = $this->worker->employee->assignments()->sole()->branch_id;
+        $location = ['idempotency_key' => (string) Str::uuid(), 'branch_id' => $branch, 'code' => 'UI-SITE', 'name' => 'UI Synthetic Site', 'timezone' => 'Asia/Jayapura', 'attendance_mode' => 'field', 'latitude' => -2.5, 'longitude' => 140.7, 'radius_m' => 100, 'max_accuracy_m' => 50, 'requires_photo' => 1];
+        $this->get('/app/schedule-settings/locations')->assertOk()->assertSee('Lintang lokasi kerja');
+        $this->post('/app/schedule-settings/locations', $location)->assertRedirect('/app/schedule-settings/locations');
+        $this->post('/app/schedule-settings/locations', $location)->assertRedirect('/app/schedule-settings/locations');
+        $this->assertSame(1, DB::table('work_locations')->where('code', 'UI-SITE')->count());
+        $id = DB::table('work_locations')->where('code', 'UI-SITE')->value('id');
+        $template = ['idempotency_key' => (string) Str::uuid(), 'code' => 'UI-SHIFT', 'name' => 'UI Synthetic Night', 'work_location_id' => $id, 'starts_local' => '22:00', 'ends_local' => '06:00', 'end_day_offset' => 1, 'tolerance_minutes' => 0, 'clock_in_before_minutes' => 60, 'clock_out_after_minutes' => 120, 'break_start' => [240], 'break_end' => [300]];
+        $this->get('/app/schedule-settings/templates')->assertOk()->assertSee('UI Synthetic Site')->assertSee('shift malam');
+        $this->post('/app/schedule-settings/templates', $template)->assertRedirect('/app/schedule-settings/templates');
+        $first = ShiftTemplate::where('code', 'UI-SHIFT')->sole();
+        $this->assertEquals([['start' => 240, 'end' => 300]], $first->unpaid_breaks);
+        $this->assertSame(1, $first->version);
+        $template['idempotency_key'] = (string) Str::uuid();
+        $template['tolerance_minutes'] = 5;
+        $this->post('/app/schedule-settings/templates', $template)->assertRedirect();
+        $this->assertFalse($first->fresh()->is_active);
+        $this->assertDatabaseHas('shift_templates', ['code' => 'UI-SHIFT', 'version' => 2, 'is_active' => true, 'tolerance_minutes' => 5]);
+        $this->get('/app/schedules/create')->assertOk()->assertSee('UI Synthetic Night');
+    }
+
+    public function test_settings_deny_non_company_hr_and_validate_break_pairs_before_mutation(): void
+    {
+        $template = ['idempotency_key' => (string) Str::uuid(), 'code' => 'UI-BAD', 'name' => 'Bad Break', 'work_location_id' => $this->location, 'starts_local' => '22:00', 'ends_local' => '06:00', 'end_day_offset' => 1, 'tolerance_minutes' => 0, 'clock_in_before_minutes' => 60, 'clock_out_after_minutes' => 120, 'break_start' => [240], 'break_end' => []];
+        $this->post('/app/schedule-settings/templates', $template)->assertSessionHasErrors('break_end.0');
+        $template['break_end'] = [900];
+        $this->from('/app/schedule-settings/templates')->post('/app/schedule-settings/templates', $template)->assertSessionHasErrors('settings');
+        $this->assertDatabaseMissing('shift_templates', ['code' => 'UI-BAD']);
+        $this->login($this->worker)->get('/app/schedule-settings/locations')->assertForbidden();
+        $this->get('/app/schedule-settings/templates')->assertForbidden();
+        $this->post('/app/schedule-settings/templates', $template)->assertForbidden();
+        $manager = $this->user('employee');
+        $manager->grants()->create(['role' => 'manager', 'scope' => 'team']);
+        $this->login($manager)->get('/app/schedule-settings/locations')->assertForbidden();
+        $scopedHr = $this->user('employee');
+        $scopedHr->grants()->create(['role' => 'hr_officer', 'scope' => 'branch', 'branch_id' => $this->worker->employee->assignments()->sole()->branch_id]);
+        $this->login($scopedHr)->get('/app/schedule-settings/templates')->assertForbidden();
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceWorkspaceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\ScheduleSettingsController;
 use App\Http\Controllers\ScheduleWorkspaceController;
 use App\Http\Controllers\WorkflowWorkspaceController;
 use App\Http\Controllers\WorkspaceActivityController;
@@ -16,6 +17,8 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
+        Route::get('/schedule-settings/{kind}', [ScheduleSettingsController::class, 'form'])->where('kind', 'locations|templates')->name('schedule-settings');
+        Route::post('/schedule-settings/{kind}', [ScheduleSettingsController::class, 'store'])->where('kind', 'locations|templates')->middleware('throttle:30,1')->name('schedule-settings.store');
         Route::get('/schedules', [ScheduleWorkspaceController::class, 'index'])->name('schedules');
         Route::get('/schedules/create', [ScheduleWorkspaceController::class, 'create'])->name('schedules.create');
         Route::post('/schedules', [ScheduleWorkspaceController::class, 'store'])->middleware('throttle:30,1')->name('schedules.store');

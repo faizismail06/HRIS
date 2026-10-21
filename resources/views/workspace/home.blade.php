@@ -13,5 +13,6 @@
         <p>Ajukan cuti, pembatalan cuti, lembur atau koreksi kehadiran. Pantau status dan tinjau pengajuan sesuai kewenangan Anda.</p>
         <p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.requests') }}">Buka pengajuan</a></p>
     </section>
-    <p class="history-note">Direktori, organisasi, perubahan karyawan dan pengajuan terhubung ke data aplikasi. Layar prototipe modul lain tetap memakai data sintetis.</p>
+    <section class="identity-section"><h2>Kehadiran dan jadwal</h2><p>Periksa shift, catat masuk/pulang dan susun roster sesuai kewenangan Anda.</p><p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.attendance') }}">Buka kehadiran</a></p></section>
+    <p class="history-note">Direktori, organisasi, perubahan karyawan, pengajuan dan kehadiran terhubung ke data aplikasi. Layar prototipe modul lain tetap memakai data sintetis.</p>
 </x-identity-layout>

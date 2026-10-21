@@ -16,6 +16,8 @@ Buat akun HR dengan `php artisan hris:provision-account hr_admin` atau `hr_offic
 
 Layar operasional setelah login/MFA: `/app/requests` untuk cuti, pembatalan cuti, lembur, koreksi kehadiran dan persetujuan independen; `/app/notifications` untuk inbox/baca/arsip; `/app/search` untuk pencarian berizin. Pengajuan disimpan sebagai draf, bukti diunggah terpisah, lalu dikirim. Konfigurasi jenis cuti, roster, hak cuti serta definisi/reviewer workflow harus tersedia terlebih dahulu. Modul finansial/administrasi lain masih memerlukan integrasi UI; `/prototype/*` tetap fixture sintetis.
 
+`/app/attendance` menghubungkan jadwal, detail waktu efektif/asli, foto privat dan clock-in/out. Lokasi diminta browser setelah tindakan pengguna; HTTPS/localhost diperlukan. `/app/schedules` menghubungkan pola roster → draf → pemeriksaan staffing → publikasi untuk HR company/manager team. HR company dapat menambahkan lokasi dan versi template di `/app/schedule-settings/locations` dan `/app/schedule-settings/templates`; angka kebijakan diisi HR, tidak disediakan sebagai kebijakan bawaan. GPS/kamera perangkat nyata dan QA browser masih perlu UAT. Jalankan `node --test tests/JavaScript/attendance.test.mjs` untuk tes retry/permission/error client.
+
 ## Pratinjau dashboard tanpa database
 
 Dependensi PHP dan frontend telah dipasang pada mesin pengembangan. Untuk instalasi baru, jalankan `composer install` dan `npm ci`. Salin `.env.example` ke `.env` jika belum ada, lalu atur:

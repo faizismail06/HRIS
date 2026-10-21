@@ -86,3 +86,11 @@ test('a domain rejection gets a fresh key and location while remote clocking nev
     await remote.submit();
     assert.deepEqual(remote.navigations, ['/app/attendance/1']);
 });
+
+test('expired sessions with an HTML response request reauthentication instead of reporting uncertainty', async () => {
+    const ui = screen({ remote: true, async fetch() { return { status: 419, ok: false, json: async () => { throw new Error('HTML CSRF error page'); } }; } });
+    await ui.submit();
+    assert.match(ui.feedback.textContent, /Sesi atau izin sudah berubah/);
+    assert.equal(ui.navigations.length, 0);
+    assert.equal(ui.button.disabled, false);
+});

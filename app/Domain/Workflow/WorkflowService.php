@@ -33,7 +33,16 @@ class WorkflowService
             'min_amount_minor' => ['required', 'integer', 'min:0'], 'max_amount_minor' => ['nullable', 'integer', 'gte:min_amount_minor'],
             'priority' => ['required', 'integer', 'between:0,100'], 'steps' => ['required', 'array', 'min:1', 'max:8'],
             'steps.*' => ['required', 'array:role'], 'steps.*.role' => ['required', Rule::in($roles)],
+            'deadline_calendar' => ['nullable', 'array:timezone,branch_id,working_days,start_local,end_local,due_minutes,escalate_minutes'],
+            'deadline_calendar.timezone' => ['required_with:deadline_calendar', 'timezone'], 'deadline_calendar.branch_id' => ['required_with:deadline_calendar', 'integer', 'exists:branches,id'],
+            'deadline_calendar.working_days' => ['required_with:deadline_calendar', 'array', 'min:1', 'max:7'], 'deadline_calendar.working_days.*' => ['integer', 'between:1,7', 'distinct'],
+            'deadline_calendar.start_local' => ['required_with:deadline_calendar', 'date_format:H:i'], 'deadline_calendar.end_local' => ['required_with:deadline_calendar', 'date_format:H:i'],
+            'deadline_calendar.due_minutes' => ['required_with:deadline_calendar', 'integer', 'between:1,525600'], 'deadline_calendar.escalate_minutes' => ['required_with:deadline_calendar', 'integer', 'gt:deadline_calendar.due_minutes', 'max:525600'],
         ])->validate();
+        if (! empty($data['deadline_calendar'])) {
+            abort_unless($data['deadline_calendar']['end_local'] > $data['deadline_calendar']['start_local'], 422);
+            $data['deadline_calendar']['working_days'] = array_map('intval', $data['deadline_calendar']['working_days']);
+        }
         $handler = $this->registry->handler($data['kind']);
         if ($handler instanceof WorkflowRouting) {
             $handler->validateSteps($data['steps']);
@@ -84,7 +93,10 @@ class WorkflowService
                     $candidates->whereIn('id', $participants);
                 }
                 $users = $candidates->get()->filter(fn ($candidate) => (! $candidate->employee_id || $candidate->employee_id !== $r->employee_id) && ($participants !== null ? $handler->participantEligible($candidate, $r, $step['role']) : WorkflowAccess::eligible($candidate, $step['role'], $r->employee_id)))->pluck('id')->all();
-                $r->steps()->create(['position' => $position + 1, 'role' => $step['role'], 'approver_ids' => $users, 'status' => 'waiting']);
+                $delegation = $participants === null ? app(Delegations::class)->snapshot($r, $step['role'], $users) : [];
+                $baseUsers = $users;
+                $users = array_values(array_unique(array_merge($users, array_map('intval', array_keys($delegation)))));
+                $r->steps()->create(['position' => $position + 1, 'role' => $step['role'], 'base_approver_ids' => $baseUsers, 'approver_ids' => $users, 'delegation_snapshot' => $delegation, 'status' => 'waiting']);
             }
             $handler->submitted($r);
             $this->activate($r, $r->steps()->orderBy('position')->firstOrFail());
@@ -109,7 +121,8 @@ class WorkflowService
             abort_unless($r->status === 'in_review', 409);
             $step = $r->steps()->where('status', 'pending')->lockForUpdate()->firstOrFail();
             abort_unless(in_array($u->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($u, $r, $step), 403);
-            DB::table('workflow_decisions')->insert(['workflow_step_id' => $step->id, 'actor_id' => $u->id, 'decision' => $decision, 'reason' => $reason ? encrypt($reason) : null, 'created_at' => $this->clock->now()]);
+            $delegationId = WorkflowAccess::eligible($u, $step->role, $r->employee_id) ? null : app(Delegations::class)->decisionId($u, $r, $step);
+            DB::table('workflow_decisions')->insert(['workflow_step_id' => $step->id, 'actor_id' => $u->id, 'decision' => $decision, 'reason' => $reason ? encrypt($reason) : null, 'workflow_delegation_id' => $delegationId, 'created_at' => $this->clock->now()]);
             $step->update(['status' => $decision === 'approve' ? 'approved' : 'rejected', 'version' => $step->version + 1]);
             $handler = $this->registry->handler($r->kind);
             if ($decision === 'approve' && $handler instanceof StageWorkflow) {
@@ -175,7 +188,7 @@ class WorkflowService
                 $role = WorkflowAccess::eligible($target, $step->role, $r->employee_id) ? $step->role : 'hr_admin';
                 abort_unless(WorkflowAccess::eligible($target, $role, $r->employee_id), 403);
             }
-            $step->update(['role' => $role, 'approver_ids' => [$target->id], 'version' => $step->version + 1]);
+            $step->update(['role' => $role, 'base_approver_ids' => [$target->id], 'approver_ids' => [$target->id], 'delegation_snapshot' => [], 'version' => $step->version + 1]);
             $this->activate($r, $step);
             $r->version++;
             $r->save();
@@ -205,7 +218,10 @@ class WorkflowService
     private function activate(WorkflowRequest $r, WorkflowStep $step): void
     {
         $blocked = empty($step->approver_ids);
-        $step->update(['status' => $blocked ? 'blocked' : 'pending', 'activated_at' => $this->clock->now(), 'due_at' => $this->clock->now()->addHours(24), 'escalate_at' => $this->clock->now()->addHours(48)]);
+        $calendar = WorkflowDefinition::findOrFail($r->workflow_definition_id)->deadline_calendar;
+        $due = $calendar ? app(BusinessDeadline::class)->add($this->clock->now(), $calendar['due_minutes'], $calendar) : null;
+        $escalate = $calendar ? app(BusinessDeadline::class)->add($this->clock->now(), $calendar['escalate_minutes'], $calendar) : null;
+        $step->update(['status' => $blocked ? 'blocked' : 'pending', 'activated_at' => $this->clock->now(), 'due_at' => $due['at'] ?? $this->clock->now()->addHours(24), 'escalate_at' => $escalate['at'] ?? $this->clock->now()->addHours(48), 'deadline_snapshot' => $calendar ? ['calendar' => $calendar, 'due_holidays' => $due['holiday_versions'], 'escalation_holidays' => $escalate['holiday_versions']] : ['mode' => 'elapsed_legacy', 'due_hours' => 24, 'escalation_hours' => 48]]);
         $r->status = $blocked ? 'blocked' : 'in_review';
         $r->save();
         $users = $blocked ? WorkflowAccess::operators($r) : $step->approver_ids;

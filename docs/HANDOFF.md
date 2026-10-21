@@ -193,3 +193,7 @@ Pengguna mengonfirmasi belum ada kebijakan: siapkan draft. Tidak ada policy/tari
 ## Reports/export/search milestone
 
 Full suite lulus167 tests / 2668 assertions sebelum ekstensi operasi berikutnya. Report JSON domain, closed attendance/overtime snapshot drill-down, encrypted CSV/XLSX exports dengan24jam expiry/recheck team-scope serta pencarian ringkasan berizin tersedia. CSV formula-neutralized dan XLSX explicit-string. Histori exit baru memakai offboarding_from. REPORTS_SEARCH_BACKEND.md mencatat batas sinkron, query-plan/scale dan filter finansial historis yang perlu dilengkapi. Belum full acceptance backend.
+
+## Delegasi/kalender/notifikasi
+
+WorkflowExtensionsTest5 tests /62 assertions lulus; WorkflowOperationsTest10/100 dan swap regression juga lulus. Delegasi subjek eksplisit dengan provenance decision, future activation/revoke runtime, SLA kalender kerja/holiday/timezone, quiet hours, opt-out dan daily digest nyata tersedia. Inbox/delivery recheck access; expired export byte cleanup dijadwalkan. Detail WORKFLOW_EXTENSIONS.md. Belum ada SMTP nyata; default policy lama elapsed24/48jam harus dikonfigurasi eksplisit untuk SLA kerja.

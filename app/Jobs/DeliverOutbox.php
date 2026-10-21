@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Domain\Identity\AccountSecurity;
+use App\Domain\Operations\NotificationDelivery;
 use App\Domain\Workflow\WorkflowAccess;
 use App\Models\User;
 use App\Models\WorkflowRequest;
@@ -27,6 +28,9 @@ class DeliverOutbox implements ShouldQueue
 
     public function handle(): void
     {
+        if (app(NotificationDelivery::class)->handlePreferences($this->deliveryId)) {
+            return;
+        }
         $delivery = DB::transaction(function () {
             $d = DB::table('notification_deliveries')->where('id', $this->deliveryId)->lockForUpdate()->first();
             if (! $d || $d->status === 'sent' || $d->status === 'skipped' || CarbonImmutable::parse($d->available_at)->isFuture() || ($d->lease_until && CarbonImmutable::parse($d->lease_until)->isFuture())) {

@@ -19,7 +19,7 @@ class WorkflowAccess
             return AccountSecurity::available($user) && $handler instanceof ParticipantWorkflow && $handler->participantEligible($user, $request, $step->role);
         }
 
-        return self::eligible($user, $step->role, $request->employee_id);
+        return self::eligible($user, $step->role, $request->employee_id) || app(Delegations::class)->decisionId($user, $request, $step) !== null;
     }
 
     public static function eligible(User $user, string $role, ?int $employeeId): bool

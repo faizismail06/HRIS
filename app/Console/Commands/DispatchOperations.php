@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Domain\Documents\ContractReminders;
 use App\Domain\Lifecycle\EmploymentRevocations;
 use App\Domain\Operations\Outbox;
+use App\Domain\Workflow\ReconcileApprovers;
 use App\Domain\Workflow\WorkflowAccess;
 use App\Jobs\DeliverOutbox;
 use App\Models\WorkflowRequest;
@@ -20,6 +21,8 @@ class DispatchOperations extends Command
 
     public function handle(): int
     {
+        app(ReconcileApprovers::class)->run();
+        DB::table('report_exports')->where('expires_at', '<=', now())->whereIn('status', ['ready', 'failed', 'queued'])->update(['status' => 'expired', 'content' => null, 'scope_snapshot' => null, 'updated_at' => now()]);
         app(ContractReminders::class)->dispatch();
         app(EmploymentRevocations::class)->reconcile();
         foreach (WorkflowStep::whereIn('status', ['pending', 'blocked'])->where('due_at', '<=', now())->get() as $step) {

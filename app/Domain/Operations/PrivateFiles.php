@@ -69,7 +69,8 @@ class PrivateFiles
             $request = WorkflowRequest::findOrFail($file->subject_id);
             abort_unless(WorkflowAccess::visible($actor, $request), 404);
             if ($file->classification === 'medical') {
-                abort_unless($this->canWrite($actor, $request), 404);
+                $delegatedReview = $request->steps()->whereIn('role', ['hr_admin', 'hr_officer'])->get()->contains(fn ($step) => in_array($actor->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($actor, $request, $step));
+                abort_unless($this->canWrite($actor, $request) || $delegatedReview, 404);
             }
         }
         abort_unless(Storage::disk('local')->exists($file->path), 404);

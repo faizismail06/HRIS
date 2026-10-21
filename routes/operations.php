@@ -16,10 +16,15 @@ use App\Http\Controllers\PrivateFileController;
 use App\Http\Controllers\PrivateProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\WorkflowController;
+use App\Http\Controllers\WorkflowOperationsController;
 use App\Http\Controllers\WorkspaceSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::post('/workflow-delegations', [WorkflowOperationsController::class, 'delegate']);
+    Route::post('/workflow-delegations/{id}/revoke', [WorkflowOperationsController::class, 'revoke'])->whereNumber('id');
+    Route::get('/notification-preferences', [WorkflowOperationsController::class, 'preferences']);
+    Route::post('/notification-preferences', [WorkflowOperationsController::class, 'updatePreferences']);
     Route::get('/search', WorkspaceSearchController::class);
     Route::get('/reports/{kind}', [ReportController::class, 'show']);
     Route::get('/attendance-snapshots/{id}', [ReportController::class, 'snapshot'])->whereNumber('id');

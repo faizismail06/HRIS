@@ -27,7 +27,8 @@ class PayrollController extends Controller
     {
         $workflow = WorkflowRequest::where('kind', 'compensation')->findOrFail($id);
         abort_unless(WorkflowAccess::visible($r->user(), $workflow), 404);
-        abort_unless(Access::companyPermission($r->user(), 'payroll.prepare') || WorkflowAccess::eligible($r->user(), 'finance_approver', $workflow->employee_id), 404);
+        $delegated = $workflow->steps()->where('role', 'finance_approver')->get()->contains(fn ($step) => in_array($r->user()->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($r->user(), $workflow, $step));
+        abort_unless(Access::companyPermission($r->user(), 'payroll.prepare') || WorkflowAccess::eligible($r->user(), 'finance_approver', $workflow->employee_id) || $delegated, 404);
         Audit::record($r->user()->id, 'compensation.proposed_read', 'workflow_request', $id);
 
         return response()->json(['id' => $id, 'data' => $workflow->payload])->header('Cache-Control', 'no-store, private');

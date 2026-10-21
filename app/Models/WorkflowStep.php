@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class WorkflowStep extends Model
+class WorkflowStep extends OperationalModel
 {
     protected $guarded = ['id'];
 
     protected function casts(): array
     {
-        return ['approver_ids' => 'array', 'activated_at' => 'immutable_datetime', 'due_at' => 'immutable_datetime', 'escalate_at' => 'immutable_datetime'];
+        return ['approver_ids' => 'array', 'base_approver_ids' => 'array', 'deadline_snapshot' => 'array', 'delegation_snapshot' => 'array', 'activated_at' => 'immutable_datetime', 'due_at' => 'immutable_datetime', 'escalate_at' => 'immutable_datetime'];
     }
 }

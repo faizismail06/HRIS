@@ -10,6 +10,6 @@ class WorkflowDefinition extends Model
 
     protected function casts(): array
     {
-        return ['steps' => 'array', 'is_active' => 'boolean'];
+        return ['steps' => 'array', 'is_active' => 'boolean', 'deadline_calendar' => 'array'];
     }
 }

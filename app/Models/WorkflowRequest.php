@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
-class WorkflowRequest extends Model
+class WorkflowRequest extends OperationalModel
 {
     protected $guarded = ['id'];
 

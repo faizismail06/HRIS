@@ -20,7 +20,8 @@ class PrivateProfileController extends Controller
     {
         $r = WorkflowRequest::findOrFail($id);
         abort_unless(in_array($r->kind, ['profile_change', 'identity_change', 'bank_change', 'tax_change']) && WorkflowAccess::visible($request->user(), $r), 404);
-        abort_unless(SensitiveProfiles::allowed($request->user(), $r->employee_id, $r->payload['category']), 404);
+        $stepAccess = $r->steps()->get()->contains(fn ($s) => in_array($request->user()->id, $s->approver_ids, true) && WorkflowAccess::stepEligible($request->user(), $r, $s));
+        abort_unless(SensitiveProfiles::allowed($request->user(), $r->employee_id, $r->payload['category']) || $stepAccess, 404);
         Audit::record($request->user()->id, 'profile.proposed_read', 'workflow_request', $id, ['category' => $r->payload['category']]);
 
         return response()->json(['id' => $id, 'category' => $r->payload['category'], 'data' => $r->payload['data'], 'reason' => $r->payload['reason'], 'base_version' => $r->payload['base_version']])->header('Cache-Control', 'no-store, private');

@@ -92,6 +92,36 @@ class ScheduleWorkspaceController extends Controller
         });
     }
 
+    public function replacementForm(Request $r, string $id)
+    {
+        $this->authorizeScheduling($r);
+        $shift = $this->replacementSource($r, $id);
+        $catalog = app(OperationalCatalogController::class)->index($r, 'shift-templates')->getData(true);
+
+        return view('workspace.schedules.replace', ['shift' => $shift, 'person' => Employee::findOrFail($shift->employee_id), 'templates' => collect($catalog['data'])->where('is_active', true), 'catalog' => $catalog]);
+    }
+
+    public function replace(OperationalRequest $r, string $id, ScheduleService $s)
+    {
+        $this->authorizeScheduling($r);
+        $shift = $this->replacementSource($r, $id);
+        $data = $r->validate(['is_day_off' => ['required', 'boolean'], 'shift_template_id' => ['required_if:is_day_off,0', 'nullable', 'integer'], 'replacement_reason' => ['required', 'string', 'max:1000']]);
+
+        return $this->mutate(function () use ($r, $s, $shift, $data) {
+            $draft = $s->draft($r->user(), $r->key(), ['rows' => [['employee_id' => $shift->employee_id, 'work_date' => $shift->work_date, 'is_day_off' => $r->boolean('is_day_off'), 'shift_template_id' => $data['shift_template_id'] ?? null]], 'replacements' => [['id' => $shift->id, 'version' => $r->version()]], 'replacement_reason' => $data['replacement_reason']]);
+
+            return to_route('workspace.schedules.show', $draft['id'])->with('status', 'Draf pengganti dibuat. Jadwal lama tetap berlaku sampai draf dipublikasikan.');
+        });
+    }
+
+    private function replacementSource(Request $r, string $id): RosterShift
+    {
+        $shift = RosterShift::where('status', 'published')->findOrFail($id);
+        abort_unless(EmployeeVisibility::query($r->user(), $shift->work_date, $this->roles($r))->whereKey($shift->employee_id)->exists(), 404);
+
+        return $shift;
+    }
+
     private function authorizeScheduling(Request $r): void
     {
         abort_unless(AttendanceWorkspaceController::canSchedule($r), 403);

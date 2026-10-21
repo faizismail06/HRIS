@@ -1,0 +1,8 @@
+<x-identity-layout title="Kalender tim">
+    <p>Ketersediaan berdasarkan jadwal terpublikasi yang dapat Anda akses. Informasi cuti ditampilkan sebagai tidak tersedia, tanpa alasan atau bukti pribadi.</p>
+    <form class="identity-form" method="GET" action="{{ route('workspace.team-calendar') }}"><x-core-field name="starts_on" label="Dari tanggal kerja" type="date" :value="$start" required /><x-core-field name="ends_on" label="Sampai tanggal kerja" type="date" :value="$end" help="Rentang maksimal 31 hari." required /><button class="secondary-button" type="submit">Tampilkan kalender</button></form>
+    <p class="history-note">{{ $items->total() }} jadwal terlihat. Pembacaan dibatasi 5.000 kandidat jadwal; gunakan rentang lebih pendek untuk tim besar.</p>
+    <ul class="identity-directory">@forelse ($items as $item)<li><strong>{{ $item['work_date'] }} · {{ $item['employee_name'] }}</strong><p>{{ ['scheduled' => 'Terjadwal', 'day_off' => 'Hari libur', 'unavailable' => 'Tidak tersedia'][$item['availability']] }}</p>@if ($item['starts_at'])<p>{{ Carbon\CarbonImmutable::parse($item['starts_at'])->setTimezone($item['timezone'])->format('d M H:i') }} — {{ Carbon\CarbonImmutable::parse($item['ends_at'])->setTimezone($item['timezone'])->format('d M H:i') }} · {{ $item['timezone'] }}</p>@endif</li>@empty<li>Tidak ada jadwal yang terlihat pada halaman ini. Coba rentang tanggal lain.</li>@endforelse</ul>
+    {{ $items->links() }}
+    @if (App\Domain\Identity\Access::companyPermission(auth()->user(), 'schedules.manage'))<p><a class="inline-link" href="{{ route('workspace.work-calendar') }}">Atur hari kerja dan libur cabang</a></p>@endif
+</x-identity-layout>

@@ -1,5 +1,6 @@
 <x-identity-layout :title="'Roster #'.$record->id">
     <p>{{ $record->status === 'draft' ? 'Draf · belum tersedia bagi karyawan' : 'Dipublikasikan' }} · Versi {{ $record->version }} · {{ $shifts->total() }} jadwal</p>
+    @if ($record->replacements)<section class="identity-section"><h2>Penggantian jadwal</h2><p>{{ $record->replacement_reason }}</p><p class="history-note">{{ count($record->replacements) }} jadwal lama diganti saat publikasi; riwayat tetap disimpan.</p></section>@endif
     @if ($warnings)
         <section class="identity-section"><h2>Peringatan staffing</h2><ul class="identity-directory">@foreach ($warnings as $warning)<li>{{ $warning['work_date'] }} · cakupan minimum {{ $warning['actual'] }} dari kebutuhan {{ $warning['required'] }} orang<p>{{ $warning['blocking'] ? 'Wajib diselesaikan sebelum publikasi.' : 'Tinjau dan akui peringatan sebelum publikasi.' }}</p></li>@endforeach</ul></section>
     @endif

@@ -7,6 +7,7 @@ use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\OvertimeWorkspaceController;
 use App\Http\Controllers\ScheduleSettingsController;
 use App\Http\Controllers\ScheduleWorkspaceController;
+use App\Http\Controllers\TeamCalendarWorkspaceController;
 use App\Http\Controllers\WorkflowWorkspaceController;
 use App\Http\Controllers\WorkspaceActivityController;
 use App\Http\Controllers\WorkspaceController;
@@ -19,6 +20,11 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
+        Route::get('/team-calendar', [TeamCalendarWorkspaceController::class, 'index'])->name('team-calendar');
+        Route::get('/work-calendar', [TeamCalendarWorkspaceController::class, 'dates'])->name('work-calendar');
+        Route::post('/work-calendar', [TeamCalendarWorkspaceController::class, 'store'])->middleware('throttle:30,1')->name('work-calendar.store');
+        Route::get('/schedules/replace/{id}', [ScheduleWorkspaceController::class, 'replacementForm'])->whereNumber('id')->name('schedules.replace');
+        Route::post('/schedules/replace/{id}', [ScheduleWorkspaceController::class, 'replace'])->whereNumber('id')->middleware('throttle:30,1')->name('schedules.replace.store');
         Route::get('/attendance-periods', [AttendancePeriodWorkspaceController::class, 'index'])->name('periods');
         Route::post('/attendance-periods', [AttendancePeriodWorkspaceController::class, 'store'])->middleware('throttle:30,1')->name('periods.store');
         Route::get('/attendance-periods/{id}', [AttendancePeriodWorkspaceController::class, 'show'])->whereNumber('id')->name('periods.show');

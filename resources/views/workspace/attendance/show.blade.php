@@ -34,4 +34,5 @@
     </section>
     <p><a class="inline-link" href="{{ route('workspace.attendance') }}">Kembali ke jadwal</a> · <a class="inline-link" href="{{ route('workspace.attendance.show', $shift->id) }}">Muat status terbaru</a></p>
     <p><a class="inline-link" href="{{ route('workspace.overtime', ['roster_shift_id' => $shift->id]) }}">Periksa lembur shift ini</a></p>
+    @if (App\Http\Controllers\AttendanceWorkspaceController::canSchedule(request()))<p><a class="inline-link" href="{{ route('workspace.schedules.replace', $shift->id) }}">Buat pengganti jadwal ini</a></p>@endif
 </x-identity-layout>

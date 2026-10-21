@@ -285,3 +285,9 @@ Verifikasi akhir modul:24tests/423assertions PHP (AttendanceWorkspaceTest, Atten
 CloseOvertimeWorkspaceTest mencakup lifecycle close/reopen/reclose, review GET tanpa perubahan versi, snapshot/revision/payroll lock, unresolved/gap/source change, actual2jam dari planned3jam, replay, self/manager/scope denial, private HR exception dan stale verification setelah correction approved. Browser inventory masih kosong; tidak ada klaim QA render/perangkat atau UAT produksi. Tahap berikut replacement/kalender/hak cuti UI lalu administrasi, finance dan import/report.
 
 Verifikasi akhir:24tests/502assertions lulus untuk CloseOvertimeWorkspaceTest, OvertimeCloseTest, AttendanceWorkspaceTest dan WorkflowWorkspaceTest; npm build, Pint, Blade cache dan diff-check lulus. .env tidak diubah/dilacak dan tidak ada migrasi/reset database dev atau transaksi/email nyata.
+
+## Pengganti roster dan kalender tim
+
+Form /app/schedules/replace/{shift} membuat draf sumber/version-linked satu tanggal karyawan. Jadwal asli masih published sampai publikasi pengganti; engine tetap memblokir sumber mulai/closed/terkait leave/OT/correction/events dan menyimpan superseded history + notifikasi. Actor dibatasi company HR/team manager sesuai work date, employee biasa tidak mendapat override. Preview draf menampilkan alasan penggantian.
+
+/app/team-calendar memakai CalendarService yang sama dengan API, daftar50baris/pagination dan batas31hari/5000kandidat. Kalender tidak membuka alasan/bukti cuti; hanya scheduled/day_off/unavailable. /app/work-calendar untuk company HR membuat versi holiday/working day eksplisit, daftar hanya versi terakhir setiap branch/date; tidak otomatis menulis roster. CalendarReplacementWorkspaceTest4/58 lulus termasuk privacy, replay, versi, scope dan source-start guard. Pengelolaan hak cuti dilanjutkan pada putaran yang sama.

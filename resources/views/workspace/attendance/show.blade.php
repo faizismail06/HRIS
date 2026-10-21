@@ -33,4 +33,5 @@
         <ul class="identity-directory">@forelse ($events as $event)<li>{{ $event->direction === 'in' ? 'Masuk' : 'Pulang' }} · {{ Illuminate\Support\Carbon::parse($event->occurred_at)->setTimezone($shift->timezone)->format('d M Y H:i:s T') }}<p>{{ ['DEVICE_REPORTED' => 'Lokasi perangkat', 'FIELD_DEVICE_REPORTED' => 'Lokasi perangkat lapangan', 'REMOTE_SELF_REPORTED' => 'Pencatatan jarak jauh', 'SIMULATED' => 'SIMULASI · data sintetis'][$event->provenance] ?? $event->provenance }}</p></li>@empty<li>Belum ada catatan waktu asli. Waktu efektif dapat berasal dari koreksi yang disetujui.</li>@endforelse</ul>
     </section>
     <p><a class="inline-link" href="{{ route('workspace.attendance') }}">Kembali ke jadwal</a> · <a class="inline-link" href="{{ route('workspace.attendance.show', $shift->id) }}">Muat status terbaru</a></p>
+    <p><a class="inline-link" href="{{ route('workspace.overtime', ['roster_shift_id' => $shift->id]) }}">Periksa lembur shift ini</a></p>
 </x-identity-layout>

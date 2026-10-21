@@ -83,9 +83,10 @@ class WorkflowWorkspaceController extends Controller
         $person = $record->employee_id ? Employee::find($record->employee_id) : null;
         $employeeLabel = $person ? $person->name.' · '.$person->employee_number : null;
         $leaveType = $record->kind === 'leave' ? LeaveType::find($record->payload['leave_type_id'])?->name : null;
+        $overtimeId = $record->kind === 'overtime' ? DB::table('overtime_authorizations')->where('workflow_request_id', $record->id)->value('id') : null;
         $canDecide = $supported && $record->status === 'in_review' && $record->submitted_by !== $r->user()->id && $record->employee_id !== $r->user()->employee_id && $steps->contains(fn ($step) => $step->status === 'pending' && in_array($r->user()->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($r->user(), $record, $step));
 
-        return view('workspace.requests.show', ['record' => $record, 'steps' => $steps, 'statuses' => self::STATUSES, 'kinds' => self::KINDS, 'employeeLabel' => $employeeLabel, 'leaveType' => $leaveType, 'canDecide' => $canDecide, 'supported' => $supported, 'owned' => $record->submitted_by === $r->user()->id, 'details' => $details, 'attachments' => $supported ? DB::table('private_attachments')->where('subject_type', 'workflow_request')->where('subject_id', $record->id)->when(! $canReadMedical, fn ($q) => $q->where('classification', '!=', 'medical'))->select('id', 'mime', 'size')->get() : collect()]);
+        return view('workspace.requests.show', ['record' => $record, 'steps' => $steps, 'statuses' => self::STATUSES, 'kinds' => self::KINDS, 'employeeLabel' => $employeeLabel, 'leaveType' => $leaveType, 'overtimeId' => $overtimeId, 'canDecide' => $canDecide, 'supported' => $supported, 'owned' => $record->submitted_by === $r->user()->id, 'details' => $details, 'attachments' => $supported ? DB::table('private_attachments')->where('subject_type', 'workflow_request')->where('subject_id', $record->id)->when(! $canReadMedical, fn ($q) => $q->where('classification', '!=', 'medical'))->select('id', 'mime', 'size')->get() : collect()]);
     }
 
     public function action(OperationalRequest $r, string $id, string $action, WorkflowService $service)

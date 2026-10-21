@@ -275,3 +275,13 @@ HR company dapat mengisi lokasi/cabang/Indonesia timezone/onsite-field-remote/ge
 QA perangkat nyata tetap tertunda; harness JavaScript kini juga memverifikasi respons HTML419 meminta login ulang. Tahap berikut UI actual overtime/period close/replacement, administrasi, finance serta import/report.
 
 Verifikasi akhir modul:24tests/423assertions PHP (AttendanceWorkspaceTest, AttendanceDomainTest, AttendancePolicyTest, WorkflowWorkspaceTest) dan4tes JavaScript lulus; npm build, Blade cache, Pint dan diff-check lulus. Tidak ada migrasi/reset database dev, email/transaksi nyata atau perubahan .env. Push bertahap ke dev; QA render/perangkat browser belum disahkan.
+
+## Penutupan periode dan lembur aktual dari UI
+
+/app/attendance-periods untuk HR Admin company menyediakan create (tanggal akhir inklusif di UI, dikonversi exclusive-end domain), review/blockers, close immutable snapshots, revisi lama, dan reopen beralasan sebelum payroll final. GET membaca hasil review dari mutation_receipts dengan period ID/version tepat; tidak menjalankan review atau menaikkan versi. Close tetap mengumpulkan dan mengecek ulang sumber/checksum. Blocker dan snapshot masing-masing50baris/pagination, dengan tautan ke attendance/overtime/roster yang perlu diperbaiki. Reopen kini mempertahankan alasan terenkripsi pada audit; teks tidak dicatat plaintext. Tidak ada perubahan schema.
+
+/app/overtime menyediakan daftar/detail dengan akses owner/current manager/HR/scope workflow, datetime-local aktual pada timezone shift, independent verification dan HR-only exception saat attendance tidak mendukung. Stale attendance version ditandai dan dapat diverifikasi ulang; period closed mengunci form, server tetap memeriksa. Catatan exception tidak didekripsi ke UI. Pengajuan overtime dan halaman attendance menautkan aktual; halaman attendance menautkan review periode bagi HR company. Snapshot revisi dipertahankan pada reopen, sedangkan payroll final menolak reopen.
+
+CloseOvertimeWorkspaceTest mencakup lifecycle close/reopen/reclose, review GET tanpa perubahan versi, snapshot/revision/payroll lock, unresolved/gap/source change, actual2jam dari planned3jam, replay, self/manager/scope denial, private HR exception dan stale verification setelah correction approved. Browser inventory masih kosong; tidak ada klaim QA render/perangkat atau UAT produksi. Tahap berikut replacement/kalender/hak cuti UI lalu administrasi, finance dan import/report.
+
+Verifikasi akhir:24tests/502assertions lulus untuk CloseOvertimeWorkspaceTest, OvertimeCloseTest, AttendanceWorkspaceTest dan WorkflowWorkspaceTest; npm build, Pint, Blade cache dan diff-check lulus. .env tidak diubah/dilacak dan tidak ada migrasi/reset database dev atau transaksi/email nyata.

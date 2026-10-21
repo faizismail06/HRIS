@@ -18,6 +18,8 @@ Layar operasional setelah login/MFA: `/app/requests` untuk cuti, pembatalan cuti
 
 `/app/attendance` menghubungkan jadwal, detail waktu efektif/asli, foto privat dan clock-in/out. Lokasi diminta browser setelah tindakan pengguna; HTTPS/localhost diperlukan. `/app/schedules` menghubungkan pola roster → draf → pemeriksaan staffing → publikasi untuk HR company/manager team. HR company dapat menambahkan lokasi dan versi template di `/app/schedule-settings/locations` dan `/app/schedule-settings/templates`; angka kebijakan diisi HR, tidak disediakan sebagai kebijakan bawaan. GPS/kamera perangkat nyata dan QA browser masih perlu UAT. Jalankan `node --test tests/JavaScript/attendance.test.mjs` untuk tes retry/permission/error client.
 
+`/app/overtime` menghubungkan pengisian aktual oleh karyawan dan verifikasi atasan/HR; menit bayar mengikuti aktual terverifikasi setelah istirahat dikurangi. Pengecualian tanpa dukungan attendance hanya untuk HR company beralasan. `/app/attendance-periods` tersedia bagi HR Admin company untuk membuat periode (tanggal terakhir termasuk), meninjau penghambat, menutup snapshot dan membuka kembali sebelum payroll final. Revisi snapshot lama dipertahankan dan sumber diperiksa ulang saat penutupan. Kedua layar dapat dibuka dari navigasi pemeriksaan pada halaman kehadiran.
+
 ## Pratinjau dashboard tanpa database
 
 Dependensi PHP dan frontend telah dipasang pada mesin pengembangan. Untuk instalasi baru, jalankan `composer install` dan `npm ci`. Salin `.env.example` ke `.env` jika belum ada, lalu atur:

@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\AttendancePeriodWorkspaceController;
 use App\Http\Controllers\AttendanceWorkspaceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\OvertimeWorkspaceController;
 use App\Http\Controllers\ScheduleSettingsController;
 use App\Http\Controllers\ScheduleWorkspaceController;
 use App\Http\Controllers\WorkflowWorkspaceController;
@@ -17,6 +19,14 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
+        Route::get('/attendance-periods', [AttendancePeriodWorkspaceController::class, 'index'])->name('periods');
+        Route::post('/attendance-periods', [AttendancePeriodWorkspaceController::class, 'store'])->middleware('throttle:30,1')->name('periods.store');
+        Route::get('/attendance-periods/{id}', [AttendancePeriodWorkspaceController::class, 'show'])->whereNumber('id')->name('periods.show');
+        Route::post('/attendance-periods/{id}/{action}', [AttendancePeriodWorkspaceController::class, 'action'])->whereNumber('id')->where('action', 'review|close|reopen')->middleware('throttle:30,1')->name('periods.action');
+        Route::get('/overtime', [OvertimeWorkspaceController::class, 'index'])->name('overtime');
+        Route::get('/overtime/{id}', [OvertimeWorkspaceController::class, 'show'])->whereNumber('id')->name('overtime.show');
+        Route::post('/overtime/{id}/actual', [OvertimeWorkspaceController::class, 'actual'])->whereNumber('id')->middleware('throttle:30,1')->name('overtime.actual');
+        Route::post('/overtime/{id}/verify', [OvertimeWorkspaceController::class, 'verify'])->whereNumber('id')->middleware('throttle:30,1')->name('overtime.verify');
         Route::get('/schedule-settings/{kind}', [ScheduleSettingsController::class, 'form'])->where('kind', 'locations|templates')->name('schedule-settings');
         Route::post('/schedule-settings/{kind}', [ScheduleSettingsController::class, 'store'])->where('kind', 'locations|templates')->middleware('throttle:30,1')->name('schedule-settings.store');
         Route::get('/schedules', [ScheduleWorkspaceController::class, 'index'])->name('schedules');

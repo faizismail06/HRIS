@@ -1,5 +1,6 @@
 <x-identity-layout :title="($kinds[$record->kind] ?? ucwords(str_replace('_', ' ', $record->kind))).' #'.$record->id">
     <p>{{ $statuses[$record->status] ?? $record->status }} · Versi {{ $record->version }}</p>
+    @if ($overtimeId)<p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.overtime.show', $overtimeId) }}">Pantau dan isi aktual lembur</a></p>@endif
     @if ($record->status === 'blocked')<p class="identity-notice">Peninjau belum tersedia. Hubungi HR untuk penetapan peninjau berwenang; pengajuan belum disetujui.</p>@endif
     @if (!$supported)<p class="identity-notice">Status pengajuan tersedia. Rincian dan tindakan jenis ini akan tersedia saat integrasi layar modulnya selesai.</p>@endif
     @php

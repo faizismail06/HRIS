@@ -71,12 +71,12 @@ class CloseService
     {
         Validator::make(compact('reason'), ['reason' => ['required', 'string', 'max:1000']])->validate();
 
-        return Mutation::run($actor, 'attendance-period.reopen', $key, compact('id', 'version', 'reason'), fn ($u) => $this->authorize($u), function ($u) use ($id, $version) {
+        return Mutation::run($actor, 'attendance-period.reopen', $key, compact('id', 'version', 'reason'), fn ($u) => $this->authorize($u), function ($u) use ($id, $version, $reason) {
             $p = DB::table('attendance_periods')->where('id', $id)->lockForUpdate()->firstOrFail();
             CoreWrite::version($p->version, $version);
             abort_unless($p->status === 'closed' && ! $p->payroll_finalized, 409, 'Payroll final memerlukan penyesuaian terpisah.');
             DB::table('attendance_periods')->where('id', $id)->update(['status' => 'open', 'review_checksum' => null, 'version' => $p->version + 1, 'updated_at' => now()->toIso8601String()]);
-            Audit::record($u->id, 'attendance_period.reopened', 'attendance_period', $id, ['prior_revision' => $p->revision, 'reason_provided' => true]);
+            Audit::record($u->id, 'attendance_period.reopened', 'attendance_period', $id, ['prior_revision' => $p->revision, 'reason_provided' => true, 'reason_encrypted' => encrypt($reason)]);
 
             return ['id' => $id, 'status' => 'open', 'version' => $p->version + 1];
         });

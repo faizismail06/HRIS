@@ -1,6 +1,7 @@
 <x-identity-layout title="Kehadiran dan jadwal">
     <p>Periksa jadwal dan catatan waktu berdasarkan tanggal kerja shift. Shift malam tetap mengikuti tanggal mulai kerjanya.</p>
     @if ($canSchedule)<p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.schedules') }}">Kelola roster</a></p>@endif
+    <nav class="workspace-actions" aria-label="Pemeriksaan kehadiran"><a class="inline-link" href="{{ route('workspace.overtime') }}">Lembur aktual</a>@if (App\Domain\Identity\Access::companyPermission(auth()->user(), 'attendance.close'))<a class="inline-link" href="{{ route('workspace.periods') }}">Tinjau dan tutup periode</a>@endif</nav>
     <form class="identity-form" method="GET" action="{{ route('workspace.attendance') }}">
         <x-core-field name="view" label="Tampilkan" type="select"><option value="mine" @selected($view === 'mine')>Jadwal saya</option><option value="team" @selected($view === 'team')>Semua yang dapat saya akses</option></x-core-field>
         <x-core-field name="starts_on" label="Dari tanggal kerja" type="date" :value="$start" required />

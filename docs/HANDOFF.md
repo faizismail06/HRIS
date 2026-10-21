@@ -301,3 +301,15 @@ Form /app/schedules/replace/{shift} membuat draf sumber/version-linked satu tang
 LeaveWorkspaceTest5/118 lulus untuk manual/replay/scope, reserved420→available540→debit240→available300→withdraw→available720, self-grant/self-debit denial, expired linked carry sekali, independent approval/policy expiry rule, real dispatch-once/stop dan superseded-type pause. Tidak ada reset DB dev/migrasi/perubahan .env; UI administrasi/finance/import/report dan workflow khusus swap/HR notice-exception belum dilanjutkan. QA browser/mobile/perangkat nyata masih tertunda.
 
 Verifikasi akhir putaran:46tests/853assertions lulus (LeaveWorkspaceTest, LeaveDomainTest, LeaveLotAccountingTest, LeaveGrantSchedulesTest, CalendarReplacementWorkspaceTest, AttendancePolicyTest, AttendanceWorkspaceTest, WorkflowWorkspaceTest, CloseOvertimeWorkspaceTest). npm build, Pint, Blade cache dan diff-check lulus. Browser inventory kosong. Roster/calendar sudah push70262a3; hak cuti di-commit/push terpisah agar histori modul tetap bertahap.
+
+## Penutupan integrasi operasional — 21 Oktober 2026
+
+Commit 2219727 menghubungkan formulir administrasi/finance/data/settings ke adapter domain; commit 34088e9 melengkapi pembacaan bukti/mandat/format, demo operator, browser tests dan izin ekspor auditor eksplisit. Keduanya dikembangkan pada dev.
+
+Ruang kerja /app/modules memuat 124 formulir/tindakan tambahan, seluruh 20 jenis workflow dapat dibuka/diproses sesuai izin. Profil dan proposal kompensasi memakai pembaca privat/audit; referensi dipilih lewat lookup berizin. Import memakai header aktual, preview/checksum/version. Finalisasi payroll tetap membutuhkan kebijakan disahkan dan sumber valid. Hak baca auditor tidak otomatis mengizinkan ekspor; perubahan izin menaikkan security version dan mencabut file lama.
+
+Verifikasi: regresi penuh 246 tests / 4510 assertions lulus pada hris_testing dan database disposable berpenjaga. Setelah koreksi tautan instruction-versus-batch, targeted 14 tests / 567 assertions lulus. Tiga browser tests menjalankan JavaScript nyata terhadap fixture sintetis pada Chrome headless dengan profil terpisah; desktop dan viewport 390 px diperiksa. Screenshot tersimpan lokal pada .cache/operation-browser, tidak masuk Git. npm build, Pint, Blade cache, JS syntax, diff-check dan hris:check lulus. Chrome memerlukan eksekusi di luar sandbox GPU; Node 22+ diperlukan untuk WebSocket bawaan pada harness.
+
+Migration 2026_10_21_370000 menambah auditor_export_enabled default false, diterapkan secara additive pada database pengembangan dan pengujian. Tidak ada reset database operasional, perubahan .env, pengiriman email/bank nyata atau deployment. .env tetap ignored/untracked.
+
+Panduan terbaru: WORKSPACE_OPERATIONS.md, PROJECT_STATUS.md, BACKEND_DELIVERY.md dan OPERATIONS.md. Nilai/pengesahan kebijakan perusahaan, konfigurasi host/supervisor/SMTP/TLS/ACL/backup off-host, pengukuran load/RPO/RTO, perangkat nyata dan UAT pemilik kebijakan tetap keputusan serta bukti operator. Tiga fixture browser bukan recapture semua prototype atau pengesahan seluruh perangkat/aksesibilitas.

@@ -2,7 +2,9 @@
 
 HRIS berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Backend domain/API mencakup identitas/MFA/scope, profil privat, organisasi/karier, workflow/delegasi, roster/attendance/cuti/lembur/close, dokumen/kontrak/lifecycle/aset, payroll/reimbursement, impor/ekspor/laporan/notifikasi/pencarian serta demo terisolasi. [Peta backend](docs/BACKEND_DELIVERY.md) mencatat implementasi dan batasnya; [panduan operasi](docs/OPERATIONS.md) memuat worker, deployment dan backup/restore. Kebijakan payroll produksi tetap draft sampai disahkan HR/Finance.
 
-**Cakupan visual statis inti telah dilengkapi; QA browser masih tertunda.** Buka [Panduan semua layar](http://127.0.0.1:8000/prototype/screens): tujuh beranda peran, 48 formulir awal/validasi gagal, 12 state serta tautan ke daftar/detail modul. Form preview tetap nonoperasional. Lihat [status proyek](docs/PROJECT_STATUS.md), [inventaris layar](docs/STATIC_SCREENS.md) dan [panduan backend identitas](docs/IDENTITY_FOUNDATION.md).
+**Aplikasi operasional:** masuk melalui `/login`, selesaikan MFA, lalu buka [Ruang kerja](http://127.0.0.1:8000/app/modules). Sebanyak 124 formulir/tindakan tambahan dan seluruh 20 jenis pengajuan terhubung ke layanan domain dengan izin, versi dan idempotensi. Panduan: [WORKSPACE_OPERATIONS.md](docs/WORKSPACE_OPERATIONS.md). Browser headless telah memeriksa tiga fixture desktop/ponsel; UAT perusahaan dan konfigurasi produksi memerlukan penerimaan operator.
+
+**Pratinjau visual terpisah:** [Panduan layar](http://127.0.0.1:8000/prototype/screens) memuat tujuh beranda peran, 48 formulir awal/validasi gagal dan 12 state. Form preview sengaja tidak menyimpan data. Lihat [status proyek](docs/PROJECT_STATUS.md), [inventaris layar](docs/STATIC_SCREENS.md) dan [panduan identitas](docs/IDENTITY_FOUNDATION.md).
 
 ## Login dan backend operasional
 

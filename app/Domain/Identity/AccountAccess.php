@@ -8,9 +8,9 @@ use Illuminate\Validation\ValidationException;
 
 class AccountAccess
 {
-    public function replace(User $actor, User $target, array $grants, bool $active): void
+    public function replace(User $actor, User $target, array $grants, bool $active, bool $auditorExports = false): void
     {
-        DB::transaction(function () use ($actor, $target, $grants, $active) {
+        DB::transaction(function () use ($actor, $target, $grants, $active, $auditorExports) {
             DB::table('companies')->where('id', 1)->lockForUpdate()->firstOrFail();
             $actor = User::query()->lockForUpdate()->findOrFail($actor->id);
             abort_unless(AccountSecurity::available($actor) && Access::companyPermission($actor, 'accounts.manage'), 403);
@@ -25,8 +25,9 @@ class AccountAccess
             }
             $target->grants()->delete();
             $target->grants()->createMany($grants);
-            $target->forceFill(['is_active' => $active, 'security_version' => $target->security_version + 1, 'remember_token' => null])->save();
-            Audit::record($actor->id, 'account.access_changed', 'user', $target->id, ['before' => $old, 'after' => $grants, 'active' => $active]);
+            $auditorExports = $auditorExports && collect($grants)->contains(fn ($g) => $g['role'] === 'auditor');
+            $target->forceFill(['is_active' => $active, 'auditor_export_enabled' => $auditorExports, 'security_version' => $target->security_version + 1, 'remember_token' => null])->save();
+            Audit::record($actor->id, 'account.access_changed', 'user', $target->id, ['before' => $old, 'after' => $grants, 'active' => $active, 'auditor_export_enabled' => $auditorExports]);
         });
     }
 

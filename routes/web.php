@@ -15,10 +15,12 @@ use App\Http\Controllers\PrototypeRequestsController;
 use App\Http\Controllers\PrototypeScreensController;
 use App\Http\Controllers\PrototypeWorkspaceController;
 use App\Http\Middleware\EnsureUiPreviewIsEnabled;
+use App\Http\Middleware\PrivateAuthResponse;
 use Illuminate\Support\Facades\Route;
 
 if (DemoBoundary::enabled()) {
     Route::prefix('demo')->middleware('throttle:30,1')->group(function () {
+        Route::get('/operator', [DemoController::class, 'workspace'])->middleware(PrivateAuthResponse::class)->name('demo.operator');
         Route::get('/personas', [DemoController::class, 'personas']);
         Route::post('/persona', [DemoController::class, 'login']);
         Route::post('/time', [DemoController::class, 'time']);

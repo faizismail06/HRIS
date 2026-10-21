@@ -41,6 +41,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'auditor_export_enabled' => 'boolean',
             'two_factor_confirmed_at' => 'immutable_datetime',
         ];
     }

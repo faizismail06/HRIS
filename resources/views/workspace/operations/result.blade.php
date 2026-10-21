@@ -12,7 +12,7 @@
                 @foreach ($value as $key => $item)
                     @if (!App\Support\OperationPresentation::hidden((string) $key))
                         <div><dt>{{ $labels[$key] ?? ucwords(str_replace('_', ' ', $key)) }}</dt><dd>
-                            @if (str_ends_with((string) $key, '_minor') && is_numeric($item))Rp {{ App\Domain\Payroll\IntegerMoney::format((int) $item) }}
+                            @if (App\Support\OperationPresentation::money((string) $key) && is_numeric($item))Rp {{ App\Domain\Payroll\IntegerMoney::format((int) $item) }}
                             @else @include('workspace.operations.result', ['value' => App\Support\OperationPresentation::decode($item), 'depth' => $depth + 1]) @endif
                         </dd></div>
                     @endif

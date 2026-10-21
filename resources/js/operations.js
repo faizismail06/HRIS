@@ -98,8 +98,9 @@ document.querySelectorAll('[data-operation-form]').forEach((form) => {
                 return;
             }
             const wrapper = make('div', undefined, 'operation-field');
+            wrapper.hidden = field.type === 'hidden';
             parent.append(wrapper);
-            const id = `operation-field-${sequence++}`;
+            const id = prefix ? `operation-field-${sequence++}` : field.name;
             const label = make('label', field.label + (field.required ? ' *' : ''));
             label.htmlFor = id;
             if (field.type !== 'hidden') wrapper.append(label);
@@ -109,6 +110,15 @@ document.querySelectorAll('[data-operation-form]').forEach((form) => {
             input.name = name + (field.type === 'multi' ? '[]' : '');
             input.required = field.required && !optional && field.type !== 'hidden';
             inputs.set(name, input);
+            const path = name.replaceAll('[', '.').replaceAll(']', '');
+            const error = schema.errors?.[path] || schema.errors?.[`payload.${path}`];
+            if (error?.length) {
+                input.setAttribute('aria-invalid', 'true');
+                input.setAttribute('aria-describedby', `${id}-error`);
+                const message = make('p', error.join(' '), 'identity-field-error');
+                message.id = `${id}-error`;
+                wrapper.append(message);
+            }
             if (select) {
                 if (field.type === 'multi') { input.multiple = true; input.size = 5; }
                 else input.append(new Option('Pilih…', ''));
@@ -219,7 +229,7 @@ document.querySelectorAll('[data-operation-form]').forEach((form) => {
     // Init after all fields exist so version targets and dependent selectors are available.
     lookups.forEach((lookup) => lookup.init());
     const timezone = root('form_timezone');
-    if (schema.values.form_timezone) timezone.value = schema.values.form_timezone;
+    if (timezone && schema.values.form_timezone) timezone.value = schema.values.form_timezone;
     form.addEventListener('submit', () => {
         form.querySelector('[data-operation-submit]').disabled = true;
         form.querySelector('[data-operation-status]').textContent = 'Memproses tindakan…';

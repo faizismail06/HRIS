@@ -5,12 +5,24 @@ namespace App\Http\Controllers;
 use App\Domain\Assets\AssetService;
 use App\Domain\Assets\AssetSettlements;
 use App\Domain\Identity\Access;
+use App\Domain\Identity\Audit;
 use App\Http\Requests\OperationalRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AssetController extends Controller
 {
+    public function settlement(Request $r, int $id)
+    {
+        abort_unless(Access::companyPermission($r->user(), 'payroll.approve'), 403);
+        $record = DB::table('asset_settlement_cases')->where('id', $id)->firstOrFail();
+        $custody = DB::table('asset_custodies')->where('id', $record->asset_custody_id)->firstOrFail();
+        $asset = DB::table('assets')->where('id', $custody->asset_id)->firstOrFail();
+        Audit::record($r->user()->id, 'asset.settlement_read', 'asset_settlement_case', $id);
+
+        return response()->json(['id' => $id, 'version' => $record->version, 'status' => $record->status, 'employee_id' => $custody->employee_id, 'asset_code' => $asset->code, 'classification' => $record->classification, 'evidence' => decrypt($record->evidence), 'resolution' => $record->resolution, 'resolution_evidence' => $record->resolution_evidence ? decrypt($record->resolution_evidence) : null])->header('Cache-Control', 'no-store, private');
+    }
+
     public function resolve(OperationalRequest $r, int $id, AssetSettlements $s)
     {
         return response()->json($s->resolve($r->user(), $id, $r->version(), $r->key(), $r->all()));

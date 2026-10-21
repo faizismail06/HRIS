@@ -1,5 +1,18 @@
 <x-identity-layout :title="($kinds[$record->kind] ?? ucwords(str_replace('_', ' ', $record->kind))).' #'.$record->id">
     <p>{{ $statuses[$record->status] ?? $record->status }} · Versi {{ $record->version }}</p>
+    @if (in_array($record->kind, ['letter', 'contract']))<p><a class="inline-link" href="{{ route('workspace.work', ['operation' => 'document-preview', 'record_id' => $record->id, 'run' => 1]) }}">Pratinjau dokumen dari sumber pengajuan</a></p>@endif
+    @if (in_array($record->kind, ['onboarding', 'offboarding']))
+        @php
+            $caseId = Illuminate\Support\Facades\DB::table('lifecycle_cases')->where('workflow_request_id', $record->id)->value('id');
+        @endphp
+        @if ($caseId)<p><a class="inline-link" href="{{ route('workspace.work', ['operation' => 'case-detail', 'record_id' => $caseId, 'run' => 1]) }}">Pantau checklist kasus ini</a></p>@endif
+    @endif
+    @if ($record->kind === 'expense')
+        @php
+            $claimId = Illuminate\Support\Facades\DB::table('expense_claims')->where('workflow_request_id', $record->id)->value('id');
+        @endphp
+        @if ($claimId)<p><a class="inline-link" href="{{ route('workspace.work', ['operation' => 'claim-detail', 'record_id' => $claimId, 'run' => 1]) }}">Pantau alokasi dan pembayaran klaim</a></p>@endif
+    @endif
     @if ($overtimeId)<p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.overtime.show', $overtimeId) }}">Pantau dan isi aktual lembur</a></p>@endif
     @if ($record->status === 'blocked')<p class="identity-notice">Peninjau belum tersedia. Hubungi HR untuk penetapan peninjau berwenang; pengajuan belum disetujui.</p>@endif
     @if (!$supported)<p class="identity-notice">Status pengajuan tersedia. Rincian dan tindakan jenis ini akan tersedia saat integrasi layar modulnya selesai.</p>@endif

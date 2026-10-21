@@ -22,6 +22,11 @@ class OperationWorkspaceController extends Controller
     {
         $operations = array_filter(WorkspaceOperations::all(), fn ($op) => WorkspaceOperations::allowed($r->user(), $op['gate']));
         foreach ($operations as $key => $op) {
+            if (str_starts_with($key, 'export-') && $r->user()->grants()->where('role', 'auditor')->exists() && ! $r->user()->auditor_export_enabled) {
+                unset($operations[$key]);
+
+                continue;
+            }
             if (str_starts_with($key, 'import-template-') && ! WorkspaceOptions::importAllowed($r->user(), substr($key, 16))) {
                 unset($operations[$key]);
             }
@@ -48,15 +53,17 @@ class OperationWorkspaceController extends Controller
         $spec = $this->spec($r, $operation);
         $values = session()->getOldInput() ?: Arr::except($r->input(), ['_token', 'idempotency_key']);
         $result = null;
+        $resultStatus = 200;
         if ($spec['method'] === 'GET' && $r->boolean('run')) {
             $response = $this->dispatch($r, $spec);
             if (! $response instanceof JsonResponse) {
                 return $response;
             }
             $result = $response->getData(true);
+            $resultStatus = $response->getStatusCode();
         }
 
-        return view('workspace.operations.form', compact('spec', 'result', 'values'));
+        return response()->view('workspace.operations.form', compact('spec', 'result', 'values', 'resultStatus'), $resultStatus >= 400 ? $resultStatus : 200);
     }
 
     public function store(OperationalRequest $r, string $operation)
@@ -75,7 +82,9 @@ class OperationWorkspaceController extends Controller
                 return to_route('workspace.requests.show', $result['id'])->with('status', 'Draf disimpan. Periksa data dan unggah bukti yang diwajibkan sebelum dikirim.');
             }
 
-            return view('workspace.operations.form', compact('spec', 'result', 'values'));
+            $resultStatus = $response->getStatusCode();
+
+            return response()->view('workspace.operations.form', compact('spec', 'result', 'values', 'resultStatus'), $resultStatus >= 400 ? $resultStatus : 200);
         });
     }
 
@@ -100,6 +109,10 @@ class OperationWorkspaceController extends Controller
             $endpoint = str_replace('{record}', (string) $input['record_id'], $endpoint);
         }
         unset($input['record_id']);
+        if ($spec['method'] === 'GET' && $r->has('page')) {
+            $r->validate(['page' => ['integer', 'min:1', 'max:100000']]);
+            $input['page'] = $r->integer('page');
+        }
         if ($spec['workflow']) {
             $input = ['kind' => $spec['workflow'], 'payload' => $input];
         }

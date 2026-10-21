@@ -7,6 +7,17 @@ use App\Models\User;
 
 class WorkspaceOperations
 {
+    public static function hasType(array $fields, string $type): bool
+    {
+        foreach ($fields as $field) {
+            if ($field['type'] === $type || (isset($field['fields']) && self::hasType($field['fields'], $type))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static function related(string $key): array
     {
         return match (true) {
@@ -14,10 +25,13 @@ class WorkspaceOperations
             str_starts_with($key, 'export-') => ['export-status', 'export-download'],
             str_starts_with($key, 'payroll-policy') => ['payroll-policy-detail', 'payroll-policy-approve'],
             in_array($key, ['payroll-create', 'payroll-detail', 'payroll-calculate', 'payroll-review', 'payroll-approve', 'payroll-finalize', 'payroll-reset']) => ['payroll-detail', 'payroll-calculate', 'payroll-review', 'payroll-approve', 'payroll-finalize', 'bank-export'],
-            str_starts_with($key, 'reimbursement-') => ['reimbursement-detail', 'reimbursement-decide', 'reimbursement-export'],
+            in_array($key, ['reimbursement-create', 'reimbursement-detail', 'reimbursement-decide']) => ['reimbursement-detail', 'reimbursement-decide', 'reimbursement-export'],
+            $key === 'reimbursement-export' => ['reimbursement-download'],
             $key === 'onboarding-create' || $key === 'case-detail' => ['case-detail', 'case-close'],
             $key === 'asset-create' => ['asset-issue'],
             $key === 'asset-issue' => ['asset-accept', 'asset-return'],
+            in_array($key, ['account-detail', 'account-access']) => ['account-detail', 'account-access', 'account-suspend'],
+            in_array($key, ['asset-settlement-detail', 'asset-settlement']) => ['asset-settlement-detail', 'asset-settlement'],
             default => [],
         };
     }
@@ -39,6 +53,8 @@ class WorkspaceOperations
             'reader' => $u->grants()->whereIn('role', Access::EMPLOYEE_READERS)->exists(),
             'hr-reader' => $u->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists(),
             'importer' => $u->grants()->whereIn('role', ['hr_admin', 'hr_officer', 'payroll_officer'])->where('scope', 'company')->exists(),
+            'manager-or-hr' => $u->grants()->whereIn('role', ['manager', 'hr_admin'])->exists(),
+            'leave-reader' => $u->grants()->whereIn('role', ['employee', 'hr_admin', 'hr_officer'])->exists(),
             default => false,
         };
     }
@@ -196,6 +212,24 @@ class WorkspaceOperations
         $add('operations-health', 'Kesehatan antrean notifikasi', 'settings', 'platform', '/operations/health', [], 'GET');
         $add('delivery-retry', 'Jadwalkan ulang pengiriman gagal', 'settings', 'platform', '/operations/deliveries/{record}/retry', [$record('deliveries'), $reason]);
         $add('staffing', 'Konfigurasi minimum staffing', 'settings', 'hr-admin', '/staffing-policies', [$f('code', 'Kode kebijakan'), $pick('work_location_id', 'Lokasi kerja', 'work-locations'), $pick('job_id', 'Jabatan tertentu', 'jobs', false), $f('valid_from', 'Mulai berlaku', 'date'), $f('valid_until', 'Batas akhir tidak termasuk', 'date'), $f('working_days', 'Hari kerja 1–7, satu per baris', 'lines'), $f('start_local', 'Mulai cakupan', 'time'), $f('end_local', 'Akhir cakupan', 'time'), $enum('end_day_offset', 'Hari akhir', ['0' => 'Hari sama', '1' => 'Hari berikutnya']), $f('minimum_staff', 'Jumlah minimum staf', 'number'), $yes('is_blocking', 'Wajib dipenuhi sebelum publikasi')]);
+
+        $add('asset-settlement-detail', 'Tinjau bukti kewajiban aset', 'assets', 'approver', '/asset-settlements/{record}', [$record('settlements')], 'GET');
+        $add('account-detail', 'Tinjau status akun dan mandat saat ini', 'settings', 'platform', '/accounts/{record}', [$record('accounts')], 'GET');
+        $add('contract-reviews', 'Daftar tinjauan akhir kontrak', 'administration', 'manager-or-hr', '/contract-review-tasks', [], 'GET');
+        foreach (['workflow-definitions' => ['Alur persetujuan', 'hr-admin'], 'lifecycle-templates' => ['Checklist lifecycle', 'hr'], 'document-templates' => ['Template dokumen', 'profile'], 'bank-export-templates' => ['Format ekspor bank', 'finance'], 'payroll-policies' => ['Kebijakan payroll', 'finance'], 'expense-policies' => ['Kebijakan reimbursement', 'any']] as $kind => [$title, $gate]) {
+            $add('catalog-'.$kind, 'Daftar '.$title, 'settings', $gate, '/catalogs/'.$kind, [], 'GET');
+        }
+        foreach (['import-upload', 'import-detail', 'import-map', 'import-preview', 'import-commit'] as $key) {
+            if (str_starts_with($key, 'import-')) {
+                $ops[$key]['gate'] = 'importer';
+            }
+        }
+        $ops['task-reassign']['gate'] = 'hr-admin';
+        $ops['contract-recommend']['gate'] = 'manager-or-hr';
+        $ops['account-access']['fields'][] = $yes('auditor_export_enabled', 'Izin ekspor tambahan untuk mandat auditor (di luar hak baca)');
+        foreach (['contracts', 'lifecycle', 'leave_balances'] as $kind) {
+            $ops['report-'.$kind]['gate'] = $ops['export-'.$kind]['gate'] = $kind === 'leave_balances' ? 'leave-reader' : 'hr-reader';
+        }
 
         return $ops;
     }

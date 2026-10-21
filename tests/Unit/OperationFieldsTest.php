@@ -3,11 +3,18 @@
 namespace Tests\Unit;
 
 use App\Support\OperationFields;
+use App\Support\WorkspaceOperations;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
 class OperationFieldsTest extends TestCase
 {
+    public function test_reimbursement_links_keep_instruction_ids_separate_from_batch_ids(): void
+    {
+        $this->assertSame(['reimbursement-download'], WorkspaceOperations::related('reimbursement-export'));
+        $this->assertSame([], WorkspaceOperations::related('reimbursement-outcome'));
+    }
+
     public function test_money_and_reference_values_preserve_precision_and_ignore_extra_keys(): void
     {
         $fields = [OperationFields::field('amount', 'Nominal', 'money'), OperationFields::field('employee_id', 'Karyawan', 'lookup')];

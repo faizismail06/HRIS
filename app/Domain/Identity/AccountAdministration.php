@@ -13,12 +13,12 @@ class AccountAdministration
     public function access(User $actor, int $id, string $key, int $version, array $input): array
     {
         $this->authorize($actor);
-        $data = Validator::make($input, ['is_active' => ['required', 'boolean'], 'grants' => ['present', 'array', 'max:30'], 'grants.*' => ['array:role,scope,branch_id,department_id']])->validate();
+        $data = Validator::make($input, ['is_active' => ['required', 'boolean'], 'auditor_export_enabled' => ['sometimes', 'boolean'], 'grants' => ['present', 'array', 'max:30'], 'grants.*' => ['array:role,scope,branch_id,department_id']])->validate();
 
         return Mutation::run($actor, 'account.access', $key, compact('id', 'version', 'data'), fn ($u) => $this->authorize($u), function ($u) use ($id, $version, $data) {
             $target = User::findOrFail($id);
             CoreWrite::version($target->security_version, $version);
-            app(AccountAccess::class)->replace($u, $target, $data['grants'], (bool) $data['is_active']);
+            app(AccountAccess::class)->replace($u, $target, $data['grants'], (bool) $data['is_active'], (bool) ($data['auditor_export_enabled'] ?? false));
 
             return ['id' => $id, 'security_version' => $target->fresh()->security_version];
         });

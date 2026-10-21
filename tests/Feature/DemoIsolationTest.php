@@ -56,6 +56,7 @@ class DemoIsolationTest extends TestCase
             $this->assertSame(8, DB::table('demo_personas')->count());
             $this->assertSame(0, DB::connection($original)->table('demo_personas')->count());
             Route::middleware('web')->prefix('demo')->group(function () {
+                Route::get('/operator', [DemoController::class, 'workspace'])->name('demo.operator');
                 Route::post('/persona', [DemoController::class, 'login']);
                 Route::post('/clock', [DemoController::class, 'clock']);
                 Route::post('/time', [DemoController::class, 'time']);
@@ -65,6 +66,7 @@ class DemoIsolationTest extends TestCase
             $this->postJson('/demo/persona', ['persona' => 'employee'])->assertOk()->assertJsonPath('environment', 'DEMO');
             $user = User::findOrFail(DB::table('demo_personas')->where('code', 'employee')->value('user_id'));
             $this->actingAs($user);
+            $this->get('/demo/operator')->assertOk()->assertSee('Operator skenario demo')->assertDontSee(config('hris.demo_operator_token'));
             $shift = RosterShift::orderBy('id')->firstOrFail();
             $input = ['idempotency_key' => (string) Str::uuid(), 'roster_shift_id' => $shift->id, 'direction' => 'in', 'mode' => 'outside'];
             $this->postJson('/demo/clock', $input)->assertUnprocessable()->assertJsonPath('code', 'outside_geofence');

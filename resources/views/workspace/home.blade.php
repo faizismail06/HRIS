@@ -1,5 +1,7 @@
 <x-identity-layout title="Ruang kerja Anda">
     <p>Selamat datang, {{ $user->name }}. Akun Anda telah melewati verifikasi dua langkah.</p>
+    @if (App\Domain\Demo\DemoBoundary::enabled())<p class="identity-notice">DEMO · Data sintetis. <a class="inline-link" href="{{ route('demo.operator') }}">Buka kontrol skenario dengan token operator</a></p>@endif
+    <section class="identity-section"><h2>Pengajuan dalam peninjauan</h2><ul class="identity-directory">@forelse ($recent as $item)<li><a class="inline-link" href="{{ route('workspace.requests.show', $item->id) }}">{{ App\Http\Controllers\WorkflowWorkspaceController::KINDS[$item->kind] ?? $item->kind }} #{{ $item->id }}</a><p>{{ $item->submitted_by === $user->id ? 'Pengajuan Anda' : 'Sesuai mandat akses Anda' }} · Versi {{ $item->version }}</p></li>@empty<li>Belum ada pengajuan dalam peninjauan pada daftar yang dapat Anda akses.</li>@endforelse</ul><p><a class="inline-link" href="{{ route('workspace.requests', ['status' => 'in_review']) }}">Lihat seluruh daftar peninjauan</a></p></section>
     <section class="identity-section"><h2>Akses yang diberikan</h2>
         <ul>@forelse ($user->grants as $grant)<li>{{ str_replace('_', ' ', $grant->role) }} · {{ $grant->scope }}</li>@empty<li>Belum ada peran. Hubungi admin perusahaan untuk meminta akses.</li>@endforelse</ul>
     </section>

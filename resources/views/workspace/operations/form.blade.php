@@ -2,8 +2,16 @@
     <p><a class="inline-link" href="{{ route('workspace.modules') }}">Ruang kerja</a> / {{ $spec['title'] }}</p>
     @if ($result !== null)
         <section class="identity-section" aria-label="Hasil tindakan" tabindex="-1" data-operation-result>
-            <h2>{{ $spec['method'] === 'GET' ? 'Rincian' : 'Hasil tersimpan' }}</h2>
+            <h2>{{ ($resultStatus ?? 200) >= 400 ? 'Periksa hasil tindakan' : ($spec['method'] === 'GET' ? 'Rincian' : 'Hasil tersimpan') }}</h2>
+            @if (($resultStatus ?? 200) >= 400)<p class="identity-notice">Tindakan belum selesai. Periksa perubahan sumber atau kesalahan di bawah, muat catatan terbaru, lalu ulangi tindakan yang sesuai.</p>@endif
             @include('workspace.operations.result', ['value' => $result, 'depth' => 0])
+            @if (isset($result['current_page'], $result['last_page']))
+                <nav class="workspace-actions" aria-label="Halaman hasil">
+                    @if ($result['current_page'] > 1)<a class="inline-link" href="{{ request()->fullUrlWithQuery(['page' => $result['current_page'] - 1, 'run' => 1]) }}">Sebelumnya</a>@endif
+                    <span>Halaman {{ $result['current_page'] }} dari {{ $result['last_page'] }}</span>
+                    @if ($result['current_page'] < $result['last_page'])<a class="inline-link" href="{{ request()->fullUrlWithQuery(['page' => $result['current_page'] + 1, 'run' => 1]) }}">Berikutnya</a>@endif
+                </nav>
+            @endif
             @if (isset($result['id']))
                 <p class="workspace-actions">
                     @foreach (App\Support\WorkspaceOperations::related($spec['key']) as $target)
@@ -20,10 +28,10 @@
         @if ($spec['method'] === 'POST')@csrf<input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) Illuminate\Support\Str::uuid()) }}">@else<input type="hidden" name="run" value="1">@endif
         <div data-operation-fields></div>
         <noscript><p class="identity-errors">Aktifkan JavaScript untuk memuat pilihan data dan formulir ini.</p></noscript>
-        <label>Zona waktu untuk isian tanggal dan jam<select name="form_timezone"><option value="Asia/Jakarta">WIB · Asia/Jakarta</option><option value="Asia/Makassar">WITA · Asia/Makassar</option><option value="Asia/Jayapura">WIT · Asia/Jayapura</option><option value="UTC">UTC</option></select></label>
-        <p class="history-note">Nominal diisi dalam rupiah tanpa pemisah ribuan. Gunakan titik untuk pecahan, misalnya 12500.50.</p>
+        @if (App\Support\WorkspaceOperations::hasType($spec['fields'], 'instant'))<label>Zona waktu untuk isian tanggal dan jam<select name="form_timezone"><option value="Asia/Jakarta">WIB · Asia/Jakarta</option><option value="Asia/Makassar">WITA · Asia/Makassar</option><option value="Asia/Jayapura">WIT · Asia/Jayapura</option><option value="UTC">UTC</option></select></label>@endif
+        @if (App\Support\WorkspaceOperations::hasType($spec['fields'], 'money'))<p class="history-note">Nominal diisi dalam rupiah tanpa pemisah ribuan. Gunakan titik untuk pecahan, misalnya 12500.50.</p>@endif
         <button class="primary-button" type="submit" data-operation-submit>{{ $spec['method'] === 'GET' ? 'Tampilkan / unduh' : ($spec['workflow'] ? 'Simpan draf pengajuan' : 'Simpan tindakan') }}</button>
         <p role="status" data-operation-status></p>
-        <script type="application/json" data-operation-schema>{!! Illuminate\Support\Js::encode(['fields' => $spec['fields'], 'values' => $values, 'optionsUrl' => url('/app/options'), 'profileVersionUrl' => route('workspace.profile-version')]) !!}</script>
+        <script type="application/json" data-operation-schema>{!! Illuminate\Support\Js::encode(['fields' => $spec['fields'], 'values' => $values, 'errors' => $errors->messages(), 'optionsUrl' => url('/app/options'), 'profileVersionUrl' => route('workspace.profile-version')]) !!}</script>
     </form>
 </x-identity-layout>

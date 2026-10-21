@@ -4,9 +4,14 @@ namespace App\Support;
 
 class OperationPresentation
 {
+    public static function money(string $key): bool
+    {
+        return str_ends_with($key, '_minor') || $key === 'up_to';
+    }
+
     public static function hidden(string $key): bool
     {
-        return in_array($key, ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'content', 'pdf_content', 'path', 'source_path', 'input_hash', 'http_status', 'security_version', 'file_sha256', 'sha256']);
+        return in_array($key, ['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes', 'content', 'pdf_content', 'path', 'source_path', 'input_hash', 'http_status', 'security_version', 'file_sha256', 'sha256', 'links', 'first_page_url', 'last_page_url', 'next_page_url', 'prev_page_url']);
     }
 
     public static function decode(mixed $value): mixed

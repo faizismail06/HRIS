@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\CoreHR\EmployeeVisibility;
+use App\Domain\Workflow\WorkflowListing;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -11,7 +12,9 @@ class WorkspaceController extends Controller
 {
     public function home(Request $request)
     {
-        return view('workspace.home', ['user' => $request->user()]);
+        $page = app(WorkflowListing::class)->page($request->user(), 'in_review');
+
+        return view('workspace.home', ['user' => $request->user(), 'recent' => array_slice($page['data'], 0, 5)]);
     }
 
     public function employees(Request $request, ?string $employee = null)

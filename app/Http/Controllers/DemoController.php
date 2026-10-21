@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Domain\Attendance\AttendanceService;
 use App\Domain\Demo\DemoBoundary;
+use App\Domain\Identity\AccountSecurity;
 use App\Domain\Identity\Audit;
 use App\Models\RosterShift;
 use App\Models\User;
@@ -13,6 +14,16 @@ use Illuminate\Support\Facades\DB;
 
 class DemoController extends Controller
 {
+    public function workspace(Request $r)
+    {
+        abort_unless(DemoBoundary::enabled(), 404);
+        DemoBoundary::database();
+        $active = $r->user() && AccountSecurity::available($r->user()) && (int) $r->session()->get('auth.security_version', 0) === (int) $r->user()->security_version && (int) $r->session()->get('auth.mfa_user') === (int) $r->user()->id;
+        $shifts = $active && $r->user()->employee_id ? RosterShift::where('employee_id', $r->user()->employee_id)->where('status', 'published')->where('is_day_off', false)->orderByDesc('work_date')->limit(100)->get() : collect();
+
+        return view('demo.operator', ['shifts' => $shifts]);
+    }
+
     private function operator(Request $r): void
     {
         DemoBoundary::operator($r->header('X-Demo-Operator-Token'));

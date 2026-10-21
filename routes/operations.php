@@ -35,6 +35,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('/lifecycle-tasks/{id}/reassign', [LifecycleController::class, 'reassign'])->whereNumber('id');
     Route::post('/lifecycle-cases/{id}/close', [LifecycleController::class, 'close'])->whereNumber('id');
     Route::post('/asset-settlements/{id}/resolve', [AssetController::class, 'resolve'])->whereNumber('id');
+    Route::get('/asset-settlements/{id}', [AssetController::class, 'settlement'])->whereNumber('id');
     Route::post('/workflow-delegations', [WorkflowOperationsController::class, 'delegate']);
     Route::post('/workflow-delegations/{id}/revoke', [WorkflowOperationsController::class, 'revoke'])->whereNumber('id');
     Route::get('/notification-preferences', [WorkflowOperationsController::class, 'preferences']);
@@ -96,6 +97,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::get('/documents/{id}/download', [DocumentController::class, 'download'])->whereNumber('id');
     Route::get('/employees/{id}/contracts', [DocumentController::class, 'contracts'])->whereNumber('id');
     Route::post('/accounts/{id}/access', [AccountAdministrationController::class, 'access'])->whereNumber('id');
+    Route::get('/accounts/{id}', [AccountAdministrationController::class, 'show'])->whereNumber('id');
     Route::post('/accounts/{id}/suspensions', [AccountAdministrationController::class, 'suspend'])->whereNumber('id');
     Route::post('/account-suspensions/{id}/revoke', [AccountAdministrationController::class, 'revoke'])->whereNumber('id');
     Route::get('/employees/{id}/private-profile/{category}', [PrivateProfileController::class, 'show'])->whereNumber('id');

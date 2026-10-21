@@ -17,13 +17,21 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ReportExports
 {
+    public static function authorize(User $actor, string $kind): void
+    {
+        $fresh = User::findOrFail($actor->id);
+        abort_unless(AccountSecurity::available($fresh) && $fresh->security_version === $actor->security_version, 403);
+        app(ReportService::class)->authorize($fresh, $kind);
+        abort_if($fresh->grants()->where('role', 'auditor')->exists() && ! $fresh->auditor_export_enabled, 403, 'Mandat baca auditor tidak mencakup ekspor. Admin platform harus memberikan izin ekspor eksplisit.');
+    }
+
     public function request(User $actor, string $kind, string $key, array $input): array
     {
-        app(ReportService::class)->authorize($actor, $kind);
+        self::authorize($actor, $kind);
         $d = Validator::make($input, ['format' => ['required', 'in:csv,xlsx'], 'reason' => ['required', 'string', 'max:1000']])->validate();
         $filters = app(ReportService::class)->filters($input);
 
-        return Mutation::run($actor, 'report.export.request', $key, compact('kind', 'd', 'filters'), fn ($u) => app(ReportService::class)->authorize($u, $kind), function ($u) use ($kind, $d, $filters) {
+        return Mutation::run($actor, 'report.export.request', $key, compact('kind', 'd', 'filters'), fn ($u) => self::authorize($u, $kind), function ($u) use ($kind, $d, $filters) {
             $id = DB::table('report_exports')->insertGetId(['created_by' => $u->id, 'security_version' => $u->security_version, 'kind' => $kind, 'format' => $d['format'], 'filters' => json_encode($filters), 'reason' => encrypt($d['reason']), 'expires_at' => now()->addHours(24), 'created_at' => now(), 'updated_at' => now()]);
             DB::afterCommit(fn () => BuildReportExport::dispatch($id));
             Audit::record($u->id, 'report.export_requested', 'report_export', $id, ['kind' => $kind, 'format' => $d['format'], 'reason_provided' => true]);
@@ -42,6 +50,7 @@ class ReportExports
             }
             $actor = User::findOrFail($e->created_by);
             abort_unless(AccountSecurity::available($actor) && $actor->security_version === $e->security_version && CarbonImmutable::parse($e->expires_at) > now(), 403);
+            self::authorize($actor, $e->kind);
             $report = app(ReportService::class)->build($actor, $e->kind, json_decode($e->filters, true));
             $columns = $report['data'] ? array_keys($report['data'][0]) : ['record_id', 'employee_id', 'work_date'];
             if ($report['watermark']) {
@@ -97,7 +106,7 @@ class ReportExports
     private function owned(User $actor, int $id): object
     {
         $e = DB::table('report_exports')->where('id', $id)->where('created_by', $actor->id)->firstOrFail();
-        app(ReportService::class)->authorize($actor, $e->kind);
+        self::authorize($actor, $e->kind);
         abort_unless($actor->security_version === $e->security_version, 403);
 
         return $e;

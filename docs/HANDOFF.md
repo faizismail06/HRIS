@@ -209,3 +209,7 @@ Full suite lulus178 tests /2830 assertions; Pint dan diff-check lulus. Career wo
 ## Jadwal entitlement cuti
 
 LeaveGrantSchedulesTest3 tests /32 assertions dan MigrationFreshTest lulus (gabungan4/50); regression cuti/workflow/lifecycle28/348 lulus sebelum penambahan pilihan expiry_rule eksplisit. Pint/diff-check lulus. Jadwal annual/monthly draft→independent HR approval→server-date catch-up memakai ledger dan run unik append-only. Grant produksi tidak di-seed. LEAVE_GRANT_SCHEDULES.md mencatat expiry calendar-year-end yang wajib dipilih, penerima eksplisit, stop tanpa clawback, overlap guard dan batas carry-over/expiry posting. Migrasi280000 diterapkan dev/test tanpa reset.
+
+## Rekonsiliasi expiry dan transfer hak cuti
+
+20 tests /260 assertions cuti/report/migration lulus, Pint/diff-check lulus. Debit adjustment tidak mengambil reserved/used credit; source-linked carry-over satu transfer per lot menulis debit sumber dan kredit tahun berikutnya atomik. Scheduler append-only expiry/reversal menyesuaikan release/cancellation setelah expired sambil menjaga reservation tanggal kerja lama. Balances, reservation allocator dan report as-of memakai kapasitas setelah adjustment. Migrasi290000 diterapkan dev/test tanpa reset.

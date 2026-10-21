@@ -95,6 +95,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('/leave-types', [LeaveController::class, 'type'])->name('leave.types.store');
     Route::get('/leave-types', [LeaveController::class, 'types'])->name('leave.types');
     Route::post('/leave-credits', [LeaveController::class, 'grant'])->name('leave.grant');
+    Route::post('/leave-credits/{id}/changes', [LeaveController::class, 'change'])->whereNumber('id');
     Route::get('/my-leave-balances', [LeaveController::class, 'balances'])->name('leave.balances');
     Route::post('/work-locations', [AttendanceController::class, 'location'])->name('locations.store');
     Route::post('/staffing-policies', [AttendanceController::class, 'staffing']);

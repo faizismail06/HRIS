@@ -6,6 +6,7 @@ use App\Domain\Attendance\AttendanceService;
 use App\Domain\CoreHR\EmployeeVisibility;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
+use App\Domain\Leave\LotAccounting;
 use App\Models\Employee;
 use App\Models\RosterShift;
 use App\Models\User;
@@ -97,7 +98,8 @@ class ReportService
                 $ledger = DB::table('leave_ledger')->where('leave_credit_lot_id', $lot->id)->where('created_at', '<', $f['ends_on']);
                 $reserved = max(0, -(int) (clone $ledger)->whereIn('kind', ['reservation', 'release'])->sum('minutes'));
                 $used = max(0, -(int) (clone $ledger)->whereIn('kind', ['usage', 'reversal'])->sum('minutes'));
-                $rows[] = ['record_id' => $lot->id, 'employee_id' => $lot->employee_id, 'work_date' => $date, 'type_code' => $lot->type_code, 'year' => $lot->entitlement_year, 'credited_minutes' => $lot->minutes, 'reserved_minutes' => $reserved, 'used_minutes' => $used, 'available_minutes' => $lot->valid_until > $date ? max(0, $lot->minutes - $reserved - $used) : 0];
+                $capacity = LotAccounting::capacity($lot, $f['ends_on']);
+                $rows[] = ['record_id' => $lot->id, 'employee_id' => $lot->employee_id, 'work_date' => $date, 'type_code' => $lot->type_code, 'year' => $lot->entitlement_year, 'credited_minutes' => $lot->minutes, 'adjusted_credit_minutes' => $capacity, 'reserved_minutes' => $reserved, 'used_minutes' => $used, 'available_minutes' => $lot->valid_until > $date ? max(0, $capacity - $reserved - $used) : 0];
             }
         } elseif ($kind === 'contracts') {
             $date = CarbonImmutable::parse($f['ends_on'])->subDay()->toDateString();

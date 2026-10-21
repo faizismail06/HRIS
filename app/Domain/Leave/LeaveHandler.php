@@ -56,7 +56,7 @@ class LeaveHandler implements WorkflowHandler
             $lots = DB::table('leave_credit_lots')->where('employee_id', $r->employee_id)->where('type_code', $type->code)->where('entitlement_year', $year)->where('valid_from', '<=', $segment['work_date'])->where('valid_until', '>', $segment['work_date'])->orderBy('valid_until')->orderBy('id')->lockForUpdate()->get();
             foreach ($lots as $lot) {
                 $allocated = (int) DB::table('leave_allocations')->where('leave_credit_lot_id', $lot->id)->whereIn('state', ['reserved', 'used'])->sum('minutes');
-                $take = min($remaining, max(0, $lot->minutes - $allocated));
+                $take = min($remaining, max(0, LotAccounting::capacity($lot) - $allocated));
                 if (! $take) {
                     continue;
                 }

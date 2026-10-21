@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Domain\Leave\LotAccounting;
 use App\Models\Branch;
 use App\Models\Company;
 use App\Models\Department;
@@ -150,6 +151,25 @@ class LeaveDomainTest extends TestCase
         $this->action($id, 'submit', 1)->assertOk();
         $allocations = DB::table('leave_allocations')->join('leave_credit_lots', 'leave_credit_lots.id', '=', 'leave_allocations.leave_credit_lot_id')->orderBy('entitlement_year')->pluck('leave_allocations.minutes', 'entitlement_year')->all();
         $this->assertSame([2026 => 480, 2027 => 480], $allocations);
+    }
+
+    public function test_expiry_keeps_pending_reservations_and_expires_later_releases(): void
+    {
+        $this->shift('2026-12-31');
+        $this->credit(960, 2026);
+        $id = $this->request('2026-12-31', '2026-12-31');
+        $this->action($id, 'submit', 1)->assertOk();
+        $lot = DB::table('leave_credit_lots')->sole();
+        $this->login($this->hr)->postJson('/app/api/leave-credits/'.$lot->id.'/changes', ['idempotency_key' => (string) Str::uuid(), 'kind' => 'debit', 'minutes' => 481, 'reason' => 'Cannot take reserved credit'])->assertUnprocessable();
+        $this->travelTo(Carbon::parse('2027-01-02 12:00:00'));
+        app(LotAccounting::class)->reconcileExpiry();
+        $this->assertSame(-480, (int) DB::table('leave_ledger')->where('kind', 'expiry')->sum('minutes'));
+        $this->login($this->worker);
+        $this->action($id, 'withdraw', 2, ['reason' => 'Synthetic withdrawal after expiry'])->assertOk();
+        app(LotAccounting::class)->reconcileExpiry();
+        app(LotAccounting::class)->reconcileExpiry();
+        $this->assertSame(-960, (int) DB::table('leave_ledger')->where('kind', 'expiry')->sum('minutes'));
+        $this->getJson('/app/api/my-leave-balances')->assertJsonPath('0.available_minutes', 0);
     }
 
     public function test_reject_releases_and_cancel_approved_leave_requires_another_approval(): void

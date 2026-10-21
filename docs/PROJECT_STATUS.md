@@ -7,7 +7,7 @@ Pembaruan 21 Oktober 2026: modul backend domain/API utama tersedia dan diuji di 
 | Area | Backend | UI/infrastruktur |
 | --- | --- | --- |
 | Akun/organisasi/karyawan | Login/MFA/scope, suspension/revoke, effective assignments, private profiles/custom fields dan import | Form CoreHR awal operasional; seluruh preview belum |
-| Approval/notifikasi | Typed workflows, independent decisions, idempotency/locks, delegasi, business deadlines, outbox/retry/digest/preferences/health | Task/inbox belum seluruhnya terhubung; SMTP nyata belum |
+| Approval/notifikasi | Typed workflows, independent decisions, idempotency/locks, delegasi, business deadlines, outbox/retry/digest/preferences/health | /app/requests: daftar/filter/detail; draf cuti, pembatalan, lembur, koreksi; bukti privat; submit/withdraw/review operasional. Jenis lain baru status; SMTP nyata belum |
 | Attendance/cuti/lembur | Roster/staffing/GPS/photo/remote/field, corrections/swaps, ledger/grants/expiry/carry-over, HR exceptions, actual OT dan close/revisions | Kamera/GPS/browser dan UAT perusahaan belum disahkan |
 | Administrasi | PDF/templates/numbering/snapshots/preview, kontrak, karier/retrospective, onboarding/rehire/exit/tasks/assets | Pengesahan lintas peran dan seluruh form binding belum |
 | Finance | Draft policy expert gate, exact arithmetic/YTD/openings, regular/off-cycle adjustments, slips, payment outcomes dan reimbursement batch/unpaid-only retry | Kebijakan/layout bank belum disahkan; tidak ada transfer bank nyata |
@@ -18,7 +18,7 @@ Rincian API/batas engine: [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md). Deployment
 
 ## Tahap berikut
 
-Hubungkan dashboard/form ke API memakai session/CSRF/MFA, role/scope, optimistic version dan idempotency key. Uji perjalanan lintas peran sampai hasil final serta loading/validation/conflict/retry, lalu QA browser/mobile/accessibility, UAT HR/Finance dan deployment terkontrol. Modul API tersedia tidak berarti form statis disabled sudah berfungsi.
+Lanjutkan integrasi layar attendance/roster, administrasi, finance dan import/report. Form /app/requests menggunakan layanan domain yang sama dengan API, session/CSRF/MFA, optimistic version dan idempotency key. WorkflowWorkspaceTest menguji cuti→bukti→submit→independent approval, replay, konflik versi, izin dan privasi medis; waktu lembur memakai zona shift terpilih. Modul API tersedia tidak berarti seluruh form statis disabled sudah berfungsi.
 
 Inventaris visual mencakup tujuh beranda peran, 48 form awal/invalid dan 12 state di [STATIC_SCREENS.md](STATIC_SCREENS.md). QA render tetap **recapture** karena browser sebelumnya tidak tersedia; build/HTTP tests tidak menggantikan hasil render/keyboard/zoom/kontras/screen reader.
 

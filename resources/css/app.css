@@ -32,6 +32,10 @@
 .identity-directory p, .identity-facts dt { color: var(--muted); }
 .identity-facts { margin: 24px 0; }
 .identity-facts dd { margin: 6px 0 0; }
+.workspace-actions { display: flex; flex-wrap: wrap; gap: 12px 20px; margin: 24px 0; align-items: center; }
+.workspace-actions [aria-current="page"] { font-weight: 700; text-decoration-thickness: 2px; }
+.workflow-steps { list-style: decimal; padding-left: 24px; }
+.workflow-steps li { padding: 12px 0; }
 @media (max-width: 480px) { .hris-app main.identity-shell { padding: 24px 20px 48px; } .identity-codes { grid-template-columns: 1fr; } .identity-form button { width: 100%; } }
 
 .hris-app {

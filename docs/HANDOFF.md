@@ -245,3 +245,9 @@ ConcurrentLeaveTest menjalankan dua proses PHP sungguhan dengan start barrier da
 Validasi akhir: suite200/3298 dan targeted carry-over2/32 lulus, Pint lulus, composer validate --strict serta check-platform-reqs lulus pada PHP8.5.11, npm run build lulus, diff-check bersih. API workspace tercatat114rute pada verifikasi21Oktober2026. .env di-ignore dan tidak dilacak. README/PROJECT_STATUS/BACKEND_DELIVERY/BACKEND_ACCEPTANCE diperbarui agar status fondasi lama tidak disalahartikan sebagai cakupan API saat ini.
 
 Tahap berikut: integrasi UI/session/CSRF/version/idempotency dan UAT lintas peran; konfigurasi/pengesahan kebijakan perusahaan, SMTP/worker/host dan backup produksi. Tidak mengklaim statutory golden payroll, UI render acceptance, production RPO/RTO atau deployment telah disahkan. Demo masih satu instalasi per skenario, dengan Clock attendance/documents; bounded engines/scale limits dicatat per modul.
+
+## Integrasi layar pengajuan
+
+/app/requests sekarang operasional melalui layanan domain yang sama dengan API: cursor/filter daftar berizin, detail/status/tahapan, draf cuti/pembatalan/lembur/koreksi, bukti privat dan submit/withdraw/independent decisions. Jenis workflow lain hanya status; approval finansial tidak ditampilkan lewat form generik. Medical reason/evidence dibatasi pemilik/HR dengan predicate privat yang sama seperti download. Waktu datetime-local ditafsirkan pada timezone shift; optimistic version dan UUID mutation dijaga server, konflik mempunyai recovery muat ulang.
+
+WorkflowWorkspaceTest +WorkflowOperationsTest +LeaveDomainTest:22tests/279assertions lulus; npm build, Blade cache dan Pint lulus. Browser inventory kosong sehingga QA visual/keyboard 360/1440 masih belum diverifikasi. Tidak ada migrasi/reset database dev, perubahan .env atau pengesahan kebijakan produksi. Tahap lanjut: notifikasi/search, attendance/roster, administration/finance/import/report UI.

@@ -9,5 +9,9 @@
     @if (App\Domain\Identity\Access::companyPermission($user, 'employees.manage'))
         <p><a class="inline-link" href="{{ route('workspace.changes') }}">Tinjau pengajuan perubahan karyawan</a></p>
     @endif
-    <p class="history-note">Modul operasional sedang dibangun. Direktori dan pengajuan perubahan identitas kerja/penempatan tersedia sesuai izin. Alur HR lainnya menyusul.</p>
+    <section class="identity-section"><h2>Pengajuan dan persetujuan</h2>
+        <p>Ajukan cuti, pembatalan cuti, lembur atau koreksi kehadiran. Pantau status dan tinjau pengajuan sesuai kewenangan Anda.</p>
+        <p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.requests') }}">Buka pengajuan</a></p>
+    </section>
+    <p class="history-note">Direktori, organisasi, perubahan karyawan dan pengajuan terhubung ke data aplikasi. Layar prototipe modul lain tetap memakai data sintetis.</p>
 </x-identity-layout>

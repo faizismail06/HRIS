@@ -15,6 +15,7 @@
         @auth
             <nav class="identity-nav" aria-label="Navigasi akun">
                 <a class="inline-link" href="{{ route('workspace.home') }}">Beranda</a>
+                <a class="inline-link" href="{{ route('workspace.requests') }}">Pengajuan</a>
                 @can('viewAny', App\Models\Employee::class)
                     <a class="inline-link" href="{{ route('workspace.employees') }}">Karyawan</a>
                 @endcan

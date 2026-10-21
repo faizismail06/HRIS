@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\WorkflowWorkspaceController;
 use App\Http\Controllers\WorkspaceController;
 use App\Http\Middleware\PrivateAuthResponse;
 use App\Http\Middleware\RequireMfa;
@@ -12,6 +13,12 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
+        Route::get('/requests', [WorkflowWorkspaceController::class, 'index'])->name('requests');
+        Route::get('/requests/create', [WorkflowWorkspaceController::class, 'create'])->name('requests.create');
+        Route::post('/requests', [WorkflowWorkspaceController::class, 'store'])->middleware('throttle:60,1')->name('requests.store');
+        Route::get('/requests/{id}', [WorkflowWorkspaceController::class, 'show'])->whereNumber('id')->name('requests.show');
+        Route::post('/requests/{id}/attachments', [WorkflowWorkspaceController::class, 'upload'])->whereNumber('id')->middleware('throttle:30,1')->name('requests.upload');
+        Route::post('/requests/{id}/{action}', [WorkflowWorkspaceController::class, 'action'])->whereNumber('id')->where('action', 'submit|withdraw|decide')->middleware('throttle:60,1')->name('requests.action');
         Route::get('/organization/{kind?}', [OrganizationController::class, 'index'])->where('kind', 'branches|departments|jobs')->name('organization');
         Route::get('/organization/{kind}/create', [OrganizationController::class, 'form'])->where('kind', 'branches|departments|jobs')->name('organization.create');
         Route::post('/organization/{kind}', [OrganizationController::class, 'store'])->where('kind', 'branches|departments|jobs')->name('organization.store');

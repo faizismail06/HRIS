@@ -69,8 +69,7 @@ class PrivateFiles
             $request = WorkflowRequest::findOrFail($file->subject_id);
             abort_unless(WorkflowAccess::visible($actor, $request), 404);
             if ($file->classification === 'medical') {
-                $delegatedReview = $request->steps()->whereIn('role', ['hr_admin', 'hr_officer'])->get()->contains(fn ($step) => in_array($actor->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($actor, $request, $step));
-                abort_unless($this->canWrite($actor, $request) || $delegatedReview, 404);
+                abort_unless($this->canReadMedical($actor, $request), 404);
             }
         }
         abort_unless(Storage::disk('local')->exists($file->path), 404);
@@ -79,6 +78,13 @@ class PrivateFiles
         return Storage::disk('local')->download($file->path, 'evidence-'.$file->id.'.'.match ($file->mime) {
             'image/png' => 'png','image/jpeg' => 'jpg',default => 'pdf'
         }, ['Content-Type' => $file->mime, 'Cache-Control' => 'no-store, private', 'X-Content-Type-Options' => 'nosniff']);
+    }
+
+    public function canReadMedical(User $actor, WorkflowRequest $request): bool
+    {
+        $delegatedReview = $request->steps()->whereIn('role', ['hr_admin', 'hr_officer'])->get()->contains(fn ($step) => in_array($actor->id, $step->approver_ids, true) && WorkflowAccess::stepEligible($actor, $request, $step));
+
+        return $this->canWrite($actor, $request) || $delegatedReview;
     }
 
     private function canWrite(User $actor, WorkflowRequest $request): bool

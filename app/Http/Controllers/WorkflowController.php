@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\Workflow\WorkflowAccess;
+use App\Domain\Workflow\WorkflowListing;
 use App\Domain\Workflow\WorkflowRegistry;
 use App\Domain\Workflow\WorkflowService;
 use App\Http\Requests\OperationalRequest;
@@ -52,23 +53,9 @@ class WorkflowController extends Controller
     public function index(Request $r)
     {
         $data = $r->validate(['status' => ['nullable', 'in:draft,in_review,blocked,approved,rejected,withdrawn'], 'cursor' => ['nullable', 'integer', 'min:0']]);
-        // Cursor scans preserve permission filtering before returning any row or count.
-        $query = WorkflowRequest::where('id', '>', (int) ($data['cursor'] ?? 0))->orderBy('id');
-        if (isset($data['status'])) {
-            $query->where('status', $data['status']);
-        }
-        $rows = [];
-        $cursor = (int) ($data['cursor'] ?? 0);
-        foreach ($query->limit(200)->get() as $record) {
-            $cursor = $record->id;
-            if (WorkflowAccess::visible($r->user(), $record)) {
-                $rows[] = $record;
-            } if (count($rows) === 20) {
-                break;
-            }
-        }
+        $page = app(WorkflowListing::class)->page($r->user(), $data['status'] ?? null, (int) ($data['cursor'] ?? 0));
 
-        return response()->json(['data' => $rows, 'next_cursor' => $cursor]);
+        return response()->json(['data' => $page['data'], 'next_cursor' => $page['next_cursor']]);
     }
 
     public function show(Request $r, string $id)

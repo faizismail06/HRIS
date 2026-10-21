@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Attendance\AttendanceService;
 use App\Domain\Attendance\CalendarService;
 use App\Domain\Attendance\ScheduleService;
+use App\Domain\Attendance\StaffingService;
 use App\Domain\CoreHR\EmployeeVisibility;
 use App\Http\Requests\OperationalRequest;
 use App\Models\RosterShift;
@@ -47,7 +48,14 @@ class AttendanceController extends Controller
     {
         $data = $r->validate(['checksum' => ['required', 'string', 'size:64']]);
 
-        return response()->json($s->publish($r->user(), (int) $id, $r->version(), $r->key(), $data['checksum']));
+        $r->validate(['acknowledge_warnings' => ['sometimes', 'boolean']]);
+
+        return response()->json($s->publish($r->user(), (int) $id, $r->version(), $r->key(), $data['checksum'], $r->boolean('acknowledge_warnings')));
+    }
+
+    public function staffing(OperationalRequest $r, StaffingService $s)
+    {
+        return response()->json($s->define($r->user(), $r->key(), $r->all()), 201);
     }
 
     public function clock(OperationalRequest $r, string $direction, AttendanceService $s)

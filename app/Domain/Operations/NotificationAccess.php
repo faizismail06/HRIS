@@ -2,10 +2,12 @@
 
 namespace App\Domain\Operations;
 
+use App\Domain\CoreHR\EmployeeVisibility;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\AccountSecurity;
 use App\Domain\Lifecycle\LifecycleService;
 use App\Domain\Workflow\WorkflowAccess;
+use App\Models\RosterShift;
 use App\Models\User;
 use App\Models\WorkflowRequest;
 use Illuminate\Support\Facades\DB;
@@ -37,6 +39,11 @@ class NotificationAccess
             $row = DB::table('payroll_rows')->find($event->subject_id);
 
             return $row && (($user->employee_id === $row->employee_id && $user->grants()->where('role', 'employee')->where('scope', 'self')->exists()) || Access::companyPermission($user, 'payroll.prepare') || Access::companyPermission($user, 'payroll.approve'));
+        }
+        if ($event->subject_type === 'roster_shift') {
+            $shift = RosterShift::find($event->subject_id);
+
+            return $shift && EmployeeVisibility::query($user, $shift->work_date)->whereKey($shift->employee_id)->exists();
         }
 
         return false;

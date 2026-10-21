@@ -197,3 +197,7 @@ Full suite lulus167 tests / 2668 assertions sebelum ekstensi operasi berikutnya.
 ## Delegasi/kalender/notifikasi
 
 WorkflowExtensionsTest5 tests /62 assertions lulus; WorkflowOperationsTest10/100 dan swap regression juga lulus. Delegasi subjek eksplisit dengan provenance decision, future activation/revoke runtime, SLA kalender kerja/holiday/timezone, quiet hours, opt-out dan daily digest nyata tersedia. Inbox/delivery recheck access; expired export byte cleanup dijadwalkan. Detail WORKFLOW_EXTENSIONS.md. Belum ada SMTP nyata; default policy lama elapsed24/48jam harus dikonfigurasi eksplisit untuk SLA kerja.
+
+## Attendance policies dan supersession roster
+
+AttendancePolicyTest3/47 serta regression attendance/import/swap/close lulus. Remote/field policy server-side, future roster replacement dengan source/version/history guard, minimum staffing interval yang mengurangi breaks, warning acknowledgement/blocking policy dan branch-timezone close tersedia. ATTENDANCE_POLICIES.md mencatat konfigurasi dan batas eligibility khusus. Tidak ada angka minimum staffing bawaan.

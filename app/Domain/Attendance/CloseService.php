@@ -5,7 +5,9 @@ namespace App\Domain\Attendance;
 use App\Domain\CoreHR\CoreWrite;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
+use App\Domain\Operations\Clock;
 use App\Domain\Operations\Mutation;
+use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\RosterShift;
 use App\Models\User;
@@ -84,9 +86,10 @@ class CloseService
     {
         $blockers = [];
         $rows = [];
-        $start = CarbonImmutable::parse($period->starts_on);
-        $end = CarbonImmutable::parse($period->ends_on);
-        if ($end > today()) {
+        $timezone = Branch::findOrFail($period->branch_id)->timezone;
+        $start = CarbonImmutable::parse($period->starts_on, $timezone);
+        $end = CarbonImmutable::parse($period->ends_on, $timezone);
+        if ($end > app(Clock::class)->now()) {
             $blockers[] = ['code' => 'period_not_ended'];
         }
         $shifts = RosterShift::where('status', 'published')->where('work_date', '>=', $period->starts_on)->where('work_date', '<', $period->ends_on)->orderBy('id')->get()->filter(fn ($s) => $s->snapshot['branch_id'] === $period->branch_id);
@@ -110,6 +113,9 @@ class CloseService
                 }
             }
             $employee = Employee::findOrFail($shift->employee_id);
+            if (! in_array($employee->statusAt($shift->work_date), ['ACTIVE', 'OFFBOARDING'])) {
+                $blockers[] = ['code' => 'shift_outside_active_employment', 'roster_shift_id' => $shift->id];
+            }
             $rows[] = ['roster_shift_id' => $shift->id, 'employee_id' => $shift->employee_id, 'employee_number' => $employee->employee_number, 'employee_name' => $employee->name, 'employee_version' => $employee->version, 'work_date' => $shift->work_date, 'timezone' => $shift->timezone, 'shift_snapshot' => $shift->snapshot, 'result' => json_decode(json_encode($result), true), 'overtime' => $overtime->map(fn ($o) => ['id' => $o->id, 'version' => $o->version, 'payable_minutes' => $o->payable_minutes, 'verified_by' => $o->verified_by, 'attendance_version' => $o->attendance_version])->all()];
         }
         $employees = Employee::whereHas('assignments', fn ($q) => $q->where('branch_id', $period->branch_id)->where('valid_from', '<', $period->ends_on)->where(fn ($q) => $q->whereNull('valid_to')->orWhere('valid_to', '>', $period->starts_on)))->get();

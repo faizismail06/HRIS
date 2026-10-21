@@ -87,6 +87,7 @@ Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function
     Route::post('/leave-credits', [LeaveController::class, 'grant'])->name('leave.grant');
     Route::get('/my-leave-balances', [LeaveController::class, 'balances'])->name('leave.balances');
     Route::post('/work-locations', [AttendanceController::class, 'location'])->name('locations.store');
+    Route::post('/staffing-policies', [AttendanceController::class, 'staffing']);
     Route::post('/work-calendar-dates', [AttendanceController::class, 'calendarDate'])->name('calendar.store');
     Route::get('/team-calendar', [AttendanceController::class, 'teamCalendar'])->name('calendar.team');
     Route::post('/shift-templates', [AttendanceController::class, 'template'])->name('shifts.store');

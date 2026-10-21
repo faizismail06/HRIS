@@ -18,7 +18,7 @@ class AttendanceService
     public function clock(User $actor, string $direction, string $key, array $input): array
     {
         $data = Validator::make($input, [
-            'roster_shift_id' => ['required', 'integer', 'exists:roster_shifts,id'], 'latitude' => ['required', 'numeric', 'between:-90,90'], 'longitude' => ['required', 'numeric', 'between:-180,180'], 'accuracy_m' => ['required', 'numeric', 'min:0'],
+            'roster_shift_id' => ['required', 'integer', 'exists:roster_shifts,id'], 'latitude' => ['nullable', 'required_with:longitude,accuracy_m', 'numeric', 'between:-90,90'], 'longitude' => ['nullable', 'required_with:latitude,accuracy_m', 'numeric', 'between:-180,180'], 'accuracy_m' => ['nullable', 'required_with:latitude,longitude', 'numeric', 'min:0'],
             'occurred_at' => ['prohibited'], 'employee_id' => ['prohibited'], 'simulation' => ['prohibited'], 'scenario_id' => ['prohibited'],
         ])->validate();
         abort_unless(in_array($direction, ['in', 'out']), 422);
@@ -58,11 +58,15 @@ class AttendanceService
                 return $reject('invalid_time_order', 'Waktu pulang harus sesudah waktu masuk.');
             }
             $location = $snapshot['location'];
-            if ((float) $data['accuracy_m'] > $location['max_accuracy_m']) {
+            $mode = $location['attendance_mode'] ?? 'onsite';
+            if ($mode !== 'remote' && ! isset($data['latitude'], $data['longitude'], $data['accuracy_m'])) {
+                return $reject('location_required', 'Kebijakan shift ini memerlukan lokasi perangkat.');
+            }
+            if ($mode !== 'remote' && (float) $data['accuracy_m'] > $location['max_accuracy_m']) {
                 return $reject('poor_accuracy', 'Akurasi lokasi belum memadai. Coba kembali di area terbuka atau ajukan koreksi.');
             }
-            $distance = $this->distance((float) $data['latitude'], (float) $data['longitude'], (float) $location['latitude'], (float) $location['longitude']);
-            if ($distance > $location['radius_m']) {
+            $distance = $mode !== 'remote' ? $this->distance((float) $data['latitude'], (float) $data['longitude'], (float) $location['latitude'], (float) $location['longitude']) : null;
+            if ($mode === 'onsite' && $distance > $location['radius_m']) {
                 return $reject('outside_geofence', 'Lokasi berada di luar radius yang disetujui. Ajukan koreksi atau minta peninjauan lokasi kerja.');
             }
             // Photo-required locations fail closed until evidence has been uploaded and validated for this shift.
@@ -70,9 +74,13 @@ class AttendanceService
             if ($location['requires_photo'] && ! $photo) {
                 return $reject('photo_required', 'Unggah foto bukti yang valid untuk shift ini sebelum mencatat waktu.');
             }
-            $id = DB::table('attendance_events')->insertGetId(['roster_shift_id' => $shift->id, 'employee_id' => $u->employee_id, 'actor_id' => $u->id, 'direction' => $direction, 'occurred_at' => $now->toIso8601String(), 'received_at' => $now->toIso8601String(), 'coordinates' => encrypt(json_encode(['latitude' => (float) $data['latitude'], 'longitude' => (float) $data['longitude'], 'accuracy_m' => (float) $data['accuracy_m'], 'distance_m' => round($distance, 2)], JSON_THROW_ON_ERROR)), 'private_attachment_id' => $photo?->id, 'provenance' => 'DEVICE_REPORTED', 'created_at' => $now->toIso8601String()]);
+            $provenance = match ($mode) {
+                'remote' => 'REMOTE_SELF_REPORTED', 'field' => 'FIELD_DEVICE_REPORTED', default => 'DEVICE_REPORTED'
+            };
+            $coordinates = $mode === 'remote' ? [] : ['latitude' => (float) $data['latitude'], 'longitude' => (float) $data['longitude'], 'accuracy_m' => (float) $data['accuracy_m'], 'distance_m' => round($distance, 2)];
+            $id = DB::table('attendance_events')->insertGetId(['roster_shift_id' => $shift->id, 'employee_id' => $u->employee_id, 'actor_id' => $u->id, 'direction' => $direction, 'occurred_at' => $now->toIso8601String(), 'received_at' => $now->toIso8601String(), 'coordinates' => encrypt(json_encode($coordinates, JSON_THROW_ON_ERROR)), 'private_attachment_id' => $photo?->id, 'provenance' => $provenance, 'created_at' => $now->toIso8601String()]);
             $result = $this->recalculate($shift);
-            Audit::record($u->id, 'attendance.clock_'.$direction, 'attendance_event', $id, ['roster_shift_id' => $shift->id, 'provenance' => 'DEVICE_REPORTED']);
+            Audit::record($u->id, 'attendance.clock_'.$direction, 'attendance_event', $id, ['roster_shift_id' => $shift->id, 'provenance' => $provenance]);
 
             return ['id' => $id, 'roster_shift_id' => $shift->id, 'work_date' => $shift->work_date, 'status' => $result->status, 'version' => $result->version];
         });

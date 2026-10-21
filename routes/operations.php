@@ -12,6 +12,7 @@ use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveGrantScheduleController;
 use App\Http\Controllers\LifecycleController;
+use App\Http\Controllers\OperationalCatalogController;
 use App\Http\Controllers\OperationsHealthController;
 use App\Http\Controllers\PayrollController;
 use App\Http\Controllers\PrivateFileController;
@@ -24,6 +25,8 @@ use App\Http\Controllers\WorkspaceSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::get('/catalogs/{kind}', [OperationalCatalogController::class, 'index'])->where('kind', '[a-z-]+');
+    Route::get('/eligible-reviewers', [OperationalCatalogController::class, 'reviewers']);
     Route::post('/leave-grant-schedules', [LeaveGrantScheduleController::class, 'store']);
     Route::get('/leave-grant-schedules/{id}', [LeaveGrantScheduleController::class, 'show'])->whereNumber('id');
     Route::post('/leave-grant-schedules/{id}/decide', [LeaveGrantScheduleController::class, 'decide'])->whereNumber('id');

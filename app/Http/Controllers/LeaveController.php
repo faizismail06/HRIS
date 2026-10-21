@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Identity\Access;
 use App\Domain\Leave\LeaveService;
 use App\Domain\Leave\LotAccounting;
 use App\Http\Requests\OperationalRequest;
@@ -32,7 +33,7 @@ class LeaveController extends Controller
 
     public function types(Request $r)
     {
-        abort_unless($r->user()->employee_id, 403);
+        abort_unless($r->user()->employee_id || Access::companyPermission($r->user(), 'leave.manage'), 403);
 
         return response()->json(LeaveType::where('is_active', true)->get(['id', 'code', 'name', 'version', 'is_paid', 'deducts_balance', 'allows_half_day', 'requires_evidence', 'notice_days']));
     }

@@ -146,4 +146,35 @@ class LifecycleAssetsTest extends AttendanceScenarioCase
         $this->assertSame('completed', $snapshot['tasks'][0]['status']);
         $this->assertTrue(AccountSecurity::available($this->worker->fresh()));
     }
+
+    public function test_exit_reconciles_future_roster_and_approved_and_reserved_leave_once(): void
+    {
+        $this->roster('2026-10-22');
+        $this->roster('2026-10-23');
+        $type = $this->login($this->hr)->postJson('/app/api/leave-types', ['idempotency_key' => (string) Str::uuid(), 'code' => 'TEST', 'name' => 'Synthetic leave', 'is_paid' => true, 'deducts_balance' => true, 'allows_half_day' => true, 'requires_evidence' => false, 'notice_days' => 0, 'minimum_tenure_days' => 0])->assertCreated()->json('id');
+        $this->postJson('/app/api/leave-credits', ['idempotency_key' => (string) Str::uuid(), 'employee_id' => $this->worker->employee_id, 'type_code' => 'TEST', 'entitlement_year' => 2026, 'valid_from' => '2026-01-01', 'valid_until' => '2027-01-01', 'minutes' => 1000, 'source_key' => 'EXIT-TEST', 'source_type' => 'grant', 'reason' => 'Synthetic credit'])->assertCreated();
+        $this->define('leave');
+        $requests = [];
+        foreach (['2026-10-22', '2026-10-23'] as $date) {
+            $request = $this->draft($this->worker, 'leave', ['leave_type_id' => $type, 'starts_on' => $date, 'ends_on' => $date, 'segment' => 'full', 'reason' => 'Synthetic future leave']);
+            $this->submit($request)->assertOk();
+            $requests[] = $request;
+        }
+        $this->login($this->hr)->postJson('/app/api/requests/'.$requests[0].'/decide', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 2, 'decision' => 'approve'])->assertOk();
+        $officer = $this->user('hr_officer');
+        $template = $this->template('offboarding', [$this->task('handover', 'hr_officer')]);
+        $this->define('offboarding');
+        $exit = $this->draft($officer, 'offboarding', ['employee_id' => $this->worker->employee_id, 'employee_version' => 1, 'employment_period_id' => $this->worker->employee->periods()->sole()->id, 'lifecycle_template_id' => $template, 'effective_end_on' => '2026-10-21', 'last_working_on' => '2026-10-20', 'reason_class' => 'resignation', 'reason' => 'Synthetic exit', 'owners' => ['handover' => $officer->id]]);
+        $this->submit($exit)->assertOk();
+        $key = (string) Str::uuid();
+        $input = ['idempotency_key' => $key, 'expected_version' => 2, 'decision' => 'approve'];
+        $this->login($this->hr)->postJson('/app/api/requests/'.$exit.'/decide', $input)->assertOk();
+        $this->postJson('/app/api/requests/'.$exit.'/decide', $input)->assertOk();
+        $this->assertDatabaseCount('employment_exit_reconciliations', 1);
+        $this->assertSame(0, DB::table('roster_shifts')->where('status', 'published')->count());
+        $this->assertSame(0, DB::table('leave_allocations')->whereIn('state', ['reserved', 'used'])->count());
+        $this->assertDatabaseHas('workflow_requests', ['id' => $requests[1], 'status' => 'withdrawn']);
+        $this->assertSame($this->hr->id, DB::table('leave_ledger')->where('kind', 'release')->orderByDesc('id')->value('actor_id'));
+        $this->assertTrue(AccountSecurity::available($this->worker->fresh()));
+    }
 }

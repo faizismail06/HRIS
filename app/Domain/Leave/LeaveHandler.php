@@ -104,12 +104,12 @@ class LeaveHandler implements WorkflowHandler
         }
     }
 
-    public function released(WorkflowRequest $r): void
+    public function released(WorkflowRequest $r, ?int $actorId = null): void
     {
         foreach (DB::table('leave_segments')->where('workflow_request_id', $r->id)->where('state', 'reserved')->get() as $segment) {
             foreach (DB::table('leave_allocations')->where('leave_segment_id', $segment->id)->where('state', 'reserved')->get() as $a) {
                 DB::table('leave_allocations')->where('id', $a->id)->update(['state' => 'released']);
-                $this->ledger($r, $a->leave_credit_lot_id, $a->id, 'release', $a->minutes);
+                $this->ledger($r, $a->leave_credit_lot_id, $a->id, 'release', $a->minutes, $actorId);
             }
             DB::table('leave_segments')->where('id', $segment->id)->update(['state' => 'released']);
         }
@@ -149,8 +149,8 @@ class LeaveHandler implements WorkflowHandler
         return $result;
     }
 
-    public function ledger(WorkflowRequest $r, int $lot, int $allocation, string $kind, int $minutes): void
+    public function ledger(WorkflowRequest $r, int $lot, int $allocation, string $kind, int $minutes, ?int $actorId = null): void
     {
-        DB::table('leave_ledger')->insert(['employee_id' => $r->employee_id, 'leave_credit_lot_id' => $lot, 'leave_allocation_id' => $allocation, 'kind' => $kind, 'minutes' => $minutes, 'business_key' => $kind.':'.$allocation, 'actor_id' => $r->effectActorId(), 'created_at' => now()->toIso8601String()]);
+        DB::table('leave_ledger')->insert(['employee_id' => $r->employee_id, 'leave_credit_lot_id' => $lot, 'leave_allocation_id' => $allocation, 'kind' => $kind, 'minutes' => $minutes, 'business_key' => $kind.':'.$allocation, 'actor_id' => $actorId ?? $r->effectActorId(), 'created_at' => now()->toIso8601String()]);
     }
 }

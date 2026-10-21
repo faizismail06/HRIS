@@ -229,3 +229,7 @@ DemoIsolationTest +MigrationFreshTest3 tests /48 assertions lulus; regression at
 ## Batch reimbursement dan instruksi retry
 
 12 tests /422 assertions expense/payroll/migration lulus; Pint/diff-check lulus. Finance menyiapkan batch, Finance independen mengesahkan, template confirmed dengan payment_id wajib per item, encrypted CSV/checksum/control total, append-only paid/failed outcomes dan pending-instruction lock tersedia. Retry setelah rekonsiliasi hanya memuat sisa belum lunas; settlement bebas diblokir pada batch aktif. Cancel/rebatch beralasan tidak menghapus pembayaran. Test dua klaim paid/failed membuktikan retry berisi satu item. Migrasi340000 diterapkan dev/test tanpa reset. Detail EXPENSE_BACKEND.md; tidak ada instruksi bank nyata dikirim.
+
+## Exit source reconciliation dan katalog operasional
+
+14 tests /226 assertions lifecycle/leave/catalog/career lulus sebelum penambahan metadata summary exit. Final exit menarik pending requests terdampak, melepas reservation, reversal approved leave masa depan, membatalkan future OT dan supersede roster periode lama. Snapshot unik append-only merujuk keputusan HR, tanpa menghapus history/asset obligations. Catalog whitelist berizin dan reviewer lookup disediakan untuk integrasi form. Migrasi350000 diterapkan dev/test tanpa reset. Detail DOCUMENTS_LIFECYCLE.md.

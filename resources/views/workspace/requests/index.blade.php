@@ -1,5 +1,6 @@
 <x-identity-layout title="Pengajuan dan persetujuan">
     <p>Ikuti status pengajuan Anda dan tinjau pekerjaan yang menjadi kewenangan Anda.</p>
+    @include('workspace.leave._nav')
     @if (auth()->user()->employee_id)
         <p class="workspace-actions"><a class="primary-button" href="{{ route('workspace.requests.create') }}">Buat pengajuan</a></p>
     @endif

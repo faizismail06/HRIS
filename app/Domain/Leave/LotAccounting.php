@@ -12,6 +12,17 @@ use Illuminate\Support\Facades\Validator;
 
 class LotAccounting
 {
+    public static function balance(object $lot): array
+    {
+        $date = today()->toDateString();
+        $reserved = (int) DB::table('leave_allocations')->where('leave_credit_lot_id', $lot->id)->where('state', 'reserved')->sum('minutes');
+        $used = (int) DB::table('leave_allocations')->where('leave_credit_lot_id', $lot->id)->where('state', 'used')->sum('minutes');
+        $capacity = self::capacity($lot);
+        $valid = $lot->valid_from <= $date && $lot->valid_until > $date;
+
+        return ['lot_id' => $lot->id, 'type_code' => $lot->type_code, 'entitlement_year' => $lot->entitlement_year, 'valid_from' => $lot->valid_from, 'valid_until' => $lot->valid_until, 'credited_minutes' => $lot->minutes, 'adjusted_credit_minutes' => $capacity, 'reserved_minutes' => $reserved, 'used_minutes' => $used, 'available_minutes' => $valid ? max(0, $capacity - $reserved - $used) : 0, 'state' => $valid ? 'valid' : ($lot->valid_from > $date ? 'future' : 'expired')];
+    }
+
     public static function capacity(object $lot, ?string $before = null): int
     {
         return $lot->minutes - (int) DB::table('leave_lot_changes')->where('leave_credit_lot_id', $lot->id)->when($before, fn ($q) => $q->where('created_at', '<', $before))->sum('minutes');

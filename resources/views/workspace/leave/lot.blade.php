@@ -1,0 +1,18 @@
+<x-identity-layout :title="'Rincian kredit #'.$lot->id">
+    @include('workspace.leave._nav')
+    <p>{{ $person->name }} · {{ $person->employee_number }} · {{ $lot->type_code }} / {{ $lot->entitlement_year }}</p>
+    <p class="history-note">Belum dialokasikan: {{ max(0, $balance['adjusted_credit_minutes'] - $balance['reserved_minutes'] - $balance['used_minutes']) }} menit. Kredit kedaluwarsa tidak tersedia untuk cuti baru; transfer sisa hak hanya berlaku sesuai kebijakan carry-over.</p>
+    <dl class="identity-facts"><div><dt>Masa berlaku</dt><dd>{{ $lot->valid_from }} — {{ Carbon\CarbonImmutable::parse($lot->valid_until)->subDay()->toDateString() }} · {{ ['valid' => 'Berlaku', 'future' => 'Belum berlaku', 'expired' => 'Kedaluwarsa'][$balance['state']] }}</dd></div><div><dt>Kredit setelah koreksi/transfer</dt><dd>{{ $balance['adjusted_credit_minutes'] }} menit (awal {{ $lot->minutes }} menit)</dd></div><div><dt>Reservasi / pemakaian / tersedia sekarang</dt><dd>{{ $balance['reserved_minutes'] }} / {{ $balance['used_minutes'] }} / {{ $balance['available_minutes'] }} menit</dd></div><div><dt>Referensi sumber</dt><dd>{{ $lot->source_key }}</dd></div></dl>
+    @if ($canChange)
+        <section class="identity-section"><h2>Koreksi atau transfer sisa hak</h2><p class="history-note">Pengurangan hanya untuk kredit yang masih berlaku. Carry-over hanya dari kredit kedaluwarsa ke tahun berikutnya, satu transfer per sumber. Reservasi dan pemakaian tetap dilindungi; masa berlaku baru harus mengikuti kebijakan yang disahkan.</p>
+            <form class="identity-form" method="POST" action="{{ route('workspace.leave.lots.change', $lot->id) }}">@csrf<input type="hidden" name="idempotency_key" value="{{ old('idempotency_key', (string) Illuminate\Support\Str::uuid()) }}">
+                <x-core-field name="kind" label="Tindakan" type="select" required><option value="">Pilih tindakan</option><option value="debit" @selected(old('kind') === 'debit')>Kurangi kredit sebagai koreksi</option><option value="carry_out" @selected(old('kind') === 'carry_out')>Transfer sisa hak ke tahun berikutnya</option></x-core-field>
+                <x-core-field name="minutes" label="Durasi koreksi/transfer (menit)" type="number" min="1" max="1000000" :value="old('minutes')" required />
+                <x-core-field name="valid_from" label="Mulai berlaku kredit tujuan (hanya carry-over)" type="date" :value="old('valid_from')" /><x-core-field name="last_valid_on" label="Tanggal terakhir kredit tujuan (termasuk, hanya carry-over)" type="date" :value="old('last_valid_on')" />
+                <x-core-field name="reason" label="Dasar koreksi/transfer" type="textarea" rows="3" maxlength="2000" :value="old('reason')" required />
+                <button class="primary-button" type="submit">Catat perubahan hak</button>
+            </form>
+        </section>
+    @else<p class="identity-notice">Perubahan hak Anda sendiri harus dicatat HR Admin lain.</p>@endif
+    <section class="identity-section"><h2>Riwayat ledger</h2><ul class="identity-directory">@forelse ($ledger as $entry)<li>{{ ['grant' => 'Pemberian', 'accrual' => 'Akumulasi', 'adjustment' => 'Koreksi penambahan', 'adjustment_debit' => 'Koreksi pengurangan', 'reservation' => 'Reservasi', 'consumption' => 'Pemakaian', 'release' => 'Pelepasan reservasi', 'reversal' => 'Pengembalian', 'carry_out' => 'Transfer keluar', 'carry_over' => 'Transfer masuk', 'expiry' => 'Kedaluwarsa', 'expiry_reversal' => 'Rekonsiliasi kedaluwarsa'][$entry->kind] ?? str_replace('_', ' ', $entry->kind) }} · {{ $entry->minutes }} menit<p class="history-note">{{ $entry->created_at }}</p></li>@empty<li>Belum ada entri ledger.</li>@endforelse</ul>{{ $ledger->links() }}</section>
+</x-identity-layout>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendancePeriodWorkspaceController;
 use App\Http\Controllers\AttendanceWorkspaceController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\LeaveWorkspaceController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\OvertimeWorkspaceController;
 use App\Http\Controllers\ScheduleSettingsController;
@@ -20,6 +21,18 @@ Route::middleware(['auth', PrivateAuthResponse::class])->group(function () {
     Route::middleware(RequireMfa::class)->prefix('app')->name('workspace.')->group(function () {
         require __DIR__.'/operations.php';
         Route::get('/', [WorkspaceController::class, 'home'])->name('home');
+        Route::get('/leave-balances', [LeaveWorkspaceController::class, 'balances'])->name('leave-balances');
+        Route::get('/leave-management', [LeaveWorkspaceController::class, 'index'])->name('leave');
+        Route::get('/leave-management/types', [LeaveWorkspaceController::class, 'types'])->name('leave.types');
+        Route::post('/leave-management/types', [LeaveWorkspaceController::class, 'storeType'])->middleware('throttle:30,1')->name('leave.types.store');
+        Route::get('/leave-management/credits/create', [LeaveWorkspaceController::class, 'grantForm'])->name('leave.grant');
+        Route::post('/leave-management/credits', [LeaveWorkspaceController::class, 'grant'])->middleware('throttle:30,1')->name('leave.grant.store');
+        Route::get('/leave-management/credits/{id}', [LeaveWorkspaceController::class, 'lot'])->whereNumber('id')->name('leave.lots.show');
+        Route::post('/leave-management/credits/{id}/changes', [LeaveWorkspaceController::class, 'change'])->whereNumber('id')->middleware('throttle:30,1')->name('leave.lots.change');
+        Route::get('/leave-management/schedules', [LeaveWorkspaceController::class, 'schedules'])->name('leave.schedules');
+        Route::post('/leave-management/schedules', [LeaveWorkspaceController::class, 'storeSchedule'])->middleware('throttle:30,1')->name('leave.schedules.store');
+        Route::get('/leave-management/schedules/{id}', [LeaveWorkspaceController::class, 'schedule'])->whereNumber('id')->name('leave.schedules.show');
+        Route::post('/leave-management/schedules/{id}/decide', [LeaveWorkspaceController::class, 'decideSchedule'])->whereNumber('id')->middleware('throttle:30,1')->name('leave.schedules.decide');
         Route::get('/team-calendar', [TeamCalendarWorkspaceController::class, 'index'])->name('team-calendar');
         Route::get('/work-calendar', [TeamCalendarWorkspaceController::class, 'dates'])->name('work-calendar');
         Route::post('/work-calendar', [TeamCalendarWorkspaceController::class, 'store'])->middleware('throttle:30,1')->name('work-calendar.store');

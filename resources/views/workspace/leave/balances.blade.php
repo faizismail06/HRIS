@@ -1,0 +1,6 @@
+<x-identity-layout title="Saldo cuti saya">
+    @include('workspace.leave._nav')
+    <p>Hak cuti ditampilkan per sumber dan tahun hak. Durasi mengikuti menit kerja pada jadwal; satu hari tidak selalu bernilai delapan jam.</p>
+    <ul class="identity-directory">@forelse ($lots as $lot)<li><h2>{{ $lot['type_code'] }} · tahun {{ $lot['entitlement_year'] }}</h2><p>{{ ['valid' => 'Berlaku', 'future' => 'Belum berlaku', 'expired' => 'Kedaluwarsa'][$lot['state']] }} · {{ $lot['valid_from'] }} — {{ Carbon\CarbonImmutable::parse($lot['valid_until'])->subDay()->toDateString() }}</p><p><strong>Tersedia {{ $lot['available_minutes'] }} menit</strong> · dipesan {{ $lot['reserved_minutes'] }} · terpakai {{ $lot['used_minutes'] }}</p><p class="history-note">Kredit awal {{ $lot['credited_minutes'] }} menit · setelah koreksi/transfer {{ $lot['adjusted_credit_minutes'] }} menit.</p></li>@empty<li><h2>Belum ada kredit hak cuti</h2><p>Hubungi HR untuk memeriksa hak yang berlaku. Jenis cuti tanpa pemotongan saldo tidak memerlukan kredit.</p></li>@endforelse</ul>{{ $lots->links() }}
+    <p><a class="primary-button" href="{{ route('workspace.requests.create', ['kind' => 'leave']) }}">Ajukan cuti</a></p>
+</x-identity-layout>

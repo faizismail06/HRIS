@@ -20,6 +20,10 @@ Layar operasional setelah login/MFA: `/app/requests` untuk cuti, pembatalan cuti
 
 `/app/overtime` menghubungkan pengisian aktual oleh karyawan dan verifikasi atasan/HR; menit bayar mengikuti aktual terverifikasi setelah istirahat dikurangi. Pengecualian tanpa dukungan attendance hanya untuk HR company beralasan. `/app/attendance-periods` tersedia bagi HR Admin company untuk membuat periode (tanggal terakhir termasuk), meninjau penghambat, menutup snapshot dan membuka kembali sebelum payroll final. Revisi snapshot lama dipertahankan dan sumber diperiksa ulang saat penutupan. Kedua layar dapat dibuka dari navigasi pemeriksaan pada halaman kehadiran.
 
+Pengganti roster dapat dibuat dari rincian kehadiran melalui **Buat pengganti jadwal ini**; jadwal lama tetap berlaku sampai publikasi draf pengganti. `/app/team-calendar` menampilkan ketersediaan berizin tanpa alasan/bukti cuti; `/app/work-calendar` untuk company HR menetapkan versi tanggal kerja/libur, tanpa otomatis mengubah roster.
+
+Menu Pengajuan memuat `/app/leave-balances` untuk saldo sendiri dan `/app/leave-management` untuk HR Admin company: versi jenis cuti, kredit manual berreferensi, pengurangan yang melindungi reservasi/pemakaian, carry-over dari lot sumber serta jadwal annual/monthly dengan approval HR Admin lain yang bukan penerima. Tanggal akhir di form termasuk; API tetap menggunakan batas exclusive-end. Jadwal approved diproses melalui scheduler `hris:dispatch-operations` yang harus disiapkan operator sesuai [panduan operasi](docs/OPERATIONS.md); tombol approval tidak langsung menerbitkan kredit. Tidak ada angka/kebijakan hak yang otomatis diisi atau disahkan oleh agent.
+
 ## Pratinjau dashboard tanpa database
 
 Dependensi PHP dan frontend telah dipasang pada mesin pengembangan. Untuk instalasi baru, jalankan `composer install` dan `npm ci`. Salin `.env.example` ke `.env` jika belum ada, lalu atur:

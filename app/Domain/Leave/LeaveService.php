@@ -46,13 +46,9 @@ class LeaveService
     public function balances(User $actor): array
     {
         abort_unless($actor->employee_id, 403);
-        $date = today()->toDateString();
         $result = [];
         foreach (DB::table('leave_credit_lots')->where('employee_id', $actor->employee_id)->orderBy('valid_from')->get() as $lot) {
-            $reserved = (int) DB::table('leave_allocations')->where('leave_credit_lot_id', $lot->id)->where('state', 'reserved')->sum('minutes');
-            $used = (int) DB::table('leave_allocations')->where('leave_credit_lot_id', $lot->id)->where('state', 'used')->sum('minutes');
-            $valid = $lot->valid_from <= $date && $lot->valid_until > $date;
-            $result[] = ['lot_id' => $lot->id, 'type_code' => $lot->type_code, 'entitlement_year' => $lot->entitlement_year, 'valid_from' => $lot->valid_from, 'valid_until' => $lot->valid_until, 'credited_minutes' => $lot->minutes, 'adjusted_credit_minutes' => LotAccounting::capacity($lot), 'reserved_minutes' => $reserved, 'used_minutes' => $used, 'available_minutes' => $valid ? max(0, LotAccounting::capacity($lot) - $reserved - $used) : 0, 'state' => $valid ? 'valid' : ($lot->valid_from > $date ? 'future' : 'expired')];
+            $result[] = LotAccounting::balance($lot);
         }
 
         return $result;

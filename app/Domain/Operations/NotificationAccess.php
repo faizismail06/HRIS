@@ -45,6 +45,11 @@ class NotificationAccess
 
             return $shift && EmployeeVisibility::query($user, $shift->work_date)->whereKey($shift->employee_id)->exists();
         }
+        if ($event->subject_type === 'lifecycle_case') {
+            $case = DB::table('lifecycle_cases')->find($event->subject_id);
+
+            return $case && EmployeeVisibility::query($user, $case->last_working_on ?? $case->effective_on, ['hr_admin', 'hr_officer'])->whereKey($case->employee_id)->exists();
+        }
 
         return false;
     }

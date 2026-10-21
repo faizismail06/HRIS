@@ -75,7 +75,7 @@ class AssetService
             $c = DB::table('asset_custodies')->where('id', $id)->firstOrFail();
             CoreWrite::version($c->version, $version);
             abort_if($c->returned_at, 409);
-            DB::table('asset_custodies')->where('id', $id)->update(['returned_at' => now(), 'returned_by' => $u->id, 'return_evidence' => encrypt($d['evidence']), 'version' => $version + 1, 'updated_at' => now()]);
+            DB::table('asset_custodies')->where('id', $id)->update(['returned_at' => now(), 'closure_kind' => $d['condition'] === 'lost' ? 'lost' : 'returned', 'returned_by' => $u->id, 'return_evidence' => encrypt($d['evidence']), 'version' => $version + 1, 'updated_at' => now()]);
             $status = match ($d['condition']) {
                 'damaged' => 'repair', 'lost' => 'lost', default => 'available'
             };

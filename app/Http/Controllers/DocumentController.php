@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Domain\Documents\ContractReviews;
 use App\Domain\Documents\DocumentService;
 use App\Http\Requests\OperationalRequest;
 use Illuminate\Http\Request;
@@ -9,6 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
+    public function recommend(OperationalRequest $r, int $id, ContractReviews $s)
+    {
+        return response()->json($s->recommend($r->user(), $id, $r->version(), $r->key(), $r->all()));
+    }
+
     public function template(OperationalRequest $r, DocumentService $service)
     {
         return response()->json($service->template($r->user(), $r->key(), $r->all()), 201);

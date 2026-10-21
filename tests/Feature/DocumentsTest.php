@@ -79,7 +79,11 @@ class DocumentsTest extends AttendanceScenarioCase
         $base = $this->base($template) + ['contract_type' => 'Synthetic fixed term', 'renewal_sequence' => 0, 'terms' => 'Synthetic private terms'];
         $current = $this->requestDocument($officer, 'contract', $base + ['starts_on' => '2026-01-01', 'ends_on' => '2026-11-01']);
         $this->approve($current)->assertOk();
-        $future = $this->requestDocument($officer, 'contract', array_replace($base, ['renewal_sequence' => 1, 'starts_on' => '2026-11-01', 'ends_on' => '2027-11-01']));
+        $prior = DB::table('employment_contracts')->where('workflow_request_id', $current)->sole()->id;
+        $future = $this->requestDocument($officer, 'contract', array_replace($base, ['renews_id' => $prior, 'renewal_sequence' => 1, 'starts_on' => '2026-11-01', 'ends_on' => '2027-11-01']));
+        $this->approve($future)->assertUnprocessable();
+        $task = DB::table('contract_review_tasks')->where('employment_contract_id', $prior)->sole();
+        $this->login($this->hr)->postJson('/app/api/contract-review-tasks/'.$task->id.'/recommend', ['idempotency_key' => (string) Str::uuid(), 'expected_version' => 1, 'decision' => 'hr_review', 'reason' => 'Synthetic exception: no manager configured; HR reviewed renewal.'])->assertOk();
         $this->approve($future)->assertOk();
         $this->login($this->worker)->getJson('/app/api/employees/'.$this->worker->employee_id.'/contracts')->assertOk()->assertJsonPath('data.0.effective_status', 'SCHEDULED')->assertJsonPath('data.1.effective_status', 'ACTIVE');
         $overlap = $this->requestDocument($officer, 'contract', $base + ['starts_on' => '2026-10-01', 'ends_on' => '2027-01-01']);
@@ -90,5 +94,22 @@ class DocumentsTest extends AttendanceScenarioCase
         $this->assertDatabaseCount('contract_review_tasks', 1);
         $this->assertDatabaseCount('outbox_events', DB::table('outbox_events')->distinct()->count('dedup_key'));
         $this->assertSame('ACTIVE', $this->worker->employee->statusAt(today()->toDateString()));
+    }
+
+    public function test_future_contract_cancellation_keeps_document_and_does_not_end_employment(): void
+    {
+        $template = $this->template('contract');
+        $this->definition('contract');
+        $this->definition('contract_cancel');
+        $officer = $this->user('hr_officer');
+        $id = $this->requestDocument($officer, 'contract', $this->base($template) + ['contract_type' => 'Synthetic future term', 'renewal_sequence' => 0, 'starts_on' => '2026-11-01', 'ends_on' => '2027-11-01', 'terms' => 'Synthetic terms']);
+        $this->approve($id)->assertOk();
+        $contract = DB::table('employment_contracts')->sole();
+        $cancel = $this->requestDocument($officer, 'contract_cancel', ['contract_id' => $contract->id, 'contract_version' => 2, 'reason' => 'Synthetic scheduled cancellation']);
+        $this->approve($cancel)->assertOk();
+        $this->assertDatabaseHas('employment_contracts', ['id' => $contract->id, 'status' => 'cancelled', 'version' => 3]);
+        $this->assertDatabaseCount('issued_documents', 1);
+        $this->assertSame('ACTIVE', $this->worker->employee->statusAt(today()->toDateString()));
+        $this->login($this->worker)->get('/app/api/documents/'.$contract->issued_document_id.'/download')->assertOk();
     }
 }

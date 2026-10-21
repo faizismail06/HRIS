@@ -116,6 +116,8 @@ class LifecycleService
         }, function ($u) use ($id, $version, $d) {
             $task = DB::table('lifecycle_tasks')->where('id', $id)->firstOrFail();
             CoreWrite::version($task->version, $version);
+            $case = DB::table('lifecycle_cases')->find($task->lifecycle_case_id);
+            abort_if($case->closed_at || $case->status === 'cancelled', 409);
             abort_unless($task->status === 'open', 409);
             $dependencies = json_decode($task->dependencies, true);
             abort_if($d['action'] === 'complete' && DB::table('lifecycle_tasks')->where('lifecycle_case_id', $task->lifecycle_case_id)->whereIn('code', $dependencies)->whereNotIn('status', ['completed', 'waived'])->exists(), 422, 'Selesaikan dependency terlebih dahulu.');

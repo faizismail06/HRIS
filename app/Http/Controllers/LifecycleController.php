@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Domain\CoreHR\EmployeeVisibility;
+use App\Domain\Lifecycle\ClearanceService;
 use App\Domain\Lifecycle\LifecycleService;
 use App\Http\Requests\OperationalRequest;
 use Illuminate\Http\Request;
@@ -10,6 +11,16 @@ use Illuminate\Support\Facades\DB;
 
 class LifecycleController extends Controller
 {
+    public function reassign(OperationalRequest $r, int $id, ClearanceService $s)
+    {
+        return response()->json($s->reassign($r->user(), $id, $r->version(), $r->key(), $r->all()));
+    }
+
+    public function close(OperationalRequest $r, int $id, ClearanceService $s)
+    {
+        return response()->json($s->close($r->user(), $id, $r->version(), $r->key(), $r->all()));
+    }
+
     public function template(OperationalRequest $r, LifecycleService $service)
     {
         return response()->json($service->template($r->user(), $r->key(), $r->all()), 201);

@@ -67,7 +67,7 @@ class Delegations
         return $actor->id === $d->delegate_id && AccountSecurity::available($actor) && $actor->two_factor_confirmed_at && $actor->grants()->where('role', $role)->exists()
             && ! $d->revoked_at && CarbonImmutable::parse($d->starts_at) <= now() && CarbonImmutable::parse($d->ends_at) > now()
             && in_array($r->employee_id, json_decode($d->employee_ids, true), true) && $delegator && $delegator->id !== $r->submitted_by && $delegator->employee_id !== $r->employee_id
-            && WorkflowAccess::eligible($delegator, $role, $r->employee_id) && $actor->id !== $r->submitted_by && $actor->employee_id !== $r->employee_id;
+            && WorkflowAccess::eligibleForRequest($delegator, $r, $role) && $actor->id !== $r->submitted_by && $actor->employee_id !== $r->employee_id;
     }
 
     public function decisionId(User $actor, WorkflowRequest $r, WorkflowStep $step): ?int

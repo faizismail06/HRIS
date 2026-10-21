@@ -87,7 +87,7 @@ class PrivateFiles
             return true;
         }
 
-        return in_array($request->kind, ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'letter', 'career', 'onboarding', 'offboarding']) && $request->employee_id && $actor->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($actor, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
+        return in_array($request->kind, ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'onboarding', 'offboarding']) && $request->employee_id && $actor->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($actor, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
     }
 
     public function shiftPhoto(User $actor, int $shiftId, UploadedFile $file, string $key): array

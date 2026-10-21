@@ -201,3 +201,7 @@ WorkflowExtensionsTest5 tests /62 assertions lulus; WorkflowOperationsTest10/100
 ## Attendance policies dan supersession roster
 
 AttendancePolicyTest3/47 serta regression attendance/import/swap/close lulus. Remote/field policy server-side, future roster replacement dengan source/version/history guard, minimum staffing interval yang mengurangi breaks, warning acknowledgement/blocking policy dan branch-timezone close tersedia. ATTENDANCE_POLICIES.md mencatat konfigurasi dan batas eligibility khusus. Tidak ada angka minimum staffing bawaan.
+
+## Administrasi karier, kontrak dan clearance
+
+Full suite lulus178 tests /2830 assertions; Pint dan diff-check lulus. Career workflow wajib bukti dan approval independen company HR, tanpa bypass review lama. Contract review/rekomendasi, renewal berantai dan pembatalan kontrak terjadwal mempertahankan PDF/history. Pergantian owner task, reminder/escalation, snapshot closure offboarding dan settlement Finance tersedia. Migrasi270000 sudah diterapkan ke database dev dan hris_testing tanpa reset data. DOCUMENTS_LIFECYCLE.md mencatat batas exit/reconciliation/alumni. Backend keseluruhan dan integrasi UI belum selesai; BACKEND_DELIVERY.md diperbarui agar status payroll/import/report tidak lagi tertinggal.

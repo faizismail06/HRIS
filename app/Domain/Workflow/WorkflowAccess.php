@@ -13,6 +13,10 @@ class WorkflowAccess
 {
     public static function stepEligible(User $user, WorkflowRequest $request, WorkflowStep $step): bool
     {
+        $handler = app(WorkflowRegistry::class)->handler($request->kind);
+        if ($handler instanceof ApproverPolicy && ! $handler->mayApprove($user, $request, $step->role)) {
+            return false;
+        }
         if ($step->role === 'counterparty') {
             $handler = app(WorkflowRegistry::class)->handler($request->kind);
 
@@ -35,6 +39,13 @@ class WorkflowAccess
         return $user->grants()->where('role', $role)->get()->contains(fn ($g) => $g->scope === 'company' || ($assignment && (($g->scope === 'branch' && $g->branch_id === $assignment->branch_id) || ($g->scope === 'department' && $g->department_id === $assignment->department_id))));
     }
 
+    public static function eligibleForRequest(User $user, WorkflowRequest $request, string $role): bool
+    {
+        $handler = app(WorkflowRegistry::class)->handler($request->kind);
+
+        return self::eligible($user, $role, $request->employee_id) && (! $handler instanceof ApproverPolicy || $handler->mayApprove($user, $request, $role));
+    }
+
     public static function visible(User $user, WorkflowRequest $request): bool
     {
         if (! AccountSecurity::available($user)) {
@@ -51,7 +62,7 @@ class WorkflowAccess
         if (in_array($request->kind, ['compensation', 'bank_change', 'tax_change', 'expense'], true) && self::eligible($user, 'finance_approver', $request->employee_id)) {
             return true;
         }
-        $hrKinds = ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'letter', 'career', 'onboarding', 'offboarding'];
+        $hrKinds = ['leave', 'leave_cancel', 'correction', 'overtime', 'swap', 'contract', 'contract_cancel', 'letter', 'career', 'onboarding', 'offboarding'];
 
         return in_array($request->kind, $hrKinds, true) && $request->employee_id && $user->grants()->whereIn('role', ['hr_admin', 'hr_officer'])->exists() && EmployeeVisibility::query($user, today()->toDateString(), ['hr_admin', 'hr_officer'])->whereKey($request->employee_id)->exists();
     }

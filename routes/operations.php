@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountAdministrationController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AttendanceCloseController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\ContractReviewController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ImportController;
@@ -21,6 +22,11 @@ use App\Http\Controllers\WorkspaceSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::get('/contract-review-tasks', ContractReviewController::class.'@index');
+    Route::post('/contract-review-tasks/{id}/recommend', [DocumentController::class, 'recommend'])->whereNumber('id');
+    Route::post('/lifecycle-tasks/{id}/reassign', [LifecycleController::class, 'reassign'])->whereNumber('id');
+    Route::post('/lifecycle-cases/{id}/close', [LifecycleController::class, 'close'])->whereNumber('id');
+    Route::post('/asset-settlements/{id}/resolve', [AssetController::class, 'resolve'])->whereNumber('id');
     Route::post('/workflow-delegations', [WorkflowOperationsController::class, 'delegate']);
     Route::post('/workflow-delegations/{id}/revoke', [WorkflowOperationsController::class, 'revoke'])->whereNumber('id');
     Route::get('/notification-preferences', [WorkflowOperationsController::class, 'preferences']);

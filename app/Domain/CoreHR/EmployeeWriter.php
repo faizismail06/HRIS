@@ -51,11 +51,12 @@ class EmployeeWriter
         });
     }
 
-    public function review(User $actor, int $id, array $data): EmployeeChangeRequest
+    public function review(User $actor, int $id, array $data, ?int $workflowRequestId = null): EmployeeChangeRequest
     {
-        return CoreWrite::run(function () use ($actor, $id, $data) {
+        return CoreWrite::run(function () use ($actor, $id, $data, $workflowRequestId) {
             $actor = CoreWrite::actor($actor, 'employees.review');
             $change = EmployeeChangeRequest::query()->lockForUpdate()->findOrFail($id);
+            abort_if($change->workflow_request_id && $change->workflow_request_id !== $workflowRequestId, 409, 'Perubahan ini harus diputuskan melalui tahap workflow terkait.');
             CoreWrite::version($change->version, $data['version']);
             abort_unless($change->status === 'pending', 409, 'Pengajuan sudah diputuskan.');
             abort_if($actor->id === $change->requested_by || $actor->employee_id === $change->employee_id, 403, 'Pengajuan harus ditinjau orang lain.');

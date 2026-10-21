@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Domain\Documents\ContractReminders;
+use App\Domain\Leave\GrantSchedules;
 use App\Domain\Lifecycle\ClearanceService;
 use App\Domain\Lifecycle\EmploymentRevocations;
 use App\Domain\Operations\Outbox;
@@ -27,6 +28,7 @@ class DispatchOperations extends Command
         app(ContractReminders::class)->dispatch();
         app(EmploymentRevocations::class)->reconcile();
         app(ClearanceService::class)->reminders();
+        app(GrantSchedules::class)->dispatch();
         foreach (WorkflowStep::whereIn('status', ['pending', 'blocked'])->where('due_at', '<=', now())->get() as $step) {
             DB::transaction(function () use ($step) {
                 DB::table('companies')->where('id', 1)->lockForUpdate()->firstOrFail();

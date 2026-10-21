@@ -10,6 +10,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\InboxController;
 use App\Http\Controllers\LeaveController;
+use App\Http\Controllers\LeaveGrantScheduleController;
 use App\Http\Controllers\LifecycleController;
 use App\Http\Controllers\OperationsHealthController;
 use App\Http\Controllers\PayrollController;
@@ -22,6 +23,9 @@ use App\Http\Controllers\WorkspaceSearchController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->name('api.')->middleware('throttle:120,1')->group(function () {
+    Route::post('/leave-grant-schedules', [LeaveGrantScheduleController::class, 'store']);
+    Route::get('/leave-grant-schedules/{id}', [LeaveGrantScheduleController::class, 'show'])->whereNumber('id');
+    Route::post('/leave-grant-schedules/{id}/decide', [LeaveGrantScheduleController::class, 'decide'])->whereNumber('id');
     Route::get('/contract-review-tasks', ContractReviewController::class.'@index');
     Route::post('/contract-review-tasks/{id}/recommend', [DocumentController::class, 'recommend'])->whereNumber('id');
     Route::post('/lifecycle-tasks/{id}/reassign', [LifecycleController::class, 'reassign'])->whereNumber('id');

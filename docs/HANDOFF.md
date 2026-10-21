@@ -205,3 +205,7 @@ AttendancePolicyTest3/47 serta regression attendance/import/swap/close lulus. Re
 ## Administrasi karier, kontrak dan clearance
 
 Full suite lulus178 tests /2830 assertions; Pint dan diff-check lulus. Career workflow wajib bukti dan approval independen company HR, tanpa bypass review lama. Contract review/rekomendasi, renewal berantai dan pembatalan kontrak terjadwal mempertahankan PDF/history. Pergantian owner task, reminder/escalation, snapshot closure offboarding dan settlement Finance tersedia. Migrasi270000 sudah diterapkan ke database dev dan hris_testing tanpa reset data. DOCUMENTS_LIFECYCLE.md mencatat batas exit/reconciliation/alumni. Backend keseluruhan dan integrasi UI belum selesai; BACKEND_DELIVERY.md diperbarui agar status payroll/import/report tidak lagi tertinggal.
+
+## Jadwal entitlement cuti
+
+LeaveGrantSchedulesTest3 tests /32 assertions dan MigrationFreshTest lulus (gabungan4/50); regression cuti/workflow/lifecycle28/348 lulus sebelum penambahan pilihan expiry_rule eksplisit. Pint/diff-check lulus. Jadwal annual/monthly draft→independent HR approval→server-date catch-up memakai ledger dan run unik append-only. Grant produksi tidak di-seed. LEAVE_GRANT_SCHEDULES.md mencatat expiry calendar-year-end yang wajib dipilih, penerima eksplisit, stop tanpa clawback, overlap guard dan batas carry-over/expiry posting. Migrasi280000 diterapkan dev/test tanpa reset.

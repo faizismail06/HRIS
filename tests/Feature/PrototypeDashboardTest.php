@@ -11,6 +11,8 @@ class PrototypeDashboardTest extends TestCase
         config(['hris.ui_preview_enabled' => false]);
 
         $this->get('/prototype/dashboard')->assertNotFound();
+        $this->get('/')->assertRedirect('/app');
+        $this->get('/app')->assertRedirect('/login');
     }
 
     public function test_preview_displays_only_synthetic_data_when_enabled(): void
@@ -24,7 +26,7 @@ class PrototypeDashboardTest extends TestCase
             ->assertSee('Koreksi jam pulang')
             ->assertHeader('X-Robots-Tag', 'noindex, nofollow');
 
-        $this->get('/')->assertRedirect('/prototype/dashboard');
+        $this->get('/')->assertRedirect('/app');
     }
 
     public function test_cached_preview_route_cannot_expose_fixtures_in_production(): void

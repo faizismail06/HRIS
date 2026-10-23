@@ -10,6 +10,8 @@ HRIS berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.m
 
 ## Login dan backend operasional
 
+Halaman `/` mengarah ke `/app` (atau `/login` jika belum masuk), termasuk ketika preview diaktifkan. `/prototype/*` hanya untuk contoh visual. DatabaseSeeder tidak membuat akun maupun karyawan; pada instalasi kosong, buat akun awal dengan langkah berikut. Tersedia sembilan jenis peran, bukan sembilan akun bawaan. Untuk mutasi organisasi/karyawan, buat akun HR Admin juga; Platform Admin mengelola akses akun.
+
 Setelah koneksi PostgreSQL disiapkan, jalankan `php artisan migrate`, lalu `php artisan hris:provision-account platform_admin --bootstrap --company="Nama Perusahaan"` dari terminal interaktif. Perintah meminta nama, email dan password tersembunyi; tidak ada akun/password default. Buka `/login` dan selesaikan pengaturan MFA. Admin platform tidak otomatis memperoleh akses data karyawan. Panduan akun HR, scope, pengujian PostgreSQL dan batas kesiapan produksi ada di [IDENTITY_FOUNDATION.md](docs/IDENTITY_FOUNDATION.md).
 
 ## Organisasi dan karyawan operasional

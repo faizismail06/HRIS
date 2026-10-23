@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Domain\Identity\MfaPolicy;
 use App\Models\Company;
 use App\Models\User;
+use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\DB;
 use Laravel\Fortify\Fortify;
@@ -21,7 +22,7 @@ class LocalMfaTest extends TestCase
         Company::create(['name' => 'Local MFA Test']);
         config(['hris.local_skip_mfa' => true]);
         // These tests emulate APP_ENV=local, where Laravel's automatic test CSRF exemption no longer applies.
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class);
+        $this->withoutMiddleware(PreventRequestForgery::class);
     }
 
     public function test_local_password_login_without_enrollment_can_open_workspace(): void

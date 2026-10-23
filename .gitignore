@@ -29,6 +29,12 @@ Thumbs.db
 .env.*
 !.env.example
 /.cache
+# Local portfolio data and account seeders stay on this computer.
+/database/seeders/*.php
+!/database/seeders/DatabaseSeeder.php
+/tests/Feature/UserSeederTest.php
+/tests/Feature/LocalTestingSeederTest.php
+/docs/LOCAL_TEST_DATA.md
 **/__pycache__/
 *.pyc
 /.impeccable/config.local.json

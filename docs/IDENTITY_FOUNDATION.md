@@ -1,6 +1,6 @@
 # Fondasi identitas dan CoreHR
 
-Pembaruan 23 Oktober 2026: untuk kemudahan lokal non-demo, `php artisan db:seed` menjalankan LocalTestingSeeder: delapan akun administratif melalui UserSeeder serta tiga akun Employee/Manager dan data contoh terhubung. Untuk akun administratif saja gunakan `--class=UserSeeder`. Daftar email dan perilaku idempoten dijelaskan pada README dan LOCAL_TEST_DATA.md; password acak akun baru hanya ditampilkan saat pembuatan di terminal. Keterangan historis di bawah tentang tanpa akun default berlaku untuk provisioning manual, testing default dan produksi; bootstrap manual tetap tersedia pada instalasi tanpa perusahaan. MFA mengikuti pengecualian testing lokal yang dipilih pengguna; lingkungan lainnya tetap mewajibkan MFA.
+Pembaruan 23 Oktober 2026: seeder akun/data portfolio dan pengujiannya disimpan lokal serta diabaikan Git. Repository tidak menyediakan akun bawaan. Bootstrap/provisioning manual tetap tersedia; DatabaseSeeder melewati paket lokal yang tidak ada pada clone baru. Data dan akun yang sudah tersimpan di database pengembangan tidak dihapus. MFA mengikuti pengecualian testing lokal yang dipilih pengguna; lingkungan lainnya tetap mewajibkan MFA.
 
 Modul backend pertama menyediakan login nyata melalui Laravel Fortify, MFA wajib untuk data operasional, pemulihan kata sandi, grants peran/scope, direktori identitas kerja baca saja dan migrasi PostgreSQL. Preview `/prototype/*` tetap memakai fixture sintetis, terpisah dari akun dan database operasional. Ini belum acceptance R0 atau aplikasi siap produksi.
 

@@ -14,7 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (app()->environment('local') && ! config('hris.demo_features_enabled')) {
+        // Optional local-only seeders are deliberately excluded from the repository.
+        if (app()->environment('local') && ! config('hris.demo_features_enabled') && class_exists(LocalTestingSeeder::class)) {
             $this->call(LocalTestingSeeder::class);
         }
     }

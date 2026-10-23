@@ -8,9 +8,11 @@ use App\Domain\Leave\LotAccounting;
 use App\Domain\Lifecycle\ClearanceService;
 use App\Domain\Lifecycle\EmploymentRevocations;
 use App\Domain\Operations\Outbox;
+use App\Domain\Operations\RuntimeHealth;
 use App\Domain\Workflow\ReconcileApprovers;
 use App\Domain\Workflow\WorkflowAccess;
 use App\Jobs\DeliverOutbox;
+use App\Jobs\RecordWorkerHeartbeat;
 use App\Models\WorkflowRequest;
 use App\Models\WorkflowStep;
 use Illuminate\Console\Command;
@@ -46,6 +48,8 @@ class DispatchOperations extends Command
             });
         }
         DB::table('notification_deliveries')->whereIn('status', ['pending', 'failed'])->where('attempts', '<', 5)->where('available_at', '<=', now())->where(fn ($q) => $q->whereNull('lease_until')->orWhere('lease_until', '<=', now()))->orderBy('id')->limit(100)->pluck('id')->each(fn ($id) => DeliverOutbox::dispatch($id));
+        RecordWorkerHeartbeat::dispatch();
+        RuntimeHealth::record('scheduler');
         $this->info('Operations reconciled. No workflow was automatically approved.');
 
         return self::SUCCESS;

@@ -54,6 +54,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Event::listen(CommandStarting::class, function ($event) {
+            if ($event->command === 'hris:check') {
+                return; // This read-only command reports boundary/connection errors itself, including JSON output.
+            }
             if (str_starts_with((string) $event->command, 'hris:') || str_starts_with((string) $event->command, 'queue:')) {
                 DemoBoundary::database();
             } elseif (DemoBoundary::enabled() && str_starts_with((string) $event->command, 'migrate')) {

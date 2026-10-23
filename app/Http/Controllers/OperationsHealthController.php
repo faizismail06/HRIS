@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Domain\Identity\Access;
 use App\Domain\Identity\Audit;
 use App\Domain\Operations\Mutation;
+use App\Domain\Operations\RuntimeHealth;
 use App\Http\Requests\OperationalRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,7 @@ class OperationsHealthController extends Controller
     {
         abort_unless(Access::companyPermission($r->user(), 'operations.manage'), 403);
 
-        return response()->json(['deliveries' => DB::table('notification_deliveries')->selectRaw('status,count(*) AS count')->groupBy('status')->get(), 'failed_queue_jobs' => DB::table('failed_jobs')->count(), 'pending_queue_jobs' => DB::table('jobs')->count(), 'blocked_requests' => DB::table('workflow_requests')->where('status', 'blocked')->count(), 'oldest_pending_outbox' => DB::table('notification_deliveries')->whereIn('status', ['pending', 'failed'])->min('created_at')]);
+        return response()->json(['services' => RuntimeHealth::status(), 'deliveries' => DB::table('notification_deliveries')->selectRaw('status,count(*) AS count')->groupBy('status')->get(), 'failed_queue_jobs' => DB::table('failed_jobs')->count(), 'pending_queue_jobs' => DB::table('jobs')->count(), 'blocked_requests' => DB::table('workflow_requests')->where('status', 'blocked')->count(), 'oldest_pending_outbox' => DB::table('notification_deliveries')->whereIn('status', ['pending', 'failed'])->min('created_at')]);
     }
 
     public function retry(OperationalRequest $r, string $id)

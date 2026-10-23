@@ -29,6 +29,8 @@ Thumbs.db
 .env.*
 !.env.example
 /.cache
+**/__pycache__/
+*.pyc
 /.impeccable/config.local.json
 /.impeccable/live
 /.impeccable/questions

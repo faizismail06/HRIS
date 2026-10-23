@@ -1,5 +1,7 @@
 # Operasi backend HRIS
 
+Paket executable/config tersedia pada [deploy/README.md](../deploy/README.md): template environment produksi, systemd worker/timer/FPM/nginx, installer Task Scheduler Windows, runner/verifier backup terenkripsi dan pemeriksaan heartbeat. `hris:check --production --services --json` menguji konfigurasi dan bukti liveness, bukan menyatakan email/backup/UAT sudah diterima. Tidak ada instalasi layanan atau deployment tersirat hanya karena file template tersedia.
+
 Panduan operator instalasi. API domain tersedia; konfigurasi infrastruktur, kebijakan perusahaan dan UAT tetap keputusan manusia. Agent tidak mengirim email nyata, transfer bank atau deployment produksi.
 
 ## Pemeriksaan dan deploy

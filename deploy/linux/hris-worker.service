@@ -1,0 +1,24 @@
+[Unit]
+Description=HRIS dedicated queue worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=hris
+Group=hris
+WorkingDirectory=/srv/hris/current
+ExecStart=/usr/bin/php artisan queue:work database --queue=default --sleep=3 --tries=3 --timeout=330 --max-time=3600 --memory=256
+Restart=always
+RestartSec=5
+TimeoutStopSec=350
+KillSignal=SIGTERM
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/hris/current/storage /srv/hris/current/bootstrap/cache
+
+[Install]
+WantedBy=multi-user.target

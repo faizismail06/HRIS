@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Actions\RedirectIfTwoFactorRequired;
 use App\Actions\ResetUserPassword;
 use App\Domain\Identity\AccountSecurity;
 use App\Domain\Identity\Audit;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Timebox;
 use Laravel\Fortify\Contracts\FailedPasswordResetLinkRequestResponse;
+use Laravel\Fortify\Contracts\RedirectsIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Contracts\SuccessfulPasswordResetLinkRequestResponse;
 use Laravel\Fortify\Events\RecoveryCodeReplaced;
 use Laravel\Fortify\Events\RecoveryCodesGenerated;
@@ -33,6 +35,7 @@ class FortifyServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->bind(RedirectsIfTwoFactorAuthenticatable::class, RedirectIfTwoFactorRequired::class);
         $this->app->bind(SuccessfulPasswordResetLinkRequestResponse::class, ResetLinkResponse::class);
         $this->app->bind(FailedPasswordResetLinkRequestResponse::class, ResetLinkResponse::class);
     }

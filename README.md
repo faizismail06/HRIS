@@ -14,6 +14,8 @@ Halaman `/` mengarah ke `/app` (atau `/login` jika belum masuk), termasuk ketika
 
 ### Akun praktis untuk lokal
 
+Untuk testing tanpa 2FA, atur `HRIS_LOCAL_SKIP_MFA=true` di `.env` lalu `php artisan config:clear`. Pengaturan ini hanya berlaku pada `APP_ENV=local` non-demo; password, akun aktif dan izin tetap diperiksa. Enrollment dan challenge 2FA dilewati tanpa menghapus secret akun. Ubah menjadi `false` untuk mewajibkan 2FA lagi. Produksi, staging, testing otomatis dan demo tetap mewajibkan MFA meskipun flag bernilai true.
+
 Jalankan `php artisan db:seed` setelah migrasi, atau `php artisan db:seed --class=UserSeeder` untuk akun saja. Pada environment `local` non-demo, DatabaseSeeder memanggil UserSeeder. Tidak perlu menjalankan migrate:fresh atau menghapus data.
 
 Password awal acak untuk setiap akun baru ditampilkan di terminal saat seeding. Simpan saat itu; menjalankan ulang tidak mereset password. Buka `/login` dan aktifkan MFA dengan autentikator pribadi. Password tidak disimpan di repository.

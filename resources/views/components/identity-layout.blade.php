@@ -1,4 +1,4 @@
-@props(['title'])
+@props(['title', 'subtitle' => null])
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -8,29 +8,38 @@
     <title>{{ $title }} · HRIS</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="hris-app">
+<body class="hris-app {{ auth()->check() ? 'operational-app' : 'identity-app' }}">
     <a class="skip-link" href="#main">Langsung ke konten</a>
+    @auth
+        <header class="app-header operational-header">
+            <div class="operational-header-inner">
+                <a class="brand" href="{{ route('workspace.home') }}" aria-label="HRIS, beranda"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span><span>hris<span class="brand-dot">.</span></span></a>
+                <nav class="operational-nav" aria-label="Navigasi utama">
+                    @foreach (['home' => 'Ringkasan', 'employees' => 'Karyawan', 'organization' => 'Organisasi', 'attendance' => 'Kehadiran', 'requests' => 'Pengajuan', 'modules' => 'Ruang kerja'] as $destination => $label)
+                        @continue($destination === 'employees' && ! auth()->user()->can('viewAny', App\Models\Employee::class))
+                        @continue($destination === 'organization' && ! App\Domain\Identity\Access::companyPermission(auth()->user(), 'organization.manage'))
+                        <a class="nav-item {{ request()->routeIs('workspace.'.$destination, 'workspace.'.$destination.'.*') ? 'is-current' : '' }}" href="{{ route('workspace.'.$destination) }}" @if(request()->routeIs('workspace.'.$destination, 'workspace.'.$destination.'.*')) aria-current="page" @endif>{{ $label }}</a>
+                    @endforeach
+                </nav>
+                <div class="operational-account">
+                    <a class="operational-tool" href="{{ route('workspace.search') }}" aria-label="Cari di ruang kerja"><x-icon name="search" size="19"/></a>
+                    <a class="operational-tool" href="{{ route('workspace.notifications') }}" aria-label="Notifikasi"><x-icon name="bell" size="19"/></a>
+                    <details class="account-menu">
+                        <summary aria-label="Menu akun {{ auth()->user()->name }}"><span class="avatar avatar-hr">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span><x-icon name="chevron" size="12"/></summary>
+                        <div class="account-menu-content"><strong>{{ auth()->user()->name }}</strong><span>{{ auth()->user()->email }}</span><a href="{{ route('account.security') }}">Keamanan akun</a><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit">Keluar</button></form></div>
+                    </details>
+                </div>
+            </div>
+        </header>
+    @endauth
     <main id="main" class="identity-shell" tabindex="-1">
-        <a class="brand" href="{{ auth()->check() ? route('workspace.home') : route('login') }}" aria-label="HRIS, beranda">hris<span class="brand-dot">.</span></a>
+        @guest
+            <a class="brand" href="{{ route('login') }}" aria-label="HRIS, beranda">hris<span class="brand-dot">.</span></a>
+        @endguest
         @auth
-            <nav class="identity-nav" aria-label="Navigasi akun">
-                <a class="inline-link" href="{{ route('workspace.home') }}">Beranda</a>
-                <a class="inline-link" href="{{ route('workspace.modules') }}">Ruang kerja</a>
-                <a class="inline-link" href="{{ route('workspace.requests') }}">Pengajuan</a>
-                <a class="inline-link" href="{{ route('workspace.attendance') }}">Kehadiran</a>
-                <a class="inline-link" href="{{ route('workspace.notifications') }}">Notifikasi</a>
-                <a class="inline-link" href="{{ route('workspace.search') }}">Cari</a>
-                @can('viewAny', App\Models\Employee::class)
-                    <a class="inline-link" href="{{ route('workspace.employees') }}">Karyawan</a>
-                @endcan
-                @if (App\Domain\Identity\Access::companyPermission(auth()->user(), 'organization.manage'))
-                    <a class="inline-link" href="{{ route('workspace.organization') }}">Organisasi</a>
-                @endif
-                <a class="inline-link" href="{{ route('account.security') }}">Keamanan akun</a>
-                <form method="POST" action="{{ route('logout') }}">@csrf<button class="secondary-button" type="submit">Keluar</button></form>
-            </nav>
+            <div class="operational-context"><span>{{ App\Models\Company::find(1)?->name ?? 'Ruang kerja perusahaan' }}</span><span>{{ now()->locale('id')->translatedFormat('l, j F Y') }}</span></div>
         @endauth
-        <div class="page-heading"><div><h1>{{ $title }}</h1></div></div>
+        <div class="page-heading"><div><h1>{{ $title }}</h1>@if($subtitle)<p>{{ $subtitle }}</p>@endif</div>@isset($actions)<div class="heading-actions">{{ $actions }}</div>@endisset</div>
         @if (session('status'))
             <p class="identity-notice" role="status">{{ match (session('status')) {
                 'two-factor-authentication-enabled' => 'Autentikator siap dipindai. Konfirmasi kode untuk menyelesaikan pengaturan.',

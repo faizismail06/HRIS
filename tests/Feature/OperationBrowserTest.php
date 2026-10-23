@@ -9,6 +9,44 @@ use Tests\Support\AttendanceScenarioCase;
 /** Uses isolated synthetic responses, not the operator's browser profile or live database. */
 class OperationBrowserTest extends AttendanceScenarioCase
 {
+    public function test_dashboard_renders_at_desktop_and_mobile_without_overflow(): void
+    {
+        $html = $this->get('/app')->assertOk()->getContent();
+        $assertions = <<<'JS'
+if (document.documentElement.scrollWidth > innerWidth) throw new Error('Dashboard overflows horizontally');
+if (!document.querySelector('.operational-header')) throw new Error('Operational header is missing');
+if (getComputedStyle(document.querySelector('.live-dashboard-grid')).display !== 'grid') throw new Error('Workspace styles did not load');
+if (document.querySelector('a[href*="/prototype/"]')) throw new Error('Live dashboard links to static fixtures');
+JS;
+        $this->browser($html, $assertions, 'dashboard-desktop', 1440);
+        $this->browser($html, $assertions, 'dashboard-mobile', 360);
+    }
+
+    public function test_employee_and_organization_tables_render_without_page_overflow(): void
+    {
+        $assertions = <<<'JS'
+if (document.documentElement.scrollWidth > innerWidth) throw new Error('Directory overflows horizontally');
+if (!document.querySelector('.operational-table')) throw new Error('Data table is missing');
+if (getComputedStyle(document.querySelector('.operational-header-inner')).display !== 'flex') throw new Error('Header styles did not load');
+JS;
+        $this->browser($this->get('/app/employees')->assertOk()->getContent(), $assertions, 'employees-desktop');
+        $this->browser($this->get('/app/organization')->assertOk()->getContent(), $assertions, 'organization-mobile');
+    }
+
+    public function test_empty_dashboard_shows_setup_instead_of_synthetic_totals(): void
+    {
+        $html = view('workspace.home', [
+            'user' => $this->hr, 'employeeCount' => 0, 'pendingChanges' => 0,
+            'organization' => ['branches' => 0, 'departments' => 0, 'jobs' => 0],
+            'team' => collect(), 'recent' => [], 'moreReviews' => false,
+        ])->render();
+        $this->browser($html, <<<'JS'
+if (document.documentElement.scrollWidth > innerWidth) throw new Error('Empty dashboard overflows');
+if (!document.querySelector('.people-empty')) throw new Error('Empty directory guidance is missing');
+if (document.querySelector('.setup-state.is-done')) throw new Error('Empty organization was marked configured');
+JS, 'dashboard-empty-desktop');
+    }
+
     public function test_browser_populates_reference_versions_and_preserves_selected_records(): void
     {
         $this->login($this->user('it_asset_officer'));
@@ -54,7 +92,7 @@ if (document.documentElement.scrollWidth > window.innerWidth) throw new Error('F
 JS, 'profile');
     }
 
-    private function browser(string $html, string $assertions, string $name): void
+    private function browser(string $html, string $assertions, string $name, ?int $width = null): void
     {
         $binary = 'C:/Program Files/Google/Chrome/Application/chrome.exe';
         if (! is_file($binary)) {
@@ -83,7 +121,8 @@ JS;
         $html = str_replace('</body>', '<script>'.$mock.'</script><script>'.file_get_contents(resource_path('js/operations.js')).'</script><script>'.$verify.'</script></body>', $html);
         $path = $directory.'/'.$name.'.html';
         file_put_contents($path, $html);
-        $process = new Process(['node', base_path('tests/Browser/operation-smoke.mjs'), $binary, $path, $directory.'/profile-'.$name.'-'.bin2hex(random_bytes(4)), $directory.'/'.$name.'.png', $name === 'asset' ? '1100' : '390'], base_path());
+        $width ??= $name === 'asset' || str_ends_with($name, '-desktop') ? 1100 : 390;
+        $process = new Process(['node', base_path('tests/Browser/operation-smoke.mjs'), $binary, $path, $directory.'/profile-'.$name.'-'.bin2hex(random_bytes(4)), $directory.'/'.$name.'.png', (string) $width], base_path());
         $process->setTimeout(30);
         $process->run();
         $dom = $process->getOutput();

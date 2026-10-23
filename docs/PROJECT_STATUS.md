@@ -1,5 +1,7 @@
 # Status proyek
 
+**Koreksi status UI 23 Oktober 2026:** backend dan formulir operasional tersedia, tetapi itu tidak berarti kualitas visual seluruh modul telah selesai. Screenshot pengguna mengungkap /app masih memakai shell formulir sederhana, bukan kegagalan pemuatan CSS. Shell bersama kini mengikuti Ruang Tim tanpa sidebar; beranda memakai data berizin/empty state, direktori karyawan dan organisasi memakai tabel operasional. Modul lain mendapat shell/form bersama, tetapi tidak semuanya sudah mempunyai halaman khusus setara prototype atau UAT visual menyeluruh.
+
 **Keputusan pengguna 23 Oktober 2026:** tidak berencana deploy; target saat ini penggunaan/pengembangan lokal. Modul aplikasi lokal telah diimplementasikan. Persyaratan penerimaan produksi di bawah bersifat kondisional untuk go-live masa depan, bukan backlog modul yang harus diselesaikan untuk cakupan lokal. `composer run dev` menjalankan server/queue/scheduler/log/Vite; tidak perlu memasang service OS untuk alur pengembangan ini. Paket pada `deploy/` dan runner backup merupakan fasilitas opsional, belum dipasang pada host.
 
 Pembaruan 21 Oktober 2026: domain/API utama dan ruang kerja operasional lintas modul tersedia pada dev. Integrasi tambahan mencakup 124 formulir/tindakan dan seluruh 20 jenis workflow. Aplikasi memakai /app/*; /prototype/* tetap fixture visual lokal terpisah.

@@ -5,7 +5,7 @@ import path from 'node:path';
 
 const [binary, fixture, profile, screenshot, viewportWidth] = process.argv.slice(2);
 const width = Number(viewportWidth);
-if (![390, 1100].includes(width) || !path.resolve(fixture).startsWith(path.resolve('.cache/operation-browser') + path.sep)) throw new Error('Only isolated project fixtures are supported');
+if (![360, 390, 1100, 1440].includes(width) || !path.resolve(fixture).startsWith(path.resolve('.cache/operation-browser') + path.sep)) throw new Error('Only isolated project fixtures are supported');
 const browser = spawn(binary, ['--headless=new', '--disable-gpu', '--no-first-run', '--disable-background-networking', '--no-default-browser-check', '--remote-debugging-address=127.0.0.1', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], {windowsHide: true, stdio: ['ignore', 'ignore', 'pipe']});
 let errors = '';
 browser.stderr.on('data', (chunk) => { errors += chunk; });
@@ -38,7 +38,7 @@ try {
         if (message.error) receiver.reject(new Error(message.error.message)); else receiver.resolve(message.result);
     });
     await call('Page.enable');
-    await call('Emulation.setDeviceMetricsOverride', {width, height: 1100, deviceScaleFactor: 1, mobile: width === 390});
+    await call('Emulation.setDeviceMetricsOverride', {width, height: 1100, deviceScaleFactor: 1, mobile: width <= 390});
     await call('Page.navigate', {url: pathToFileURL(path.resolve(fixture)).href});
     let result;
     for (let i = 0; i < 80; i++) {

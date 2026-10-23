@@ -18,7 +18,8 @@
                     @foreach (['home' => 'Ringkasan', 'employees' => 'Karyawan', 'organization' => 'Organisasi', 'attendance' => 'Kehadiran', 'requests' => 'Pengajuan', 'modules' => 'Ruang kerja'] as $destination => $label)
                         @continue($destination === 'employees' && ! auth()->user()->can('viewAny', App\Models\Employee::class))
                         @continue($destination === 'organization' && ! App\Domain\Identity\Access::companyPermission(auth()->user(), 'organization.manage'))
-                        <a class="nav-item {{ request()->routeIs('workspace.'.$destination, 'workspace.'.$destination.'.*') ? 'is-current' : '' }}" href="{{ route('workspace.'.$destination) }}" @if(request()->routeIs('workspace.'.$destination, 'workspace.'.$destination.'.*')) aria-current="page" @endif>{{ $label }}</a>
+                        @php($navCurrent = request()->routeIs('workspace.'.$destination, 'workspace.'.$destination.'.*') || ($destination === 'attendance' && request()->routeIs('workspace.schedules*', 'workspace.schedule-settings*', 'workspace.overtime*', 'workspace.periods*')))
+                        <a class="nav-item {{ $navCurrent ? 'is-current' : '' }}" href="{{ route('workspace.'.$destination) }}" @if($navCurrent) aria-current="page" @endif>{{ $label }}</a>
                     @endforeach
                 </nav>
                 <div class="operational-account">

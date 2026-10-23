@@ -15,6 +15,16 @@ use Tests\Support\AttendanceScenarioCase;
 
 class AttendanceWorkspaceTest extends AttendanceScenarioCase
 {
+    public function test_recap_distinguishes_unrecorded_work_from_day_off_and_overnight_shift(): void
+    {
+        $this->roster('2026-10-19');
+        $this->roster('2026-10-20', true);
+        $this->login($this->hr)->get('/app/attendance?view=team&starts_on=2026-10-19&ends_on=2026-10-20')
+            ->assertOk()->assertSee('Durasi aktual')->assertSee('Belum tercatat')
+            ->assertSee('Hari libur')->assertSee('+1 hari')->assertDontSee('Kerja 0 menit')
+            ->assertDontSee('0 j 0 mnt')->assertSee('20 Okt');
+    }
+
     public function test_html_schedule_clocking_replay_and_overnight_departure_use_server_time(): void
     {
         $draft = $this->roster();
@@ -31,6 +41,7 @@ class AttendanceWorkspaceTest extends AttendanceScenarioCase
         $this->post('/app/attendance/'.$id.'/clock-out', array_replace($input, ['idempotency_key' => (string) Str::uuid()]))->assertRedirect('/app/attendance/'.$id);
         $this->assertDatabaseCount('attendance_events', 2);
         $this->get('/app/attendance/'.$id)->assertOk()->assertSee('398 menit kerja')->assertSee('terlambat 12 menit')->assertSee('pulang awal 10 menit')->assertSee('19 Oct 2026 22:12');
+        $this->get('/app/attendance?starts_on=2026-10-19&ends_on=2026-10-19')->assertOk()->assertSee('6 j 38 mnt')->assertSee('22:12')->assertSee('05:50')->assertSee('20 Okt');
     }
 
     public function test_geofence_identity_overrides_and_other_employee_requests_fail_closed(): void

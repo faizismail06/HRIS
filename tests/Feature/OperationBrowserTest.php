@@ -9,6 +9,28 @@ use Tests\Support\AttendanceScenarioCase;
 /** Uses isolated synthetic responses, not the operator's browser profile or live database. */
 class OperationBrowserTest extends AttendanceScenarioCase
 {
+    public function test_live_attendance_and_roster_render_at_desktop_and_mobile_sizes(): void
+    {
+        $draft = $this->roster('2026-10-19');
+        $this->roster('2026-10-20', true);
+        $this->login($this->hr);
+        $html = $this->get('/app/attendance?view=team&starts_on=2026-10-19&ends_on=2026-10-20')->assertOk()->getContent();
+        $assertions = <<<'JS'
+if (document.documentElement.scrollWidth > innerWidth) throw new Error('Attendance page overflows');
+if (!document.querySelector('.live-attendance-table')) throw new Error('Attendance table is missing');
+if (document.querySelector('.live-attendance-table').textContent.includes('Kerja 0 menit')) throw new Error('Unrecorded shift is shown as zero work');
+if (getComputedStyle(document.querySelector('.attendance-filters')).display !== 'grid') throw new Error('Attendance filters are unstyled');
+JS;
+        $this->browser($html, $assertions, 'attendance-desktop', 1440);
+        $this->browser($html, $assertions, 'attendance-mobile', 360);
+        $rosterAssertions = <<<'JS'
+if (document.documentElement.scrollWidth > innerWidth) throw new Error('Roster page overflows');
+if (!document.querySelector('.operational-table')) throw new Error('Roster table is missing');
+JS;
+        $this->browser($this->get('/app/schedules')->assertOk()->getContent(), $rosterAssertions, 'rosters-desktop', 1440);
+        $this->browser($this->get('/app/schedules/'.$draft['id'])->assertOk()->getContent(), $rosterAssertions, 'roster-detail-mobile', 360);
+    }
+
     public function test_dashboard_renders_at_desktop_and_mobile_without_overflow(): void
     {
         $html = $this->get('/app')->assertOk()->getContent();
@@ -127,6 +149,7 @@ JS;
         $process->run();
         $dom = $process->getOutput();
         file_put_contents($directory.'/'.$name.'-result.json', json_encode(['exit' => $process->getExitCode(), 'error' => $process->getErrorOutput(), 'output_bytes' => strlen($dom)]));
-        $this->assertStringContainsString('<output id="browser-smoke-result">PASS</output>', $dom, 'Browser exit '.$process->getExitCode().': '.substr($process->getErrorOutput(), 0, 800).substr(strip_tags($dom), -1000));
+        preg_match('/<output id="browser-smoke-result">([^<]*)<\/output>/', $dom, $verdict);
+        $this->assertSame('PASS', html_entity_decode($verdict[1] ?? 'Browser result missing'), 'Browser exit '.$process->getExitCode().': '.substr($process->getErrorOutput(), 0, 800));
     }
 }

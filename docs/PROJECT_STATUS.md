@@ -1,5 +1,7 @@
 # Status proyek
 
+Pembaruan UI kehadiran/roster: rekap kini berupa tabel waktu efektif, status dan durasi dengan filter/preset tanggal; daftar serta detail roster memakai tabel operasional. Pemeriksaan domain dan render desktop/ponsel dicatat pada HANDOFF.md. Ini melanjutkan perbaikan per halaman, tanpa mengklaim seluruh halaman domain sudah mendapat desain khusus.
+
 **Koreksi status UI 23 Oktober 2026:** backend dan formulir operasional tersedia, tetapi itu tidak berarti kualitas visual seluruh modul telah selesai. Screenshot pengguna mengungkap /app masih memakai shell formulir sederhana, bukan kegagalan pemuatan CSS. Shell bersama kini mengikuti Ruang Tim tanpa sidebar; beranda memakai data berizin/empty state, direktori karyawan dan organisasi memakai tabel operasional. Modul lain mendapat shell/form bersama, tetapi tidak semuanya sudah mempunyai halaman khusus setara prototype atau UAT visual menyeluruh.
 
 **Keputusan pengguna 23 Oktober 2026:** tidak berencana deploy; target saat ini penggunaan/pengembangan lokal. Modul aplikasi lokal telah diimplementasikan. Persyaratan penerimaan produksi di bawah bersifat kondisional untuk go-live masa depan, bukan backlog modul yang harus diselesaikan untuk cakupan lokal. `composer run dev` menjalankan server/queue/scheduler/log/Vite; tidak perlu memasang service OS untuk alur pengembangan ini. Paket pada `deploy/` dan runner backup merupakan fasilitas opsional, belum dipasang pada host.

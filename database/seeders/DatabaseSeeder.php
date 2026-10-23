@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // No default account/password or synthetic operational records.
+        if (app()->environment('local') && ! config('hris.demo_features_enabled')) {
+            $this->call(UserSeeder::class);
+        }
     }
 }

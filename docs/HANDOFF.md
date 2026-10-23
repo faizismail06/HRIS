@@ -316,6 +316,8 @@ Panduan terbaru: WORKSPACE_OPERATIONS.md, PROJECT_STATUS.md, BACKEND_DELIVERY.md
 
 ## Penutupan cakupan lokal — 23 Oktober 2026
 
+Pembaruan akun lokal: atas permintaan pengguna, UserSeeder menyediakan delapan akun aktif dengan mandat company, termasuk dua HR Admin untuk independent review. DatabaseSeeder memanggilnya hanya pada environment local non-demo; direct UserSeeder menolak produksi/demo. Email tercatat di README; password acak akun baru hanya ditampilkan di terminal, MFA tetap wajib. Akun yang sudah ada dilewati tanpa perubahan password/status/mandat; perusahaan yang ada dipertahankan. Tidak dibuat data karyawan atau secret MFA sintetis. Seeder telah dijalankan pada database pengembangan tanpa reset; 23 tes/228 assertions (seeder, identity/provisioning dan isolated migrate:fresh) lulus. Perintah bootstrap manual tidak diubah dan tetap berlaku sebelum perusahaan pertama tersedia.
+
 Pengguna menegaskan tidak berencana deploy. Modul backend dan integrasi aplikasi lokal telah diimplementasikan; persyaratan penerimaan produksi di atas hanya berlaku jika kelak akan go-live. Kebijakan payroll tetap draft sesuai keputusan pengguna.
 
 Commit c31fcba sudah di-push ke dev. composer run dev kini menjalankan server, worker, scheduler, log dan Vite sekaligus. Status worker/scheduler memakai heartbeat aktual. Paket deploy dan runner backup terenkripsi tersedia sebagai fasilitas opsional, belum dipasang atau dijalankan untuk backup nyata; tidak ada perubahan .env, pengiriman email/bank nyata atau pemasangan service OS.

@@ -10,7 +10,30 @@ HRIS berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.m
 
 ## Login dan backend operasional
 
-Halaman `/` mengarah ke `/app` (atau `/login` jika belum masuk), termasuk ketika preview diaktifkan. `/prototype/*` hanya untuk contoh visual. DatabaseSeeder tidak membuat akun maupun karyawan; pada instalasi kosong, buat akun awal dengan langkah berikut. Tersedia sembilan jenis peran, bukan sembilan akun bawaan. Untuk mutasi organisasi/karyawan, buat akun HR Admin juga; Platform Admin mengelola akses akun.
+Halaman `/` mengarah ke `/app` (atau `/login` jika belum masuk), termasuk ketika preview diaktifkan. `/prototype/*` hanya untuk contoh visual. Untuk mutasi organisasi/karyawan, gunakan HR Admin; Platform Admin mengelola akses akun.
+
+### Akun praktis untuk lokal
+
+Jalankan `php artisan db:seed` setelah migrasi, atau `php artisan db:seed --class=UserSeeder` untuk akun saja. Pada environment `local` non-demo, DatabaseSeeder memanggil UserSeeder. Tidak perlu menjalankan migrate:fresh atau menghapus data.
+
+Password awal acak untuk setiap akun baru ditampilkan di terminal saat seeding. Simpan saat itu; menjalankan ulang tidak mereset password. Buka `/login` dan aktifkan MFA dengan autentikator pribadi. Password tidak disimpan di repository.
+
+| Email | Peran |
+| --- | --- |
+| `hr.admin@hris.test` | HR Admin — mulai membuat organisasi/karyawan |
+| `hr.reviewer@hris.test` | HR Admin kedua — persetujuan independen |
+| `platform.admin@hris.test` | Platform Admin — pengelolaan akses |
+| `hr.officer@hris.test` | HR Officer |
+| `payroll@hris.test` | Payroll Officer |
+| `finance@hris.test` | Finance Approver |
+| `assets@hris.test` | IT Asset Officer |
+| `auditor@hris.test` | Auditor |
+
+Seeder hanya membuat akun, mandat dan perusahaan jika belum ada. Nama perusahaan yang sudah ada dipertahankan. Akun dengan email yang sudah ada dilewati: password, MFA, status dan izinnya tidak diubah. Akun Employee/Manager dibuat terpisah setelah tersedia karyawan yang dapat ditautkan. Seeder ini menolak produksi/demo dan tidak melewati MFA.
+
+### Alternatif provisioning manual
+
+Perintah bootstrap berikut tetap tersedia untuk instalasi tanpa perusahaan. Pilih seeder lokal atau bootstrap manual sebagai langkah awal; sesudah perusahaan dibuat oleh seeder, bootstrap ditolak sesuai aturan instalasi pertama. Provisioning biasa tanpa `--bootstrap` tetap dapat menambah akun.
 
 Setelah koneksi PostgreSQL disiapkan, jalankan `php artisan migrate`, lalu `php artisan hris:provision-account platform_admin --bootstrap --company="Nama Perusahaan"` dari terminal interaktif. Perintah meminta nama, email dan password tersembunyi; tidak ada akun/password default. Buka `/login` dan selesaikan pengaturan MFA. Admin platform tidak otomatis memperoleh akses data karyawan. Panduan akun HR, scope, pengujian PostgreSQL dan batas kesiapan produksi ada di [IDENTITY_FOUNDATION.md](docs/IDENTITY_FOUNDATION.md).
 

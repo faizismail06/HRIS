@@ -1,5 +1,7 @@
 # Fondasi identitas dan CoreHR
 
+Pembaruan 23 Oktober 2026: untuk kemudahan lokal non-demo, `php artisan db:seed` kini menyediakan delapan akun melalui UserSeeder. Daftar email dan perilaku idempoten dijelaskan pada README; password acak akun baru hanya ditampilkan saat pembuatan di terminal. Keterangan historis di bawah tentang tanpa akun default berlaku untuk provisioning manual, testing default dan produksi; bootstrap manual tetap tersedia pada instalasi tanpa perusahaan. MFA tetap wajib.
+
 Modul backend pertama menyediakan login nyata melalui Laravel Fortify, MFA wajib untuk data operasional, pemulihan kata sandi, grants peran/scope, direktori identitas kerja baca saja dan migrasi PostgreSQL. Preview `/prototype/*` tetap memakai fixture sintetis, terpisah dari akun dan database operasional. Ini belum acceptance R0 atau aplikasi siap produksi.
 
 ## Menjalankan

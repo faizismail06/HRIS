@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         if (app()->environment('local') && ! config('hris.demo_features_enabled')) {
-            $this->call(UserSeeder::class);
+            $this->call(LocalTestingSeeder::class);
         }
     }
 }

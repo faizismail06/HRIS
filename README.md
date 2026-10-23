@@ -16,7 +16,7 @@ Halaman `/` mengarah ke `/app` (atau `/login` jika belum masuk), termasuk ketika
 
 Untuk testing tanpa 2FA, atur `HRIS_LOCAL_SKIP_MFA=true` di `.env` lalu `php artisan config:clear`. Pengaturan ini hanya berlaku pada `APP_ENV=local` non-demo; password, akun aktif dan izin tetap diperiksa. Enrollment dan challenge 2FA dilewati tanpa menghapus secret akun. Ubah menjadi `false` untuk mewajibkan 2FA lagi. Produksi, staging, testing otomatis dan demo tetap mewajibkan MFA meskipun flag bernilai true.
 
-Jalankan `php artisan db:seed` setelah migrasi, atau `php artisan db:seed --class=UserSeeder` untuk akun saja. Pada environment `local` non-demo, DatabaseSeeder memanggil UserSeeder. Tidak perlu menjalankan migrate:fresh atau menghapus data.
+Jalankan `php artisan db:seed` setelah migrasi untuk seluruh data testing lokal, atau `php artisan db:seed --class=UserSeeder` untuk delapan akun admin/staf HR saja. Pada environment `local` non-demo, DatabaseSeeder memanggil LocalTestingSeeder. Tidak perlu menjalankan migrate:fresh atau menghapus data. Daftar seeder per bagian dan alur mencoba cuti ada di [LOCAL_TEST_DATA.md](docs/LOCAL_TEST_DATA.md).
 
 Password awal acak untuk setiap akun baru ditampilkan di terminal saat seeding. Simpan saat itu; menjalankan ulang tidak mereset password. Buka `/login` dan aktifkan MFA dengan autentikator pribadi. Password tidak disimpan di repository.
 
@@ -31,7 +31,7 @@ Password awal acak untuk setiap akun baru ditampilkan di terminal saat seeding. 
 | `assets@hris.test` | IT Asset Officer |
 | `auditor@hris.test` | Auditor |
 
-Seeder hanya membuat akun, mandat dan perusahaan jika belum ada. Nama perusahaan yang sudah ada dipertahankan. Akun dengan email yang sudah ada dilewati: password, MFA, status dan izinnya tidak diubah. Akun Employee/Manager dibuat terpisah setelah tersedia karyawan yang dapat ditautkan. Seeder ini menolak produksi/demo dan tidak melewati MFA.
+UserSeeder hanya membuat akun, mandat dan perusahaan jika belum ada. Nama perusahaan yang sudah ada dipertahankan. Akun dengan email yang sudah ada dilewati: password, MFA, status dan izinnya tidak diubah. StaffUserSeeder menambah tiga akun Employee/Manager yang terhubung ke karyawan contoh ketika menjalankan seluruh data lokal. Seeder ini menolak produksi/demo dan tidak melewati MFA; flag testing lokal di atas tetap berlaku.
 
 ### Alternatif provisioning manual
 

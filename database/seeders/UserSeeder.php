@@ -56,7 +56,7 @@ class UserSeeder extends Seeder
 
         if ($credentials && $this->command) {
             $this->command->table(['Email', 'Password awal (simpan sekarang)'], $credentials);
+            $this->command->info('Akun baru dibuat; login mengikuti pengaturan MFA lokal. Akun yang sudah ada tidak diubah. Password hanya ditampilkan saat pembuatan.');
         }
-        $this->command?->info('MFA tetap diaktifkan lewat /login; akun yang sudah ada tidak diubah. Password akun baru hanya ditampilkan saat pembuatan.');
     }
 }

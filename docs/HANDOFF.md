@@ -313,3 +313,11 @@ Verifikasi: regresi penuh 246 tests / 4510 assertions lulus pada hris_testing da
 Migration 2026_10_21_370000 menambah auditor_export_enabled default false, diterapkan secara additive pada database pengembangan dan pengujian. Tidak ada reset database operasional, perubahan .env, pengiriman email/bank nyata atau deployment. .env tetap ignored/untracked.
 
 Panduan terbaru: WORKSPACE_OPERATIONS.md, PROJECT_STATUS.md, BACKEND_DELIVERY.md dan OPERATIONS.md. Nilai/pengesahan kebijakan perusahaan, konfigurasi host/supervisor/SMTP/TLS/ACL/backup off-host, pengukuran load/RPO/RTO, perangkat nyata dan UAT pemilik kebijakan tetap keputusan serta bukti operator. Tiga fixture browser bukan recapture semua prototype atau pengesahan seluruh perangkat/aksesibilitas.
+
+## Penutupan cakupan lokal — 23 Oktober 2026
+
+Pengguna menegaskan tidak berencana deploy. Modul backend dan integrasi aplikasi lokal telah diimplementasikan; persyaratan penerimaan produksi di atas hanya berlaku jika kelak akan go-live. Kebijakan payroll tetap draft sesuai keputusan pengguna.
+
+Commit c31fcba sudah di-push ke dev. composer run dev kini menjalankan server, worker, scheduler, log dan Vite sekaligus. Status worker/scheduler memakai heartbeat aktual. Paket deploy dan runner backup terenkripsi tersedia sebagai fasilitas opsional, belum dipasang atau dijalankan untuk backup nyata; tidak ada perubahan .env, pengiriman email/bank nyata atau pemasangan service OS.
+
+Verifikasi akhir: 251 tes aplikasi / 4547 assertions dan 3 tes pipeline backup dengan cipher palsu khusus pengujian lulus. Pint, composer validate --strict, kompilasi Python, parse PowerShell, syntax Bash dan git diff --check lulus. Migrasi heartbeat diterapkan secara additive tanpa reset database. README dan PROJECT_STATUS menegaskan batas cakupan lokal agar checklist produksi tidak dianggap modul yang belum dibuat.

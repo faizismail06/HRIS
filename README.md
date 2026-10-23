@@ -1,5 +1,7 @@
 # Integrated Operational HRIS
 
+**Cakupan yang disepakati 23 Oktober 2026: aplikasi lokal, tanpa rencana deployment.** Jalankan `composer run dev` untuk server, worker, scheduler, log dan Vite sekaligus. Syarat go-live/SMTP produksi/pengesahan infrastruktur di dokumentasi berlaku hanya bila nanti akan deploy; itu bukan modul aplikasi lokal yang belum dibuat. Kebijakan payroll tetap draft sesuai keputusan sebelumnya.
+
 HRIS berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Backend domain/API mencakup identitas/MFA/scope, profil privat, organisasi/karier, workflow/delegasi, roster/attendance/cuti/lembur/close, dokumen/kontrak/lifecycle/aset, payroll/reimbursement, impor/ekspor/laporan/notifikasi/pencarian serta demo terisolasi. [Peta backend](docs/BACKEND_DELIVERY.md) mencatat implementasi dan batasnya; [panduan operasi](docs/OPERATIONS.md) memuat worker, deployment dan backup/restore. Kebijakan payroll produksi tetap draft sampai disahkan HR/Finance.
 
 **Aplikasi operasional:** masuk melalui `/login`, selesaikan MFA, lalu buka [Ruang kerja](http://127.0.0.1:8000/app/modules). Sebanyak 124 formulir/tindakan tambahan dan seluruh 20 jenis pengajuan terhubung ke layanan domain dengan izin, versi dan idempotensi. Panduan: [WORKSPACE_OPERATIONS.md](docs/WORKSPACE_OPERATIONS.md). Browser headless telah memeriksa tiga fixture desktop/ponsel; UAT perusahaan dan konfigurasi produksi memerlukan penerimaan operator.

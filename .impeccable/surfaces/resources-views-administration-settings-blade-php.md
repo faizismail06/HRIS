@@ -31,4 +31,4 @@ Empat batch: IMP-001 tiga baris, dua baris bermasalah, seluruh batch ditolak; fo
 
 ## Verifikasi
 
-Gate preview local/testing, flagdefaultfalse dan GET-only dipertahankan. Filter whitelist, hasil kosong/reset dan unknown ID404. Review browser dan aksesibilitas belum dapat disahkan; status proyek lengkap dipisahkan dalam docs/PROJECT_STATUS.md agar UI tidak dianggap acceptance domain.
+Gate preview local/testing, flagdefaultfalse dan GET-only dipertahankan. Filter whitelist, hasil kosong/reset dan unknown ID404. Review browser dan aksesibilitas belum dapat disahkan; katalog ini tidak dianggap acceptance domain.

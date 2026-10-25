@@ -46,7 +46,7 @@ python scripts/operations/verify_backup.py <completed-backup-directory>
 python scripts/operations/verify_backup.py <completed-backup-directory> --identity <off-host-recovery-identity-file>
 ```
 
-Perintah pertama memverifikasi hash ciphertext. Perintah kedua memverifikasi dekripsi, keterbacaan dump dan tar privat tanpa mengekstrak file atau mengubah database. Keduanya tetap melaporkan restore_verified=false: penerimaan recovery memerlukan restore ke DB/storage baru terisolasi, verifikasi dekripsi data aplikasi/file/audit/izin dan pengukuran RPO/RTO. Prosedurnya ada pada `docs/OPERATIONS.md`; BackupRestoreTest membuktikan native restore data sintetis, bukan recovery host produksi. Unit Python menggunakan cipher palsu berlabel TEST-ONLY untuk menguji transport biner, bukan membuktikan keamanan age.
+Perintah pertama memverifikasi hash ciphertext. Perintah kedua memverifikasi dekripsi, keterbacaan dump dan tar privat tanpa mengekstrak file atau mengubah database. Keduanya tetap melaporkan restore_verified=false: penerimaan recovery memerlukan restore ke DB/storage baru terisolasi, verifikasi dekripsi data aplikasi/file/audit/izin dan pengukuran RPO/RTO. BackupRestoreTest membuktikan native restore data sintetis, bukan recovery host produksi. Unit Python menggunakan cipher palsu berlabel TEST-ONLY untuk menguji transport biner, bukan membuktikan keamanan age.
 
 ## Penerimaan bisnis dan perangkat
 

@@ -10,7 +10,7 @@ Domain dan formulir operasional telah tersedia di aplikasi lokal, dengan pemerik
 
 Payroll tetap berupa konfigurasi draft. Kebijakan prorata, lembur, pajak/BPJS, dan format ekspor bank belum ditetapkan perusahaan sehingga finalisasi payroll sengaja tetap terkunci.
 
-Lihat [status proyek](docs/PROJECT_STATUS.md) untuk batas cakupan, [handoff teknis](docs/HANDOFF.md) untuk riwayat dan hasil pemeriksaan terakhir, serta [panduan ruang kerja](docs/WORKSPACE_OPERATIONS.md) untuk peta alur operasional.
+Dokumentasi operasional internal disimpan lokal dan tidak diterbitkan bersama repository portfolio ini.
 
 ## Menjalankan secara lokal
 
@@ -76,7 +76,7 @@ Seeder akun dan data portfolio bersifat lokal, diabaikan Git, dan tidak tersedia
 | Cuti & lembur | `/app/leave-*`, `/app/overtime`, `/app/attendance-periods` | Saldo/ledger, kredit, entitlement, aktual lembur, dan penutupan periode. |
 | Alur lanjutan | `/app/modules` | Formulir dan tindakan domain lain, termasuk dokumen, lifecycle, aset, finance, impor, laporan, administrasi, dan demo terisolasi. |
 
-Rincian mandat, scope, format field, dan proses latar belakang ada di [WORKSPACE_OPERATIONS.md](docs/WORKSPACE_OPERATIONS.md). Dokumen backend per domain tersedia di folder `docs/`.
+Mandat, scope, validasi, dan proses latar belakang diterapkan pada controller serta layanan domain di aplikasi.
 
 ## Pengujian dan pemeriksaan
 
@@ -93,4 +93,4 @@ Suite menggunakan database pengujian terpisah. Jangan menjalankan `migrate:fresh
 php artisan test --compact --filter='AttendanceWorkspaceTest|CalendarReplacementWorkspaceTest|CloseOvertimeWorkspaceTest'
 ```
 
-Untuk detail batas domain, proses worker/scheduler, backup, dan kebutuhan bila suatu saat akan deployment, baca [OPERATIONS.md](docs/OPERATIONS.md), [BACKEND_DELIVERY.md](docs/BACKEND_DELIVERY.md), dan [BACKEND_ACCEPTANCE.md](docs/BACKEND_ACCEPTANCE.md).
+Untuk penggunaan lokal, jalankan aplikasi dengan `composer run dev`. Kebutuhan deployment tidak termasuk cakupan repository portfolio ini.

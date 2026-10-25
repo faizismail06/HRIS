@@ -34,7 +34,7 @@ Thumbs.db
 !/database/seeders/DatabaseSeeder.php
 /tests/Feature/UserSeederTest.php
 /tests/Feature/LocalTestingSeederTest.php
-/docs/LOCAL_TEST_DATA.md
+/docs/
 **/__pycache__/
 *.pyc
 /.impeccable/config.local.json

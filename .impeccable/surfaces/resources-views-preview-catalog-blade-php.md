@@ -23,7 +23,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 ## Cakupan dan batas
 
-48 form mencakup CoreHR/lokasi/profil/periode, roster/clock/koreksi/cuti/lembur aktual/swap/approval/delegasi, kontrak/template/surat/karier, lifecycle/tugas/aset, komponen/run/finalisasi/rilis slip/bank/rekonsiliasi/klaim/penyesuaian, close/reopen/reportexport, akun/workflow/impor/preferensi, login/MFA/recovery/reset/invite dan demo. Fieldset dinonaktifkan, tanpa nama form atau submit endpoint; password kosong dan file tidak diterima. Primary copy mengikuti tujuan, auth tidak memiliki simpan draf. Lihat inventaris lengkap di docs/STATIC_SCREENS.md.
+48 form mencakup CoreHR/lokasi/profil/periode, roster/clock/koreksi/cuti/lembur aktual/swap/approval/delegasi, kontrak/template/surat/karier, lifecycle/tugas/aset, komponen/run/finalisasi/rilis slip/bank/rekonsiliasi/klaim/penyesuaian, close/reopen/reportexport, akun/workflow/impor/preferensi, login/MFA/recovery/reset/invite dan demo. Fieldset dinonaktifkan, tanpa nama form atau submit endpoint; password kosong dan file tidak diterima. Primary copy mengikuti tujuan, auth tidak memiliki simpan draf.
 
 State: empty, loading statis, error dengan input contoh, forbidden, stale V1/V2, queued, konfirmasi sukses contoh, offline, izin kamera/lokasi ditolak, sesi/tautan expired, not-found dan konfirmasi reset berbatas skenario. Skeleton tidak bergerak dan tidak berpura-pura ada permintaan aktif. Kontrol konfirmasi reset dinonaktifkan.
 

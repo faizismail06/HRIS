@@ -194,7 +194,7 @@ Numbers use tabular figures. Headings use balanced wrapping and paragraphs use p
 
 Header and main share a centered maximum width of (1264px), including horizontal padding of (44px). The desktop header is at least (88px) high, with brand, seven horizontal destination links, and persona. There is no reserved side rail or collapsed navigation control.
 
-Main padding is (26px 44px 32px). The dashboard places attendance and agenda in a top grid with a (1.8:1) column ratio and (24px) gap; the task panel spans the full width below with a (28px) separation. This page-specific order is recorded in `docs/dashboard-surface.md`, not a mandatory layout for every future screen.
+Main padding is (26px 44px 32px). The dashboard places attendance and agenda in a top grid with a (1.8:1) column ratio and (24px) gap; the task panel spans the full width below with a (28px) separation. This is page-specific, not a mandatory layout for every future screen.
 
 Implemented responsive rules, pending browser verification:
 
@@ -204,7 +204,7 @@ Implemented responsive rules, pending browser verification:
 - At (760px) and below, brand and compact persona occupy the first line, and all seven navigation links stay visible on their wrapping row. Navigation uses no vertical gap and an (18px) horizontal gap, reducing to (8px) at (400px). Links are at least (48px) high. Main uses (22px) horizontal padding; the overview becomes one column, the attendance legend uses three columns, and search and branch selection stack.
 - At (400px) and below, page padding becomes (16px), the attendance legend uses two columns, row avatars disappear, and task columns become a flexible text column plus (66px) deadline and (12px) indicator columns.
 
-The people extension inherits this shell. Its directory preserves table columns inside a horizontal scroll region with a (900px) minimum table width. Profiles use a (1.65:1) field/history grid that stacks at (1000px); field pairs become one column at (450px), and team lists stack at (760px). Directory filters wrap with the same native controls. These are source rules, not browser-verified layouts. Surface-specific composition is recorded in `docs/people-surface.md`.
+The people extension inherits this shell. Its directory preserves table columns inside a horizontal scroll region with a (900px) minimum table width. Profiles use a (1.65:1) field/history grid that stacks at (1000px); field pairs become one column at (450px), and team lists stack at (760px). Directory filters wrap with the same native controls. These are source rules, not browser-verified layouts.
 
 Static form previews use two field columns, becoming one at (760px) and below; textareas span the available width. Account previews use a separate compact shell capped at (650px), with single-column fields and no HR navigation. These inherit the existing type, controls, panels and focus vocabulary.
 
@@ -260,7 +260,7 @@ The attendance extension inherits native GET controls and existing state colors.
 
 The synthetic fixture covers 70 daily records for five people over two weeks (12–25 October 2026). Weekly roster columns identify the shift-start date; shift links state when the end falls on the next day. A night shift beginning on 19 October stays attached to that work date even when it ends on 20 October. The roster and recap keep native table headers inside labeled, focusable horizontal scroll regions rather than hiding columns. These are source provisions pending visual and keyboard verification.
 
-Keep roster plans, raw clock events, and interpreted outcomes distinct. Late and early-departure flags are independent of Present status. Scheduled, In progress, Incomplete, Leave, Day off and Absent remain separately labeled. Detail fields show full start/end context, timezone, break and duration notes; semantic event timelines label the source SIMULATED. Native correction-guidance disclosures explain the example deadline and preserved raw events without offering submission, attachment or approval actions. The seven-day example is a PRD default, not an operational policy. Surface details remain in `docs/attendance-surface.md`.
+Keep roster plans, raw clock events, and interpreted outcomes distinct. Late and early-departure flags are independent of Present status. Scheduled, In progress, Incomplete, Leave, Day off and Absent remain separately labeled. Detail fields show full start/end context, timezone, break and duration notes; semantic event timelines label the source SIMULATED. Native correction-guidance disclosures explain the example deadline and preserved raw events without offering submission, attachment or approval actions. The seven-day example is a PRD default, not an operational policy.
 
 ### Requests, leave balances and team availability
 
@@ -270,7 +270,7 @@ Ordered workflow steps distinguish completed, active, waiting, rejected and disc
 
 Balance views keep credit, final debit, active reservation and reservation release distinct. Quantities use integer half-day units, formatted as days for readers. The displayed equation is credit minus debit minus active reservation; releasing a reservation does not create usage. The 12-day starting credit is synthetic, not a legal entitlement or operational leave policy. Ledger references link to request details and back to the same selected profile.
 
-The availability calendar receives only roster/approved availability, not request payloads, private reasons or attachments. Labels are Terjadwal, Tidak tersedia and Libur; daily shift counts are not staffing requirements or proof of clock activity. Approved leave dates share one fixture source with attendance, while pending requests do not alter final availability. No approval, balance transaction or raw-event adjustment runs from these pages. Surface details remain in `docs/requests-surface.md`.
+The availability calendar receives only roster/approved availability, not request payloads, private reasons or attachments. Labels are Terjadwal, Tidak tersedia and Libur; daily shift counts are not staffing requirements or proof of clock activity. Approved leave dates share one fixture source with attendance, while pending requests do not alter final availability. No approval, balance transaction or raw-event adjustment runs from these pages.
 
 ### Contracts, letters and career changes
 
@@ -278,7 +278,7 @@ Administrasi inherits native GET registers, labeled focusable table-scroll regio
 
 Letter previews present immutable version-specific HTML snapshots, with a prominent CONTOH · DATA SINTETIS stamp and a separate draft/unissued label where relevant. Retain the original name, assignment, branch, period, template version and number instead of substituting current-profile values. Original and reissued versions have reciprocal references and different example numbers; drafts have no final number. These are not signed, issued or downloadable documents.
 
-Active-contract details illustrate reminder dates at 60, 30, 14 and 7 days before period end, labeled relative to the fixed snapshot. Archived, scheduled and review records retain their own states. No reminders are sent and no contract or account changes occur. Career comparisons use semantic before/after columns, clearly identifying proposed, scheduled and already-effective values. Future assignment values must not appear as today's profile. Related-version and current-profile links provide context without implying an effective-date engine or operational version transaction. Surface details remain in `docs/employment-surface.md`.
+Active-contract details illustrate reminder dates at 60, 30, 14 and 7 days before period end, labeled relative to the fixed snapshot. Archived, scheduled and review records retain their own states. No reminders are sent and no contract or account changes occur. Career comparisons use semantic before/after columns, clearly identifying proposed, scheduled and already-effective values. Future assignment values must not appear as today's profile. Related-version and current-profile links provide context without implying an effective-date engine or operational version transaction.
 
 ### Lifecycle checklists and asset custody
 
@@ -286,7 +286,7 @@ Onboarding and offboarding reuse native GET registers, labeled focusable table r
 
 Checklist templates belong to a specific employment period. Keep owner, due date, required/optional label, dependency, status and synthetic evidence reference visible as text. Dependencies explain blocked tasks without presenting completion controls. Joining date, last working day, employment end and scenario access timing remain distinct. Open asset obligations do not imply active account access; a former employee can have revoked access and an outstanding return. Rehire checklists preserve the previous period's clearance archive separately. Evidence is text only, with no attachment acceptance, account activation, session revocation or reminder action.
 
-Asset details distinguish a reserved recipient from an active holder, condition from custody, and returnable equipment from consumables. An ordered custody history shows handover, return, due date and evidence; the fixture contains at most one active holder per asset and preserves earlier holders. This does not establish operational conflict prevention. Consumables have a recorded recipient without entering a borrowing or return queue. Missing or damaged equipment can have a separate settlement-review case; its status neither assigns liability nor triggers salary deductions. Surface details remain in `docs/lifecycle-surface.md`.
+Asset details distinguish a reserved recipient from an active holder, condition from custody, and returnable equipment from consumables. An ordered custody history shows handover, return, due date and evidence; the fixture contains at most one active holder per asset and preserves earlier holders. This does not establish operational conflict prevention. Consumables have a recorded recipient without entering a borrowing or return queue. Missing or damaged equipment can have a separate settlement-review case; its status neither assigns liability nor triggers salary deductions.
 
 ### Payroll, payslip previews and reimbursement
 
@@ -296,7 +296,7 @@ Present calculation status and payment status as separate labeled facts. A final
 
 Payslip previews are HTML only and require a finalized batch, a release date reached at the fixed snapshot, and membership in that batch. These fixture gates are not production owner authorization or private document storage. A slip explains calculation components and references, not proof of transfer. Settlement timelines separately identify successful and failed records with synthetic reference, date, actor and amount.
 
-Each reimbursement claim has one settlement channel: payroll or a separate reimbursement batch. Keep original claim amount, successful amount and remaining portion distinct. Only successful settlements count as paid; failures do not reduce the original amount, and partial success remains partial. Rejected or withdrawn unpaid portions are not approved liabilities. Similar evidence/date/amount produces a review warning, not a fraud finding. No transfer, export, duplicate prevention or operational settlement runs from these pages. Surface details remain in `docs/finance-surface.md`.
+Each reimbursement claim has one settlement channel: payroll or a separate reimbursement batch. Keep original claim amount, successful amount and remaining portion distinct. Only successful settlements count as paid; failures do not reduce the original amount, and partial success remains partial. Rejected or withdrawn unpaid portions are not approved liabilities. Similar evidence/date/amount produces a review warning, not a fraud finding. No transfer, export, duplicate prevention or operational settlement runs from these pages.
 
 ### Attendance reports and period-close snapshots
 
@@ -304,17 +304,17 @@ Reports inherit native weekly GET filters for branch, current-profile department
 
 Period registers label OPEN, REVIEW and CLOSED separately and expose source, reviewed, roster and policy versions before readiness checks. Version mismatches, blockers and warnings are written explicitly. The open 12–25 October fixture offers two distinctly labeled source-week links for 12–18 and 19–25 October. These examples neither perform closure nor establish a complete operational validator.
 
-Closed views preserve historical identity, assignment and source-version snapshots, including employees whose current employment has ended. The September archive covers only 28–30 September, not the full month, and its text references do not open raw September events. The fixture SHA-256 describes example data, not a production lock, concurrency check or transaction guarantee. After final payroll, corrections require a separately linked adjustment instead of overwriting the old snapshot. Planned-versus-verified overtime examples explain possible inputs; durations, approvals and plans are not payment calculations. Surface details remain in `docs/reports-surface.md`.
+Closed views preserve historical identity, assignment and source-version snapshots, including employees whose current employment has ended. The September archive covers only 28–30 September, not the full month, and its text references do not open raw September events. The fixture SHA-256 describes example data, not a production lock, concurrency check or transaction guarantee. After final payroll, corrections require a separately linked adjustment instead of overwriting the old snapshot. Planned-versus-verified overtime examples explain possible inputs; durations, approvals and plans are not payment calculations.
 
 ### Target settings, audit examples and import previews
 
-These administration surfaces inherit native GET filters, status text, definition lists, native disclosures and labeled focusable table regions. Same-register links and back navigation preserve their applicable query filters; switching kinds drops search/status values whose meanings differ. Global navigation and the wrapping header remain unchanged. Keep the current UI-preview scope explicit; project completion and domain acceptance are tracked separately in `docs/PROJECT_STATUS.md`.
+These administration surfaces inherit native GET filters, status text, definition lists, native disclosures and labeled focusable table regions. Same-register links and back navigation preserve their applicable query filters; switching kinds drops search/status values whose meanings differ. Global navigation and the wrapping header remain unchanged. Keep the current UI-preview scope explicit; it does not establish project completion or domain acceptance.
 
 Settings show nine planned roles with target mandates and boundaries, not active permissions or editable configuration. Server default-deny, no self-approval, separate payroll actors, MFA and delegation remain backend requirements. Do not expose environment values, credentials or secret settings. The synthetic persona is not a login.
 
 The six audit examples identify actor, time, outcome, before/after context, reason and correlation through readable fields and native detail disclosures. They are fixture stories rather than a live logger, append-only archive or real user activity. Related-record links add context without exposing sensitive payloads, bank details or medical reasons.
 
-Import previews use four fixed batches, with mapping fields and row numbers followed by the affected column, error reason and concrete remedy. A business error rejects the whole illustrative batch; even valid rows remain unapplied. Formula-like values are displayed as text. Matching payload/type/hash examples link a retry to its original batch without duplicate application in the scenario. Clearly separate illustrative applied-row counts from actual UI writes, which remain zero. No upload, CSV/XLSX parser, staging transaction or commit exists; fixture hashes do not establish backend atomicity or idempotency. Surface details remain in `docs/administration-surface.md`.
+Import previews use four fixed batches, with mapping fields and row numbers followed by the affected column, error reason and concrete remedy. A business error rejects the whole illustrative batch; even valid rows remain unapplied. Formula-like values are displayed as text. Matching payload/type/hash examples link a retry to its original batch without duplicate application in the scenario. Clearly separate illustrative applied-row counts from actual UI writes, which remain zero. No upload, CSV/XLSX parser, staging transaction or commit exists; fixture hashes do not establish backend atomicity or idempotency.
 
 ### Notifications and cross-module search
 
@@ -322,7 +322,7 @@ Workspace utilities inherit native GET filters, visible text states, existing pa
 
 Search spans ten fixture categories through selected public-facing summaries. Exclude amounts, payslip components, private reasons, letter bodies, employee email, evidence and audit payloads from the result projection. An initial state explains the minimum two-character query; empty results offer an all-category search that preserves the query. Results are an ordered text list with separators rather than repeated cards.
 
-Result links use fixed source routes and parameters. Search text is not forwarded as an unrelated local filter; browser Back returns to the search URL. Source links add context without implying production indexing, role-based result authorization or access logging. Notification counts and delivery histories are synthetic rather than live services. Surface details remain in `docs/workspace-surface.md`; project status remains a UI preview rather than completed backend behavior.
+Result links use fixed source routes and parameters. Search text is not forwarded as an unrelated local filter; browser Back returns to the search URL. Source links add context without implying production indexing, role-based result authorization or access logging. Notification counts and delivery histories are synthetic rather than live services. This catalog remains a UI preview rather than completed backend behavior.
 
 ### Static catalog, role homes and form variants
 
@@ -336,7 +336,7 @@ The twelve examples cover empty, nonanimated loading, error, forbidden, stale, q
 
 Forbidden, expired and not-found examples withhold record payloads. Stale state identifies V1 versus V2 before further review. The loading skeleton is static and never implies an active background request. Scenario-reset confirmation identifies the allowed example scope and keeps its control disabled; success and queued examples do not prove persistence, export or processing. No login, uploads, device access, reset, payment or other mutation runs from these pages.
 
-The core static implementation inventory is complete for this stage; browser QA for the full static catalog remains incomplete. Selected live pages (dashboard, directory/form states, attendance, and roster) have been rendered in Chrome headless at desktop and narrow viewports, but that is not a visual or accessibility approval of every route. See `docs/static-completion-surface.md`, `docs/STATIC_SCREENS.md` and `docs/PROJECT_STATUS.md` for coverage and the distinction from backend/domain completion.
+The core static implementation inventory is complete for this stage; browser QA for the full static catalog remains incomplete. Selected live pages (dashboard, directory/form states, attendance, and roster) have been rendered in Chrome headless at desktop and narrow viewports, but that is not a visual or accessibility approval of every route. Internal coverage notes are intentionally kept outside the public portfolio repository.
 
 ### Focus and motion
 

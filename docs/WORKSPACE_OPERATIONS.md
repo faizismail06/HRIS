@@ -2,6 +2,8 @@
 
 Masuk melalui /login, selesaikan MFA, lalu buka /app atau /app/modules. Navigasi tetap di atas, tanpa sidebar. /prototype/* tetap menjadi fixture visual terpisah; tindakan aplikasi berada pada /app/*.
 
+Halaman ruang kerja, direktori, organisasi, kehadiran, serta roster telah memakai tampilan operasional khusus. Area lain tetap menjalankan alur dan kontrol server yang sama melalui shell/form bersama; tidak semua halaman telah dipoles satu per satu. Ini sengaja dicatat agar fungsi aplikasi tidak disamakan dengan penyelesaian desain visual penuh.
+
 ## Cakupan integrasi
 
 WorkspaceOperations memuat 124 formulir/tindakan dengan label Indonesia, field bertipe, pilihan catatan berizin, rincian hasil dan tautan kelanjutan. Pencarian pekerjaan menyaring tindakan sesuai mandat. Pengguna tidak memasukkan JSON atau URL API.

@@ -1,5 +1,13 @@
 # Status proyek
 
+**Pembaruan dokumentasi 25 Oktober 2026.** Target proyek adalah aplikasi lokal untuk portfolio dan pengembangan; belum ada rencana deployment. Karena itu, konfigurasi host, SMTP produksi, supervisor, TLS/ACL, backup off-host, pengukuran beban, RPO/RTO, perangkat fisik, dan UAT perusahaan bukan pekerjaan aktif saat ini. Dokumen operasi tetap dipertahankan sebagai panduan jika target berubah.
+
+Backend operasional dan alur domain utama tersedia pada `/app/*`. Ini mencakup autentikasi/MFA, scope, organisasi, karyawan, workflow, cuti, kehadiran, roster, lembur, periode kehadiran, dokumen, lifecycle, aset, payroll draft, reimbursement, impor, laporan, audit, notifikasi, dan pencarian. Kebijakan payroll perusahaan belum tersedia; finalisasi payroll dan ekspor bank tetap sengaja terkunci.
+
+Kualitas visual telah ditingkatkan pada shell Ruang Tim, dashboard, karyawan, organisasi, kehadiran, dan roster. Halaman operasional lain memakai shell/form bersama yang berfungsi, tetapi belum semuanya menerima desain khusus dan verifikasi visual per halaman. `/prototype/*` tetap katalog visual non-transaksional, bukan pengganti aplikasi operasional.
+
+Data dan akun portfolio lokal sengaja tidak masuk repository. Instalasi baru menggunakan provisioning interaktif; `DatabaseSeeder` hanya memanggil seeder lokal opsional bila tersedia di komputer pengembang. Tidak ada password default pada repository.
+
 Pembaruan UI kehadiran/roster: rekap kini berupa tabel waktu efektif, status dan durasi dengan filter/preset tanggal; daftar serta detail roster memakai tabel operasional. Pemeriksaan domain dan render desktop/ponsel dicatat pada HANDOFF.md. Ini melanjutkan perbaikan per halaman, tanpa mengklaim seluruh halaman domain sudah mendapat desain khusus.
 
 **Koreksi status UI 23 Oktober 2026:** backend dan formulir operasional tersedia, tetapi itu tidak berarti kualitas visual seluruh modul telah selesai. Screenshot pengguna mengungkap /app masih memakai shell formulir sederhana, bukan kegagalan pemuatan CSS. Shell bersama kini mengikuti Ruang Tim tanpa sidebar; beranda memakai data berizin/empty state, direktori karyawan dan organisasi memakai tabel operasional. Modul lain mendapat shell/form bersama, tetapi tidak semuanya sudah mempunyai halaman khusus setara prototype atau UAT visual menyeluruh.

@@ -1,5 +1,11 @@
 # Handoff inisialisasi — 20 Oktober 2026
 
+## Pembaruan dokumentasi — 25 Oktober 2026
+
+Dokumentasi masuk diperbarui agar membedakan aplikasi operasional lokal dari katalog `/prototype/*` dan riwayat implementasi lama. README kini menjadi panduan instalasi lokal, provisioning akun, MFA lokal, peta rute, serta pemeriksaan utama. PROJECT_STATUS memperjelas bahwa domain backend tersedia, payroll tetap draft tanpa kebijakan perusahaan, dan perapian visual baru selesai pada shell Ruang Tim, dashboard, karyawan, organisasi, kehadiran, serta roster.
+
+Seeder akun/data portfolio tetap lokal dan diabaikan Git. Repository tidak menyediakan akun atau password default; `hris:provision-account platform_admin --bootstrap --company="Nama Perusahaan"` tetap tersedia untuk instalasi baru. Tidak ada reset database, seeding ulang, perubahan `.env`, atau perubahan layanan eksternal dalam pembaruan dokumentasi ini.
+
 ## 21 Oktober — fondasi approval dan operasi
 
 Mulai pelaksanaan seluruh backend sesuai [BACKEND_DELIVERY.md](BACKEND_DELIVERY.md). Fondasi mesin approval bersama tersedia sebagai layanan dan API sesi/CSRF/MFA; domain tanpa handler nyata tetap ditolak. Ada snapshot kandidat/tahap, idempotency receipts, efek keputusan atomik, blocked/reassign, inbox/outbox/delivery lease, scheduler/reminder dan berkas privat. Payload workflow dienkripsi/tidak diserialisasi. Suspension terpisah diperiksa runtime. Rincian dan batas: [WORKFLOW_OPERATIONS.md](WORKFLOW_OPERATIONS.md). Tes penuh121tes/1858assertions lulus. Domain attendance dan modul setelahnya masih dikerjakan; ini bukan penyelesaian seluruh backend.

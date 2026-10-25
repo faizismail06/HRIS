@@ -135,7 +135,9 @@ components:
 
 Ruang Tim is a light, open workspace with plum actions, neutral dark text, white surfaces, and a barely lavender ground. Its modern character comes from measured spacing, readable type, thin borders, and a small number of clear destinations.
 
-Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed. The current expression includes a read-only dashboard, employee directory, profiles, organization view, schedules, attendance records, requests, leave balances, team availability, employment administration, lifecycle checklists, assets, payroll, reimbursement, attendance reports, period-close illustrations, target settings, audit examples, import previews, notifications, cross-module search, and a catalog of static role/form/state previews with synthetic fixtures; the visual system does not imply operational HR capabilities.
+Information has room to breathe while repeated tasks remain easy to scan. Quiet local states and native disclosures reveal context where it is needed.
+
+The design has two explicitly separate surfaces. The **operational workspace** at `/app/*` is connected to domain services and currently has dedicated Ruang Tim layouts for the dashboard, employee directory, organization, attendance recap, and roster. The remaining operational forms use the same shell and shared controls while their page-specific visual refinement continues. The **static catalog** at `/prototype/*` is a read-only design reference with synthetic fixtures; it never represents an operational transaction or a substitute for the live workspace.
 
 **Key Characteristics:**
 
@@ -334,7 +336,7 @@ The twelve examples cover empty, nonanimated loading, error, forbidden, stale, q
 
 Forbidden, expired and not-found examples withhold record payloads. Stale state identifies V1 versus V2 before further review. The loading skeleton is static and never implies an active background request. Scenario-reset confirmation identifies the allowed example scope and keeps its control disabled; success and queued examples do not prove persistence, export or processing. No login, uploads, device access, reset, payment or other mutation runs from these pages.
 
-The core static implementation inventory is complete for this stage; browser QA remains incomplete. A direct in-app browser attempt returned “Browser is not available: iab”; there are no screenshots or visual/accessibility approval. See `docs/static-completion-surface.md`, `docs/STATIC_SCREENS.md` and `docs/PROJECT_STATUS.md` for coverage and the distinction from backend/domain completion.
+The core static implementation inventory is complete for this stage; browser QA for the full static catalog remains incomplete. Selected live pages (dashboard, directory/form states, attendance, and roster) have been rendered in Chrome headless at desktop and narrow viewports, but that is not a visual or accessibility approval of every route. See `docs/static-completion-surface.md`, `docs/STATIC_SCREENS.md` and `docs/PROJECT_STATUS.md` for coverage and the distinction from backend/domain completion.
 
 ### Focus and motion
 

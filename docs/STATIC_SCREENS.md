@@ -1,6 +1,6 @@
 # Inventaris visual statis
 
-Cakupan layar implementasi, bukan penerimaan domain R0–R3. Semua route memerlukan preview local/testing. Form/kontrol statis tidak menyimpan atau mengirim data. Review visual browser masih tertunda.
+Cakupan layar implementasi, bukan penerimaan domain R0–R3. Semua route memerlukan preview local/testing. Form/kontrol statis tidak menyimpan atau mengirim data. Review visual browser untuk katalog statis secara penuh masih tertunda; ini terpisah dari pemeriksaan Chrome pada beberapa halaman operasional `/app/*`.
 
 Pintu masuk: [Panduan layar](http://127.0.0.1:8000/prototype/screens).
 

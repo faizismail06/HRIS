@@ -1,7 +1,5 @@
 # Integrated Operational HRIS
 
-Fondasi proyek berdasarkan [PRD Indonesia](PRD_HRIS_ID.md) dan [PRD English](PRD_HRIS_EN.md). Saat ini baru inisialisasi: halaman bawaan Laravel dipertahankan; UI HRIS, autentikasi, izin, demo dan modul bisnis belum diimplementasikan.
-
 ## Stack
 
 Laravel 13 + Livewire 4, Blade, Tailwind CSS 4, Vite dan PostgreSQL. Versi patch dikunci di composer.lock dan package-lock.json.
